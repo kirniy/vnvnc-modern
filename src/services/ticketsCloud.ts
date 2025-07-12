@@ -218,24 +218,14 @@ class TicketsCloudService {
           .replace(/<br>\s*<br>/g, '<br>');
         return descHTML.replace(/<script/gi, '&lt;script');
       })(),
-      date: eventDate ? eventDate.toLocaleDateString('ru-RU', {
+      date: eventDate ? new Date(eventDate.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
       }) : 'Дата не указана',
-      time: eventDate ? eventDate.toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : 'Время не указано',
-      location: 'VNVNC',
-      price: (() => {
-        if (prices.length > 0) {
-          const min = Math.min(...prices)
-          return 'от ' + Intl.NumberFormat('ru-RU').format(min) + ' ₽'
-        } else {
-          return 'Цена по запросу'
-        }
-      })(),
+      time: '',
+      location: '',
+      price: '',
       image: posterImage,
       attendees: 0,
       venue: 'VNVNC',

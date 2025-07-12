@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, Clock, Users, ArrowLeft, ShoppingCart } from 'lucide-react'
+import { Calendar, ArrowLeft, ShoppingCart } from 'lucide-react'
 import { ticketsCloudService } from '../services/ticketsCloud'
 
 const EventDetailPage = () => {
@@ -99,18 +99,6 @@ const EventDetailPage = () => {
                     <Calendar className="text-red-500" size={20} />
                     <span className="text-white">{event.date}</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Clock className="text-red-500" size={20} />
-                    <span className="text-white">{event.time}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="text-red-500" size={20} />
-                    <span className="text-white">{event.location}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Users className="text-red-500" size={20} />
-                    <span className="text-white">{event.age_rating ? `${event.age_rating}+` : 'Все возрасты'}</span>
-                  </div>
                 </div>
               </motion.div>
             </div>
@@ -123,11 +111,6 @@ const EventDetailPage = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-gray-900 rounded-2xl p-8 sticky top-8"
               >
-                <h3 className="text-xl font-bold text-white mb-4">Цены</h3>
-                <div className="text-3xl font-bold text-red-500 mb-6">
-                  {event.price}
-                </div>
-                
                 <motion.a 
                   href="#"
                   whileHover={{ scale: 1.02 }}
@@ -142,12 +125,6 @@ const EventDetailPage = () => {
                   <ShoppingCart size={20} />
                   Купить билет
                 </motion.a>
-                
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-white/70">
-                    Бронирование столиков доступно
-                  </p>
-                </div>
               </motion.div>
             </div>
           </div>

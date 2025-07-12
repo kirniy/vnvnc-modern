@@ -100,7 +100,7 @@ const ModernHero = () => {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center gap-2"
         >
-          <span className="text-sm text-gray-400">Scroll to explore</span>
+          <span className="text-sm text-gray-400">Подробнее</span>
           <ChevronDown size={24} className="text-gray-400" />
         </motion.div>
       </motion.div>
