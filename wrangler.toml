@@ -1,0 +1,4 @@
+name = "vnvnc-cors-proxy"
+main = "cloudflare-worker.js"
+compatibility_date = "2025-07-12"
+compatibility_flags = ["nodejs_compat"]
