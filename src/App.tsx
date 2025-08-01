@@ -2,8 +2,10 @@ import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
+// import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
 import LoadingSpinner from './components/LoadingSpinner'
-import BackgroundWrapper from './components/BackgroundWrapper'
+import AgeGate from './components/AgeGate'
+import TelegramButton from './components/TelegramButton'
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -12,10 +14,14 @@ const EventDetailPage = lazy(() => import('./pages/EventDetailPage'))
 const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
+const RulesPage = lazy(() => import('./pages/RulesPage'))
+const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
 function App() {
   return (
-    <BackgroundWrapper>
+    <>
+      <AgeGate />
+      {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
       
       <main className="relative">
@@ -24,15 +30,18 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
+            <Route path="/e/:slug" element={<ShortUrlRedirect />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/reservations" element={<ReservationsPage />} />
+            <Route path="/rules" element={<RulesPage />} />
           </Routes>
         </Suspense>
       </main>
       
       <Footer />
-    </BackgroundWrapper>
+      <TelegramButton />
+    </>
   )
 }
 

@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
 import { ChevronDown, Calendar, Ticket, MapPin } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { colors } from '../utils/colors'
 
 const ModernHero = () => {
 
@@ -19,8 +21,27 @@ const ModernHero = () => {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
-      {/* Grid overlay - more subtle */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:50px_50px]" />
+      {/* Grid overlay with dots pattern like reference */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      </div>
+
+      {/* Animated gradient overlay */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{
+          background: [
+            `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+            `radial-gradient(circle at 80% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+            `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+          ],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
 
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-4">
@@ -30,38 +51,115 @@ const ModernHero = () => {
           transition={{ duration: 1, delay: 0.2 }}
           className="space-y-8"
         >
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
-            <span className="text-white">VNVNC</span>
-          </h1>
+          {/* Enhanced VNVNC Branding */}
+          <div className="relative">
+            {/* Background glow effect */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div 
+                className="w-full h-32 md:h-48"
+                style={{
+                  background: `radial-gradient(ellipse at center, ${colors.neon.red}40 0%, transparent 70%)`,
+                  filter: 'blur(40px)',
+                  transform: 'scale(1.5)',
+                }}
+              />
+            </div>
+            
+            {/* Main logo with enhanced styling */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="relative flex justify-center"
+            >
+              <img 
+                src="/logo.png" 
+                alt="VNVNC" 
+                className="h-24 md:h-32 lg:h-40 w-auto"
+                style={{ 
+                  filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 20px ${colors.neon.red}) drop-shadow(0 0 40px ${colors.neon.red})`
+                }}
+              />
+            </motion.div>
+            
+            {/* Subtle underline effect */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="h-0.5 w-32 md:w-48 mx-auto mt-4"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${colors.neon.red}, transparent)`,
+                boxShadow: `0 0 20px ${colors.neon.red}`,
+              }}
+            />
+          </div>
 
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-            Эпицентр ночной жизни Санкт-Петербурга
-          </p>
+          {/* Enhanced tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-2"
+          >
+            <p className="text-xl md:text-2xl text-white/90 font-light tracking-wide">
+              Эпицентр ночной жизни Санкт-Петербурга
+            </p>
+            <p className="text-sm md:text-base uppercase tracking-[0.3em] font-semibold"
+               style={{ color: colors.neon.red }}>
+              Concert Hall
+            </p>
+          </motion.div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-red-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-red-700 transition-all duration-300 flex items-center gap-2"
-            >
-              <Calendar size={20} />
-              Афиша
-            </motion.button>
+            <Link to="/events">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-2 backdrop-blur-sm border border-white/10"
+                style={{ 
+                  backgroundColor: colors.neon.red,
+                  boxShadow: `0 4px 20px ${colors.neon.red}66`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = `0 8px 30px ${colors.neon.red}99`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = `0 4px 20px ${colors.neon.red}66`
+                }}
+              >
+                <Calendar size={20} />
+                Афиша
+              </motion.button>
+            </Link>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2"
-            >
-              <Ticket size={20} />
-              Бронировать стол
-            </motion.button>
+            <Link to="/reservations">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
+              >
+                <Ticket size={20} />
+                Бронировать стол
+              </motion.button>
+            </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-gray-400">
-            <MapPin size={16} />
-            <span>Конюшенная площадь 2В, Санкт-Петербург</span>
-          </div>
+          {/* Enhanced location display */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex items-center justify-center gap-2"
+          >
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10"
+                 style={{ backgroundColor: colors.glass.white }}>
+              <MapPin size={16} style={{ color: colors.neon.red }} />
+              <span className="text-white/80 text-sm">Конюшенная площадь 2В, Санкт-Петербург</span>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Floating particles */}
@@ -69,7 +167,8 @@ const ModernHero = () => {
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-red-500/30 rounded-full"
+              className="absolute w-1 h-1 rounded-full"
+              style={{ backgroundColor: `${colors.neon.red}30` }}
               initial={{
                 x: Math.random() * window.innerWidth,
                 y: Math.random() * window.innerHeight,

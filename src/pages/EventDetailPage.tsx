@@ -1,11 +1,19 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
-import { Calendar, ArrowLeft, ShoppingCart } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2 } from 'lucide-react'
+import Lightbox from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
 import { ticketsCloudService } from '../services/ticketsCloud'
+import { colors } from '../utils/colors'
+import CountdownTimer from '../components/CountdownTimer'
+import DitherBackground from '../components/DitherBackground'
 
 const EventDetailPage = () => {
   const { id } = useParams<{ id: string }>()
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [showShareTooltip, setShowShareTooltip] = useState(false)
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', id],
@@ -13,6 +21,64 @@ const EventDetailPage = () => {
       return await ticketsCloudService.getEventDetails(id || '')
     },
   })
+  
+  // Generate slug from event title
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[а-яё]/g, (match) => {
+        const cyrillicToLatin: { [key: string]: string } = {
+          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+          'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+          'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+          'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
+          'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+        }
+        return cyrillicToLatin[match] || match
+      })
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 30)
+  }
+  
+  // Handle share functionality
+  const handleShare = async () => {
+    if (!event) return
+    
+    const baseUrl = window.location.origin
+    const slug = generateSlug(event.title)
+    
+    // Extract date from event.rawDate which is more reliable
+    let dateSlug = ''
+    if (event.rawDate) {
+      const eventDate = new Date(event.rawDate)
+      const day = eventDate.getDate().toString().padStart(2, '0')
+      const month = (eventDate.getMonth() + 1).toString().padStart(2, '0')
+      const year = eventDate.getFullYear().toString().slice(-2)
+      dateSlug = `${day}-${month}-${year}`
+    }
+    
+    // Create short URL in format: /e/new-faces-02-08-25
+    const shortUrl = dateSlug 
+      ? `${baseUrl}/e/${slug}-${dateSlug}`
+      : `${baseUrl}/e/${slug}-${id?.substring(0, 8)}`
+    
+    try {
+      await navigator.clipboard.writeText(shortUrl)
+      setShowShareTooltip(true)
+      setTimeout(() => setShowShareTooltip(false), 2000)
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea')
+      textArea.value = shortUrl
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setShowShareTooltip(true)
+      setTimeout(() => setShowShareTooltip(false), 2000)
+    }
+  }
   
 
   if (isLoading) {
@@ -40,9 +106,12 @@ const EventDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+    <div className="min-h-screen bg-black relative">
+      <DitherBackground />
+      {/* Content wrapper with higher z-index */}
+      <div className="relative z-10">
+        {/* Hero Section */}
+        <section className="relative h-96 overflow-visible">
         <img
           src={event.image}
           alt={event.title}
@@ -51,7 +120,7 @@ const EventDetailPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
         
         <div className="absolute inset-0 flex items-end">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
             <Link
               to="/events"
               className="inline-flex items-center space-x-2 text-white hover:text-red-500 mb-4"
@@ -60,13 +129,68 @@ const EventDetailPage = () => {
               <span>Назад к афише</span>
             </Link>
             
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-bold text-white"
-            >
-              {event.title}
-            </motion.h1>
+            <div className="flex items-end justify-between gap-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-4xl md:text-6xl font-bold text-white flex-1"
+              >
+                {event.title}
+              </motion.h1>
+              
+              {/* Share Button */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="relative"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleShare}
+                  className="p-3 rounded-full backdrop-blur-md border border-white/20 transition-all duration-300 group"
+                  style={{ 
+                    backgroundColor: colors.glass.white,
+                    boxShadow: `0 4px 20px rgba(0,0,0,0.3)`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.glass.whiteHover
+                    e.currentTarget.style.borderColor = colors.neon.red + '44'
+                    e.currentTarget.style.boxShadow = `0 6px 30px ${colors.neon.red}33`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.glass.white
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+                    e.currentTarget.style.boxShadow = `0 4px 20px rgba(0,0,0,0.3)`
+                  }}
+                >
+                  <Share2 size={24} className="text-white group-hover:text-red-400 transition-colors" />
+                </motion.button>
+                
+                {/* Tooltip */}
+                <AnimatePresence>
+                  {showShareTooltip && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full mt-2 right-0 px-3 py-2 rounded-lg backdrop-blur-md border border-white/20 whitespace-nowrap z-50"
+                      style={{ 
+                        backgroundColor: colors.glass.dark,
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                      }}
+                    >
+                      <span className="text-white text-sm">Ссылка скопирована!</span>
+                      <div 
+                        className="absolute -top-1 right-4 w-2 h-2 rotate-45 border-t border-l border-white/20"
+                        style={{ backgroundColor: colors.glass.dark }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -74,62 +198,251 @@ const EventDetailPage = () => {
       {/* Event Details */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-900 rounded-2xl p-8"
-              >
-                <h2 className="text-2xl font-bold text-white mb-4">О мероприятии</h2>
-                <p className="text-white leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
-              </motion.div>
-
-              {/* Event Info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-gray-900 rounded-2xl p-8 mt-8"
-              >
-                <h3 className="text-xl font-bold text-white mb-4">Информация</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="text-red-500" size={20} />
-                    <span className="text-white">{event.date}</span>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-gray-900 rounded-2xl p-8 sticky top-8"
-              >
+          {/* About Event with Poster */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="backdrop-blur-lg rounded-3xl p-8 mb-8 border border-white/10"
+            style={{ backgroundColor: colors.glass.dark }}
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">О мероприятии</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Description */}
+              <div className="order-2 md:order-1 space-y-6">
+                <p className="text-white/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
+                
+                {/* Prominent Ticket Button - positioned where marked in green */}
                 <motion.a 
                   href="#"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="ticketscloud-widget w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 text-white relative overflow-hidden group"
+                  style={{ 
+                    backgroundColor: colors.neon.red,
+                    boxShadow: `0 8px 30px ${colors.neon.red}77`
+                  }}
                   data-tc-event={event.id}
                   data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
                   data-tc-lang="ru"
                   data-tc-mini="1"
                   data-tc-style="1"
                 >
-                  <ShoppingCart size={20} />
-                  Купить билет
+                  {/* Animated background pulse */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 animate-pulse" 
+                         style={{ 
+                           background: `radial-gradient(circle at center, ${colors.neon.red}44 0%, transparent 70%)`
+                         }} />
+                  </div>
+                  
+                  <ShoppingCart size={24} className="relative z-10" />
+                  <span className="relative z-10">ТИКЕТЫ</span>
+                  
+                  {/* Price badge */}
+                  {event.price && (
+                    <span className="ml-2 px-3 py-1 rounded-full text-sm relative z-10"
+                          style={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            backdropFilter: 'blur(10px)'
+                          }}>
+                      {event.price}
+                    </span>
+                  )}
                 </motion.a>
-              </motion.div>
+              </div>
+              
+              {/* Poster - scaled to match description height */}
+              <div className="order-1 md:order-2 flex items-start">
+                <div className="w-full max-w-md mx-auto">
+                  <div 
+                    className="relative rounded-2xl overflow-hidden cursor-pointer group"
+                    onClick={() => setLightboxOpen(true)}
+                  >
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-auto rounded-2xl transition-all duration-500 group-hover:scale-105"
+                      style={{ maxHeight: '500px', objectFit: 'contain', backgroundColor: colors.glass.darker }}
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="p-3 rounded-full backdrop-blur-md" style={{ backgroundColor: colors.glass.white }}>
+                        <Maximize2 size={24} className="text-white" />
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
+                         style={{ 
+                           boxShadow: `0 0 30px ${colors.neon.red}44, inset 0 0 30px ${colors.neon.red}22`
+                         }} />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Info and Tickets */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="backdrop-blur-lg rounded-3xl p-8 border border-white/10 relative overflow-hidden"
+            style={{ backgroundColor: colors.glass.dark }}
+          >
+            {/* Subtle gradient background */}
+            <div className="absolute inset-0 opacity-30 pointer-events-none"
+                 style={{ 
+                   background: `radial-gradient(circle at top right, ${colors.neon.red}22 0%, transparent 50%)`
+                 }} />
+            
+            <h3 className="text-2xl font-bold text-white mb-8 relative">Информация о мероприятии</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Event Info */}
+              <div className="space-y-6">
+                <div className="group">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
+                         style={{ backgroundColor: colors.glass.darker }}>
+                      <Calendar className="text-red-500" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-white/60 text-sm mb-1">Дата</p>
+                      <p className="text-white text-lg font-medium">{event.date}</p>
+                      {event.rawDate && (
+                        <p className="text-red-400 text-sm mt-1 font-medium">
+                          {(() => {
+                            const moscowDate = new Date(event.rawDate).toLocaleDateString('ru-RU', {
+                              weekday: 'long',
+                              timeZone: 'Europe/Moscow'
+                            });
+                            return moscowDate.charAt(0).toUpperCase() + moscowDate.slice(1);
+                          })()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {event.time && (
+                  <div className="group">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
+                           style={{ backgroundColor: colors.glass.darker }}>
+                        <Clock className="text-red-500" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-white/60 text-sm mb-1">Время</p>
+                        <p className="text-white text-lg font-medium">{event.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {event.location && (
+                  <div className="group">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
+                           style={{ backgroundColor: colors.glass.darker }}>
+                        <MapPin className="text-red-500" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-white/60 text-sm mb-1">Место</p>
+                        <p className="text-white text-lg font-medium">{event.location}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {event.age_rating && (
+                  <div className="group">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
+                           style={{ backgroundColor: colors.glass.darker }}>
+                        <span className="text-red-500 text-xl font-bold">{event.age_rating}+</span>
+                      </div>
+                      <div>
+                        <p className="text-white/60 text-sm mb-1">Возрастное ограничение</p>
+                        <p className="text-white text-lg font-medium">Для лиц старше {event.age_rating} лет</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Countdown Timer */}
+                {event.rawDate && new Date(event.rawDate) > new Date() && (
+                  <div className="group mt-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
+                           style={{ backgroundColor: colors.glass.darker }}>
+                        <Clock className="text-red-500 animate-pulse" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-white/60 text-sm mb-2">До начала события</p>
+                        <CountdownTimer targetDate={new Date(event.rawDate)} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Tickets Button - Enhanced with animation */}
+              <div className="flex items-start justify-end">
+                <div className="relative">
+                  {/* Animated ring - slower and contained */}
+                  <div className="absolute inset-0 rounded-full pointer-events-none" 
+                       style={{ 
+                         backgroundColor: colors.neon.red,
+                         opacity: 0.2,
+                         animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                         transform: 'scale(1.1)'
+                       }} />
+                  
+                  <motion.a 
+                    href="#"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="ticketscloud-widget relative px-10 py-5 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 text-white group overflow-hidden"
+                    style={{ 
+                      backgroundColor: colors.neon.red,
+                      boxShadow: `0 8px 40px ${colors.neon.red}88`,
+                      border: `2px solid ${colors.neon.red}`
+                    }}
+                    data-tc-event={event.id}
+                    data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
+                    data-tc-lang="ru"
+                    data-tc-mini="1"
+                    data-tc-style="1"
+                  >
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 -top-2 -bottom-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer" />
+                    </div>
+                    
+                    <ShoppingCart size={24} className="relative z-10" />
+                    <span className="relative z-10">ТИКЕТЫ</span>
+                    
+                    {/* Arrow animation on hover */}
+                    <motion.span
+                      className="relative z-10 ml-1"
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 3 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      →
+                    </motion.span>
+                  </motion.a>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
+
+      {/* Lightbox */}
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        slides={[{ src: event.image }]}
+        styles={{
+          container: { backgroundColor: 'rgba(0, 0, 0, 0.95)' },
+        }}
+      />
+      </div>
     </div>
   )
 }

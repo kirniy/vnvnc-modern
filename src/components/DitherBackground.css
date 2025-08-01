@@ -1,0 +1,30 @@
+.dither-background-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.dither-background-wrapper {
+  position: absolute;
+  inset: 0;
+  will-change: filter, opacity;
+}
+
+/* Ensure canvas doesn't cause reflows */
+.dither-container {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Force GPU acceleration */
+.dither-background-wrapper canvas {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

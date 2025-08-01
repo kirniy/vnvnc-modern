@@ -312,11 +312,14 @@ export default function Dither({
     <Canvas
       className="dither-container"
       camera={{ position: [0, 0, 6] }}
-      dpr={Math.min(window.devicePixelRatio, 2)} // Limit DPR for performance
+      dpr={1} // Force DPR to 1 for better performance
       gl={{ 
         antialias: false, // Disable antialiasing for performance
-        preserveDrawingBuffer: true,
-        powerPreference: "low-power" // Use low power mode
+        preserveDrawingBuffer: false, // Better performance
+        powerPreference: "low-power", // Use low power mode
+        alpha: false, // No transparency needed
+        stencil: false, // Not needed
+        depth: false // Not needed for 2D effect
       }}
     >
       <DitheredWaves

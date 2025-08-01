@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { ticketsCloudService } from '../services/ticketsCloud'
-import ModernEventCard from '../components/ModernEventCard'
+import EventCardNew from '../components/EventCardNew'
+import DitherBackground from '../components/DitherBackground'
 
 const EventsPage = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'archive'>('current')
@@ -41,8 +42,10 @@ const EventsPage = () => {
     .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-black relative">
+      {/* Dither Background */}
+      <DitherBackground />
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -83,11 +86,11 @@ const EventsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {activeTab === 'current' ? (
             currentEvents.map((event: any, index: number) => (
-              <ModernEventCard key={event.id} event={event} index={index} />
+              <EventCardNew key={event.id} event={event} index={index} />
             ))
           ) : (
             archiveEvents.map((event: any, index: number) => (
-              <ModernEventCard key={event.id} event={event} index={index} />
+              <EventCardNew key={event.id} event={event} index={index} />
             ))
           )}
         </div>

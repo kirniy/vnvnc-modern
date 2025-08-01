@@ -218,10 +218,11 @@ class TicketsCloudService {
           .replace(/<br>\s*<br>/g, '<br>');
         return descHTML.replace(/<script/gi, '&lt;script');
       })(),
-      date: eventDate ? new Date(eventDate.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU', {
+      date: eventDate ? eventDate.toLocaleDateString('ru-RU', {
         day: 'numeric',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'Europe/Moscow'
       }) : 'Дата не указана',
       time: '',
       location: '',

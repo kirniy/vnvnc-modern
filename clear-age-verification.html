@@ -1,0 +1,19 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Age Verification</title>
+</head>
+<body>
+    <h1>Clear Age Verification</h1>
+    <button onclick="clearAgeVerification()">Clear Age Verification</button>
+    <p id="status"></p>
+    
+    <script>
+        function clearAgeVerification() {
+            localStorage.removeItem('vnvnc_age_verified');
+            document.getElementById('status').innerText = 'Age verification cleared\! Please refresh the VNVNC website.';
+        }
+    </script>
+</body>
+</html>
+EOF < /dev/null

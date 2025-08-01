@@ -1,35 +1,59 @@
-import { MapPin, Phone, Clock } from 'lucide-react'
+import { MapPin, Phone, Clock, Bot } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { FaTelegram, FaInstagram, FaVk } from 'react-icons/fa'
+import NeonText from './ui/NeonText'
+import { colors } from '../utils/colors'
+import Dither from './Dither'
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="relative bg-black border-t border-white/10 text-white overflow-hidden">
+      {/* Dithering background matching the rest of the site */}
+      <div className="absolute inset-0 overflow-hidden" style={{ zIndex: 0 }}>
+        <div className="absolute inset-0" style={{ 
+          filter: 'blur(6px)', 
+          opacity: 0.6,
+          transform: 'scale(1.1)'
+        }}>
+          <Dither
+            waveColor={[0.6, 0.15, 0.15]} // Red and black only, no white
+            disableAnimation={false}
+            enableMouseInteraction={false}
+            mouseRadius={0.3}
+            colorNum={3} // Less colors to avoid white
+            waveAmplitude={0.35}
+            waveFrequency={3.0}
+            waveSpeed={0.01}
+            pixelSize={2} // Same small grain as everywhere else
+          />
+        </div>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="space-y-4"
+            className=""
           >
-            <h3 className="text-xl font-bold text-primary-500">Контакты</h3>
-            <div className="space-y-2">
+            <NeonText variant="red" size="xl" className="mb-8">Контакты</NeonText>
+            <div className="space-y-3">
               <a
                 href="https://yandex.ru/maps/-/CHDQRW0Z"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 hover:text-red-400 transition-colors"
+                className="flex items-start space-x-3 hover:text-red-400 transition-colors group"
               >
-                <MapPin size={16} className="text-red-500" />
-                <span className="underline">Конюшенная площадь 2B, Санкт-Петербург</span>
+                <MapPin size={16} style={{ color: colors.neon.red }} className="mt-0.5 flex-shrink-0" />
+                <span className="underline transition-colors hover:opacity-80">Конюшенная площадь 2B, Санкт-Петербург</span>
               </a>
-              <div className="flex items-center space-x-2">
-                <Phone size={16} className="text-primary-500" />
+              <div className="flex items-center space-x-3">
+                <Phone size={16} style={{ color: colors.neon.red }} className="flex-shrink-0" />
                 <span>+7 (921) 410-44-40</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Clock size={16} className="text-primary-500" />
+              <div className="flex items-center space-x-3">
+                <Clock size={16} style={{ color: colors.neon.red }} className="flex-shrink-0" />
                 <span>Пт-Сб: 23:00-06:00</span>
               </div>
             </div>
@@ -40,14 +64,15 @@ const Footer = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4"
+            className=""
           >
-            <h3 className="text-xl font-bold text-primary-500">Быстрые ссылки</h3>
-            <div className="space-y-2">
-              <a href="/events" className="block hover:text-primary-500 transition-colors">Афиша</a>
-              <a href="/gallery" className="block hover:text-primary-500 transition-colors">Галерея</a>
-              <a href="/reservations" className="block hover:text-primary-500 transition-colors">Бронирование</a>
-              <a href="/contact" className="block hover:text-primary-500 transition-colors">Контакты</a>
+            <NeonText variant="red" size="xl" className="mb-8">Быстрые ссылки</NeonText>
+            <div className="space-y-3">
+              <a href="/events" className="block transition-colors hover:opacity-80">Афиша</a>
+              <a href="/gallery" className="block transition-colors hover:opacity-80">Галерея</a>
+              <a href="/reservations" className="block transition-colors hover:opacity-80">Бронирование</a>
+              <a href="/rules" className="block transition-colors hover:opacity-80">Правила</a>
+              <a href="/contact" className="block transition-colors hover:opacity-80">Контакты</a>
             </div>
           </motion.div>
 
@@ -56,33 +81,94 @@ const Footer = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="space-y-4"
+            className=""
           >
-            <h3 className="text-xl font-bold text-primary-500">Социальные сети</h3>
-            <div className="flex space-x-4">
+            <NeonText variant="red" size="xl" className="mb-8">Социальные сети</NeonText>
+            <div className="grid grid-cols-4 gap-3 max-w-[240px]">
               <a 
-                href="https://vk.com/vnvnc" 
+                href="https://vk.com/vnvnc_spb" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-primary-500 transition-colors"
+                className="p-3 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                style={{ 
+                  backgroundColor: colors.glass.white
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.neon.red}33`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${colors.neon.red}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.glass.white;
+                  e.currentTarget.style.boxShadow = '';
+                }}
               >
-                VK
+                <FaVk size={24} className="text-white" />
               </a>
               <a 
-                href="https://www.instagram.com/vnvnc_concerthall/" 
+                href="https://instagram.com/vnvnc_spb" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-primary-500 transition-colors"
+                className="p-3 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                style={{ 
+                  backgroundColor: colors.glass.white
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.neon.red}33`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${colors.neon.red}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.glass.white;
+                  e.currentTarget.style.boxShadow = '';
+                }}
               >
-                Instagram
+                <FaInstagram size={24} className="text-white" />
+              </a>
+              <a 
+                href="https://t.me/vnvnc_spb" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                style={{ 
+                  backgroundColor: colors.glass.white
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.neon.red}33`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${colors.neon.red}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.glass.white;
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
+                <FaTelegram size={24} className="text-white" />
+              </a>
+              <a 
+                href="https://t.me/vnvncbattlebot" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 backdrop-blur-sm rounded-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                style={{ 
+                  backgroundColor: colors.glass.white
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.neon.red}33`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${colors.neon.red}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.glass.white;
+                  e.currentTarget.style.boxShadow = '';
+                }}
+                title="Battle Bot"
+              >
+                <Bot size={24} className="text-white" />
               </a>
             </div>
           </motion.div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-          <p className="text-gray-400">
-            © 2024 VNVNC. Официальный сайт.
+        <div className="mt-12 pt-8 border-t border-white/10 text-center">
+          <p className="text-white/60">
+            © {new Date().getFullYear()} <img src="/logo.png" alt="VNVNC" className="inline-block h-4 w-auto mx-1" style={{ filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%)` }} />. Официальный сайт.
           </p>
         </div>
       </div>
