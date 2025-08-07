@@ -6,7 +6,7 @@ import { colors } from '../utils/colors'
 import Button from '../components/ui/Button'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
-import DitherBackground from '../components/DitherBackground'
+// Убрали DitherBackground
 import { api } from '../services/api'
 
 const ReservationsPage = () => {
@@ -123,7 +123,6 @@ const ReservationsPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <DitherBackground />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         {/* Header */}
         <motion.div

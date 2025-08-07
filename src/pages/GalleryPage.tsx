@@ -4,7 +4,7 @@ import { Camera, Sparkles, Grid3x3, Maximize2 } from 'lucide-react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { colors } from '../utils/colors'
-import DitherBackground from '../components/DitherBackground'
+// Убрали DitherBackground
 
 // Gallery images - in a real app, these would come from an API
 const galleryImages = [
@@ -82,7 +82,6 @@ const GalleryPage = () => {
 
   return (
     <div className="min-h-screen text-white pt-20 relative">
-      <DitherBackground />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         {/* Header */}
         <motion.div

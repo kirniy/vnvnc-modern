@@ -3,7 +3,7 @@ import { Shield, AlertTriangle, Heart, Sparkles } from 'lucide-react'
 import { colors } from '../utils/colors'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
-import DitherBackground from '../components/DitherBackground'
+// Убрали DitherBackground
 
 const RulesPage = () => {
   const rulesItems = [
@@ -45,7 +45,6 @@ const RulesPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <DitherBackground />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         {/* Header */}
         <motion.div

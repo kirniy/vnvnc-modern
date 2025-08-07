@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, ArrowRight } from 'lucide-react'
 import { ticketsCloudService } from '../services/ticketsCloud'
-import ModernHero from '../components/ModernHero'
+import LiquidHero from '../components/LiquidHero'
 import EventCardNew from '../components/EventCardNew'
 import { colors } from '../utils/colors'
 // Убрали DitherBackground — по фидбеку
@@ -41,7 +41,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <ModernHero />
+      <LiquidHero />
       
       {/* Upcoming Events Section */}
       <section className="py-16 relative">

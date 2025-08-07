@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { colors } from '../utils/colors'
 import Button from '../components/ui/Button'
 import NeonText from '../components/ui/NeonText'
-import DitherBackground from '../components/DitherBackground'
+// Убрали DitherBackground
 import { api } from '../services/api'
 
 const ContactPage = () => {
@@ -70,7 +70,6 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <DitherBackground />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

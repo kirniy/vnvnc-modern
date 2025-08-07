@@ -4,7 +4,7 @@ import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
-import DitherBackground from '../components/DitherBackground'
+// Dither удалён по фидбеку
 
 const EventsPage = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'archive'>('current')
@@ -49,8 +49,6 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen bg-black relative">
-      {/* Dither Background */}
-      <DitherBackground />
       <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
