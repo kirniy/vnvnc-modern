@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, Ticket } from 'lucide-react'
-import Button from './ui/Button'
+import BratButton from './ui/BratButton'
+import BackgroundFX from './BackgroundFX'
 import { colors } from '../utils/colors'
 
 type Point = { x: number; y: number }
@@ -55,6 +56,8 @@ const LiquidHero = () => {
               'radial-gradient(circle at 30% 20%, rgba(255,0,64,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255,0,64,0.05) 0%, transparent 50%)',
           }}
         />
+        {/* BRAT‑style FX */}
+        <BackgroundFX intensity={1} />
       </div>
 
       {/* Liquid SVG headline */}
@@ -117,14 +120,14 @@ const LiquidHero = () => {
         {/* CTA buttons */}
         <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link to="/events">
-            <Button variant="glass" size="lg" className="!px-8 !py-4 !text-base border border-white/40">
+            <BratButton>
               <Calendar size={18} /> афиша
-            </Button>
+            </BratButton>
           </Link>
           <Link to="/reservations">
-            <Button variant="glass" size="lg" className="!px-8 !py-4 !text-base border border-white/40">
+            <BratButton>
               <Ticket size={18} /> бронировать стол
-            </Button>
+            </BratButton>
           </Link>
         </div>
       </div>
