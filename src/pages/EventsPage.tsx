@@ -56,8 +56,8 @@ const EventsPage = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold text-white mb-4">Мероприятия</h1>
-          <p className="text-xl text-white/70">Все события в VNVNC</p>
+          <h1 className="text-5xl font-bold text-white mb-4"><span className="text-stretch-y-120 inline-block">мероприятия</span></h1>
+          <p className="text-xl text-white/70"><span className="text-stretch-y-110 inline-block">все события в vnvnc</span></p>
         </motion.div>
 
         {/* Tab Navigation */}

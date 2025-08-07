@@ -104,7 +104,15 @@ const LiquidHero = () => {
 
           <g clipPath="url(#headlineClip)">
             <g filter="url(#liquid)">
-              <text x="80" y="510" fontSize="260" fontFamily="Unbounded, Bebas Neue, Impact, sans-serif" letterSpacing="10" fill="url(#accentGradient)">
+              <text
+                x={viewBox.w / 2}
+                y={viewBox.h / 2 + 40}
+                textAnchor="middle"
+                fontSize="260"
+                fontFamily="Unbounded, Bebas Neue, Impact, sans-serif"
+                letterSpacing="10"
+                fill="url(#accentGradient)"
+              >
                 VNVNC
               </text>
             </g>

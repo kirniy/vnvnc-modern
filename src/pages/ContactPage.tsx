@@ -78,7 +78,7 @@ const ContactPage = () => {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            Контакты <NeonText variant="red" size="3xl" glow>VNVNC</NeonText>
+            <span className="text-stretch-y-140 inline-block">контакты</span> <NeonText variant="red" size="3xl" glow className="text-stretch-y-120 inline-block">vnvnc</NeonText>
           </h1>
           <p className="text-xl text-white/80">
             Свяжитесь с нами для бронирования и вопросов

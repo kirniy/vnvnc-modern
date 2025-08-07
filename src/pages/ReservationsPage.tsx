@@ -132,10 +132,10 @@ const ReservationsPage = () => {
           className="text-center mb-16"
         >
           <h1 className="text-4xl md:text-6xl font-bold text-white">
-            Бронирование <NeonText variant="red" size="5xl" glow>столов</NeonText>
+            <span className="text-stretch-y-140 inline-block">бронирование</span> <NeonText variant="red" size="5xl" glow className="text-stretch-y-120 inline-block">столов</NeonText>
           </h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Забронируйте лучшие места в клубе с VIP-входом без очереди
+          <p className="text-xl text-white/80 max-w-2xl mx-auto text-stretch-y-110">
+            забронируйте лучшие места в клубе с vip‑входом без очереди
           </p>
         </motion.div>
 

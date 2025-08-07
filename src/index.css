@@ -175,6 +175,11 @@
 }
 
 @layer utilities {
+  /* Утилита для вертикального растяжения букв под gonzo */
+  .text-stretch-y-110 { transform: scaleY(1.1); display: inline-block; transform-origin: center; }
+  .text-stretch-y-120 { transform: scaleY(1.2); display: inline-block; transform-origin: center; }
+  .text-stretch-y-140 { transform: scaleY(1.4); display: inline-block; transform-origin: center; }
+  .text-stretch-y-160 { transform: scaleY(1.6); display: inline-block; transform-origin: center; }
   .text-gradient {
     @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
   }
