@@ -11,7 +11,7 @@ type BratButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 // Жёсткая минималистичная кнопка в духе BRAT: жирный контур, без бликов, lowercase
 const BratButton = forwardRef<HTMLButtonElement, BratButtonProps>(
   ({ className, variant = 'outline', size = 'lg', children, ...props }, ref) => {
-    const base = 'inline-flex items-center gap-3 font-display font-extrabold tracking-wide rounded-full transition-transform duration-150 select-none'
+    const base = 'inline-flex items-center gap-3 font-display font-extrabold tracking-wide rounded-[12px] transition-transform duration-150 select-none'
     const sizes = {
       md: 'px-6 py-3 text-base',
       lg: 'px-8 py-4 text-lg',

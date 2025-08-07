@@ -115,13 +115,13 @@ const GalleryPage = () => {
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-[12px] font-medium transition-all duration-300 flex items-center gap-2 ${
                   activeCategory === category.id 
                     ? '' 
                     : 'bg-white/5 hover:bg-white/10'
                 }`}
                 style={activeCategory === category.id ? {
-                  backgroundColor: colors.neon.red,
+                   backgroundColor: colors.neon.red,
                   boxShadow: `0 4px 20px ${colors.neon.red}66`
                 } : {}}
               >

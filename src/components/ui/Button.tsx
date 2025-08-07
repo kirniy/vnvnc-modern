@@ -22,7 +22,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children, 
     ...props 
   }, ref) => {
-    const baseStyles = 'relative inline-flex items-center justify-center font-medium transition-all duration-300 group rounded-full'
+    const baseStyles = 'relative inline-flex items-center justify-center font-medium transition-all duration-300 group rounded-[12px]'
     
     const variants = {
       primary: 'text-white',

@@ -140,7 +140,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-full font-medium text-sm flex items-center gap-2 transition-all duration-300"
+                className="px-4 py-2 rounded-[12px] font-medium text-sm flex items-center gap-2 transition-all duration-300"
                 style={{ 
                   backgroundColor: colors.neon.red,
                   color: 'white',
@@ -165,7 +165,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-full font-medium text-sm flex items-center gap-2 transition-all duration-300 backdrop-blur-sm border border-white/20"
+                className="px-4 py-2 rounded-[12px] font-medium text-sm flex items-center gap-2 transition-all duration-300 backdrop-blur-sm border border-white/20"
                 style={{ 
                   backgroundColor: colors.glass.white,
                   color: 'white'

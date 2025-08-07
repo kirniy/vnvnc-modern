@@ -140,7 +140,7 @@ const ContactPage = () => {
                     href="https://t.me/vnvnc_bot"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 p-3 rounded-lg backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                     className="flex items-center justify-center gap-2 p-3 rounded-[12px] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
                     style={{ backgroundColor: colors.glass.white }}
                   >
                     <FaTelegram size={20} />
@@ -150,7 +150,7 @@ const ContactPage = () => {
                     href="https://wa.me/79214104440"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 p-3 rounded-lg backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                     className="flex items-center justify-center gap-2 p-3 rounded-[12px] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
                     style={{ backgroundColor: colors.glass.white }}
                   >
                     <FaWhatsapp size={20} />

@@ -148,7 +148,7 @@ const ReservationsPage = () => {
         >
           <a
             href="tel:+79214104440"
-            className="flex items-center gap-2 px-6 py-3 rounded-full backdrop-blur-sm border border-white/10 text-white hover:border-white/20 transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-[12px] backdrop-blur-sm border border-white/10 text-white hover:border-white/20 transition-all duration-300"
             style={{ backgroundColor: colors.glass.dark }}
           >
             <Phone size={20} />
@@ -158,7 +158,7 @@ const ReservationsPage = () => {
             href="https://t.me/vnvnc_bot"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 rounded-full backdrop-blur-sm border text-white transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-[12px] backdrop-blur-sm border text-white transition-all duration-300"
             style={{ 
               backgroundColor: colors.glass.dark,
               borderColor: colors.neon.red + '66'
@@ -179,7 +179,7 @@ const ReservationsPage = () => {
             href="https://wa.me/79214104440"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 rounded-full backdrop-blur-sm border border-white/10 text-white hover:border-white/20 transition-all duration-300"
+            className="flex items-center gap-2 px-6 py-3 rounded-[12px] backdrop-blur-sm border border-white/10 text-white hover:border-white/20 transition-all duration-300"
             style={{ backgroundColor: colors.glass.dark }}
           >
             <FaWhatsapp size={20} />
