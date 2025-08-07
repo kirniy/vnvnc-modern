@@ -68,7 +68,7 @@ const ModernHero = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="relative flex justify-center"
             >
-              <WarpedVNVNC height={140} animated className="md:h-36 lg:h-44" tight />
+              <WarpedVNVNC height={140} animated className="md:h-36 lg:h-44 overflow-visible" tight />
             </motion.div>
             
             {/* Subtle underline effect */}

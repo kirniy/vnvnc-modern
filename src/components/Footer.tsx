@@ -170,7 +170,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-white/10 text-center">
           <p className="text-white/60 flex items-center justify-center gap-2">
             <span>© {new Date().getFullYear()}</span>
-            <WarpedVNVNC height={16} animated />
+            <span className="inline-flex items-center overflow-visible"><WarpedVNVNC height={16} animated /></span>
             <span>. Официальный сайт.</span>
           </p>
         </div>

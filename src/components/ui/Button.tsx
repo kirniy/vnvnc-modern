@@ -22,10 +22,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children, 
     ...props 
   }, ref) => {
-    const baseStyles = 'relative inline-flex items-center justify-center font-medium transition-all duration-300 overflow-hidden group'
+    const baseStyles = 'relative inline-flex items-center justify-center font-medium transition-all duration-300 group rounded-full'
     
     const variants = {
-      primary: 'text-white before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white before:to-transparent before:opacity-0 hover:before:opacity-20 before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700',
+      primary: 'text-white',
       secondary: 'border-2 text-white',
       glass: 'backdrop-blur-md border border-white/10 text-white',
       neon: 'bg-transparent border-2'
@@ -51,7 +51,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const hoverStyles = {
       primary: {
         backgroundColor: colors.neon.red,
-        boxShadow: '0 6px 20px rgba(255, 0, 64, 0.8)'
+        boxShadow: '0 8px 24px rgba(255, 0, 64, 0.7)'
       },
       secondary: {
         backgroundColor: colors.neon.red,
@@ -68,9 +68,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
     
     const sizes = {
-      sm: 'px-4 py-2 text-sm rounded-full',
-      md: 'px-6 py-3 text-base rounded-full',
-      lg: 'px-8 py-4 text-lg rounded-full'
+      sm: 'px-4 py-2 text-sm',
+      md: 'px-6 py-3 text-base',
+      lg: 'px-8 py-4 text-lg'
     }
     
     const glowStyles = glow ? 'shadow-neon hover:shadow-neon-intense' : ''
@@ -90,11 +90,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         style={variantStyles[variant]}
-        whileHover={{ scale: 1.05, ...hoverStyles[variant] }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.04, ...hoverStyles[variant] }}
+        whileTap={{ scale: 0.98 }}
         {...restProps}
       >
-        {children}
+        <span className="px-1">{children}</span>
       </motion.button>
     )
   }

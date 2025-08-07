@@ -35,14 +35,16 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
       aria-label="VNVNC"
       height={height}
       className={className}
+      preserveAspectRatio="xMidYMid meet"
       style={{
         width: 'auto',
+        overflow: 'visible',
         filter: glow ? `drop-shadow(0 0 18px ${color}) drop-shadow(0 0 36px ${color}66)` : undefined,
       }}
     >
       <defs>
         {/* Шум для «грязи» */}
-        <motion.filter id="distort" x="-20%" y="-50%" width="140%" height="200%">
+        <motion.filter id="distort" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
           <motion.feTurbulence
             type="fractalNoise"
             baseFrequency={0.012}

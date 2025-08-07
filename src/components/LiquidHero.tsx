@@ -101,11 +101,8 @@ const LiquidHero = () => {
 
           <g clipPath="url(#headlineClip)">
             <g filter="url(#liquid)">
-              <text x="80" y="360" fontSize="220" fontFamily="Unbounded, Bebas Neue, Impact, sans-serif" letterSpacing="10" fill="url(#accentGradient)">
+              <text x="80" y="510" fontSize="260" fontFamily="Unbounded, Bebas Neue, Impact, sans-serif" letterSpacing="10" fill="url(#accentGradient)">
                 VNVNC
-              </text>
-              <text x="80" y="690" fontSize="260" fontFamily="Unbounded, Bebas Neue, Impact, sans-serif" letterSpacing="8" fill="#ffffff">
-                saint‑petersburg
               </text>
             </g>
           </g>

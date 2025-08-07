@@ -47,8 +47,8 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <div className="relative flex items-center">
-              <WarpedVNVNC height={36} animated className="transition-transform duration-300 group-hover:scale-[1.03]" />
+            <div className="relative flex items-center overflow-visible">
+              <WarpedVNVNC height={32} animated className="transition-transform duration-300 group-hover:scale-[1.03]" />
             </div>
           </Link>
 
