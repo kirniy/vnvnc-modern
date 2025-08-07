@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, Ticket } from 'lucide-react'
+import Button from './ui/Button'
 import { colors } from '../utils/colors'
 
 type Point = { x: number; y: number }
@@ -116,36 +116,15 @@ const LiquidHero = () => {
 
         {/* CTA buttons */}
         <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <motion.button
-            onClick={() => setBurst(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.96 }}
-            className="px-6 py-3 rounded-full font-bold text-sm tracking-wide"
-            style={{ backgroundColor: colors.neon.red, color: '#fff', boxShadow: `0 6px 24px ${colors.neon.red}66` }}
-          >
-            make it wild
-          </motion.button>
-
           <Link to="/events">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 text-white"
-              style={{ borderColor: '#fff' }}
-            >
+            <Button variant="glass" size="lg" className="!px-8 !py-4 !text-base border border-white/40">
               <Calendar size={18} /> афиша
-            </motion.button>
+            </Button>
           </Link>
-
           <Link to="/reservations">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 text-white"
-              style={{ borderColor: '#fff' }}
-            >
+            <Button variant="glass" size="lg" className="!px-8 !py-4 !text-base border border-white/40">
               <Ticket size={18} /> бронировать стол
-            </motion.button>
+            </Button>
           </Link>
         </div>
       </div>
