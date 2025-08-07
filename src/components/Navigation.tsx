@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { colors } from '../utils/colors'
+import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -12,8 +13,8 @@ const Navigation = () => {
     { name: 'Главная', path: '/' },
     { name: 'Афиша', path: '/events' },
     { name: 'Галерея', path: '/gallery' },
-    { name: 'Бронирование', path: '/reservations' },
     { name: 'Правила', path: '/rules' },
+    { name: 'Бронирование', path: '/reservations' },
     { name: 'Контакты', path: '/contact' },
   ]
 
@@ -46,22 +47,8 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <div className="relative">
-              <img 
-                src="/logo.png" 
-                alt="VNVNC" 
-                className="h-10 w-auto transition-all duration-300 group-hover:brightness-110"
-                style={{ 
-                  filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 10px ${colors.neon.red})`
-                }}
-              />
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background: `radial-gradient(circle at center, ${colors.neon.red}22 0%, transparent 70%)`,
-                  filter: 'blur(10px)'
-                }}
-              />
+            <div className="relative flex items-center">
+              <WarpedVNVNC height={36} animated className="transition-transform duration-300 group-hover:scale-[1.03]" />
             </div>
           </Link>
 

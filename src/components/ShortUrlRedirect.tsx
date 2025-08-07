@@ -1,27 +1,55 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { ticketsCloudService } from '../services/ticketsCloud'
 import LoadingSpinner from './LoadingSpinner'
 
 const ShortUrlRedirect = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
+  // Fetch all events to find the one matching the date
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => ticketsCloudService.getEvents({}),
+    enabled: !!slug
+  })
+
   useEffect(() => {
-    if (slug) {
-      // Extract the event ID from the slug (last 8 characters after the last dash)
-      const parts = slug.split('-')
-      const shortId = parts[parts.length - 1]
+    if (slug && events.length > 0) {
+      // The slug is now just a date in format DD-MM-YY
+      // We need to find an event that matches this date
+      const [day, month, year] = slug.split('-')
       
-      // In a real app, you'd have a backend service to map short IDs to full IDs
-      // For now, this is a simple redirect that preserves the pattern
-      // The actual implementation would query your database
+      // Convert to full year (e.g., 25 -> 2025)
+      const fullYear = parseInt(year) + 2000
       
-      // Redirect to the events page for now
-      // In production, you'd look up the full ID based on the shortId
-      console.log('Redirecting from short URL with ID:', shortId)
-      navigate(`/events/688b9bbd950a3f3a75d07fe1`, { replace: true })
+      // Find events that match this date
+      const matchingEvent = events.find(event => {
+        if (!event.rawDate) return false
+        
+        const eventDate = new Date(event.rawDate)
+        // Use Moscow timezone to compare dates
+        const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+        
+        return moscowDate.getDate() === parseInt(day) &&
+               moscowDate.getMonth() + 1 === parseInt(month) &&
+               moscowDate.getFullYear() === fullYear
+      })
+      
+      if (matchingEvent) {
+        navigate(`/events/${matchingEvent.id}`, { replace: true })
+      } else {
+        // If no event found for this date, redirect to events page
+        console.log('No event found for date:', slug)
+        navigate('/events', { replace: true })
+      }
     }
-  }, [slug, navigate])
+  }, [slug, events, navigate])
+
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
 
   return <LoadingSpinner />
 }

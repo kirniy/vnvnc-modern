@@ -7,6 +7,7 @@ import Button from '../components/ui/Button'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
 import DitherBackground from '../components/DitherBackground'
+import { api } from '../services/api'
 
 const ReservationsPage = () => {
   const [formData, setFormData] = useState({
@@ -77,23 +78,31 @@ const ReservationsPage = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    console.log('Reservation submitted:', formData)
-    
-    // Reset form
-    setFormData({
-      name: '',
-      phone: '',
-      date: '',
-      guests: '4',
-      tableType: 'standard',
-      message: ''
-    })
-    setIsSubmitting(false)
-    
-    alert('Спасибо! Мы свяжемся с вами в течение 30 минут для подтверждения брони.')
+    try {
+      const result = await api.submitBooking(formData)
+      
+      if (result.success) {
+        // Reset form
+        setFormData({
+          name: '',
+          phone: '',
+          date: '',
+          guests: '4',
+          tableType: 'standard',
+          message: ''
+        })
+        
+        // Show success message
+        alert('Спасибо! Мы свяжемся с вами в течение 30 минут для подтверждения брони.')
+      } else {
+        throw new Error('Failed to submit booking')
+      }
+    } catch (error) {
+      console.error('Error submitting booking:', error)
+      alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте еще раз или позвоните нам.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

@@ -14,27 +14,33 @@ const EventsPage = () => {
     queryFn: () => ticketsCloudService.getEvents(),
   })
 
-  // Get current time in Moscow timezone (UTC+3)
+  // Get current time and convert to Moscow timezone for display
   const now = new Date()
-  const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000)) // Add 3 hours for Moscow time
   
-  // Calculate cutoff time (6 AM Moscow time of the next day)
-  const cutoffTime = new Date(moscowTime)
+  // Create a date object for "today" at 6 AM Moscow time
+  // We'll use this as the cutoff - events before this time are considered "past"
+  const todayMoscow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+  const cutoffTime = new Date(todayMoscow)
   cutoffTime.setHours(6, 0, 0, 0)
-  if (moscowTime.getHours() >= 6) {
-    cutoffTime.setDate(cutoffTime.getDate() + 1)
+  
+  // If it's currently before 6 AM Moscow time, use yesterday's 6 AM as cutoff
+  // This way, events from last night (e.g., 11 PM) still show as current until 6 AM
+  if (todayMoscow.getHours() < 6) {
+    cutoffTime.setDate(cutoffTime.getDate() - 1)
   }
 
   const currentEvents = (events as any[])
     .filter((event: any) => {
+      if (!event.rawDate) return false
       const eventDate = new Date(event.rawDate)
-      // Show events until 6 AM Moscow time the next day
+      // Show events that are after the cutoff time (including today's events)
       return eventDate >= cutoffTime
     })
     .sort((a: any, b: any) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime())
 
   const archiveEvents = (events as any[])
     .filter((event: any) => {
+      if (!event.rawDate) return false
       const eventDate = new Date(event.rawDate)
       // Archive events that are before the cutoff time
       return eventDate < cutoffTime

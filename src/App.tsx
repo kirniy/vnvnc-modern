@@ -17,6 +17,20 @@ const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const RulesPage = lazy(() => import('./pages/RulesPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
+// Custom loading component that hides the footer
+const LoadingWithHiddenFooter = () => {
+  return (
+    <>
+      <style>{`
+        footer {
+          display: none !important;
+        }
+      `}</style>
+      <LoadingSpinner />
+    </>
+  )
+}
+
 function App() {
   return (
     <>
@@ -25,7 +39,7 @@ function App() {
       <Navigation />
       
       <main className="relative">
-        <Suspense fallback={<LoadingSpinner />}>
+        <Suspense fallback={<LoadingWithHiddenFooter />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/events" element={<EventsPage />} />

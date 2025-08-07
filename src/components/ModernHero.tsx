@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { ChevronDown, Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
+import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const ModernHero = () => {
 
@@ -72,14 +73,7 @@ const ModernHero = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="relative flex justify-center"
             >
-              <img 
-                src="/logo.png" 
-                alt="VNVNC" 
-                className="h-24 md:h-32 lg:h-40 w-auto"
-                style={{ 
-                  filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 20px ${colors.neon.red}) drop-shadow(0 0 40px ${colors.neon.red})`
-                }}
-              />
+              <WarpedVNVNC height={120} animated className="md:h-32 lg:h-40" />
             </motion.div>
             
             {/* Subtle underline effect */}

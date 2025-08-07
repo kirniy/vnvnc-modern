@@ -52,7 +52,7 @@ export default {
       },
       
       fontFamily: {
-        'display': ['Bebas Neue', 'Impact', 'sans-serif'],
+        'display': ['Unbounded', 'Bebas Neue', 'Impact', 'sans-serif'],
         'body': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Courier New', 'monospace'],
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -6,6 +6,7 @@ import { colors } from '../utils/colors'
 import Button from '../components/ui/Button'
 import NeonText from '../components/ui/NeonText'
 import DitherBackground from '../components/DitherBackground'
+import { api } from '../services/api'
 
 const ContactPage = () => {
   const yandexMapRef = useRef<HTMLDivElement>(null)
@@ -40,18 +41,24 @@ const ContactPage = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // In a real app, you would send the data to a server
-    console.log('Form submitted:', formData)
-    
-    // Reset form
-    setFormData({ name: '', phone: '', message: '' })
-    setIsSubmitting(false)
-    
-    // Show success message
-    alert('Спасибо! Мы свяжемся с вами в ближайшее время.')
+    try {
+      const result = await api.submitContact(formData)
+      
+      if (result.success) {
+        // Reset form
+        setFormData({ name: '', phone: '', message: '' })
+        
+        // Show success message
+        alert('Спасибо! Мы свяжемся с вами в ближайшее время.')
+      } else {
+        throw new Error('Failed to submit contact form')
+      }
+    } catch (error) {
+      console.error('Error submitting contact form:', error)
+      alert('Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте еще раз или позвоните нам.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

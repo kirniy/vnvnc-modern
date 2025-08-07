@@ -22,46 +22,34 @@ const EventDetailPage = () => {
     },
   })
   
-  // Generate slug from event title
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[а-яё]/g, (match) => {
-        const cyrillicToLatin: { [key: string]: string } = {
-          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
-          'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
-          'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
-          'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
-          'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
-        }
-        return cyrillicToLatin[match] || match
-      })
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .substring(0, 30)
-  }
-  
   // Handle share functionality
   const handleShare = async () => {
     if (!event) return
     
     const baseUrl = window.location.origin
-    const slug = generateSlug(event.title)
     
     // Extract date from event.rawDate which is more reliable
     let dateSlug = ''
     if (event.rawDate) {
       const eventDate = new Date(event.rawDate)
-      const day = eventDate.getDate().toString().padStart(2, '0')
-      const month = (eventDate.getMonth() + 1).toString().padStart(2, '0')
-      const year = eventDate.getFullYear().toString().slice(-2)
+      // Use Moscow timezone to get the correct date
+      const formatter = new Intl.DateTimeFormat('ru-RU', {
+        timeZone: 'Europe/Moscow',
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit'
+      })
+      const parts = formatter.formatToParts(eventDate)
+      const day = parts.find(p => p.type === 'day')?.value || ''
+      const month = parts.find(p => p.type === 'month')?.value || ''
+      const year = parts.find(p => p.type === 'year')?.value || ''
       dateSlug = `${day}-${month}-${year}`
     }
     
-    // Create short URL in format: /e/new-faces-02-08-25
+    // Create short URL in format: /e/02-08-25
     const shortUrl = dateSlug 
-      ? `${baseUrl}/e/${slug}-${dateSlug}`
-      : `${baseUrl}/e/${slug}-${id?.substring(0, 8)}`
+      ? `${baseUrl}/e/${dateSlug}`
+      : `${baseUrl}/e/${id?.substring(0, 8)}`
     
     try {
       await navigator.clipboard.writeText(shortUrl)

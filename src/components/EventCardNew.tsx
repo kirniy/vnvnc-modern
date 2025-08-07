@@ -32,12 +32,18 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
 
   // Calculate if this is an archived event based on date
   const now = new Date()
-  const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000))
-  const cutoffTime = new Date(moscowTime)
+  
+  // Create a date object for "today" at 6 AM Moscow time
+  const todayMoscow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+  const cutoffTime = new Date(todayMoscow)
   cutoffTime.setHours(6, 0, 0, 0)
-  if (moscowTime.getHours() >= 6) {
-    cutoffTime.setDate(cutoffTime.getDate() + 1)
+  
+  // If it's currently before 6 AM Moscow time, use yesterday's 6 AM as cutoff
+  // This way, events from last night (e.g., 11 PM) still show as current until 6 AM
+  if (todayMoscow.getHours() < 6) {
+    cutoffTime.setDate(cutoffTime.getDate() - 1)
   }
+  
   const isArchived = new Date(event.rawDate) < cutoffTime
 
   return (

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { colors } from '../utils/colors'
+import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const LoadingSpinner = () => {
   return (
@@ -57,27 +58,7 @@ const LoadingSpinner = () => {
             ease: "easeInOut"
           }}
         >
-          {/* Logo */}
-          <motion.img 
-            src="/logo.png" 
-            alt="VNVNC" 
-            className="h-32 w-auto"
-            style={{ 
-              filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 30px ${colors.neon.red}) drop-shadow(0 0 60px ${colors.neon.red}44)`
-            }}
-            animate={{
-              filter: [
-                `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 30px ${colors.neon.red}) drop-shadow(0 0 60px ${colors.neon.red}44)`,
-                `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(120%) contrast(130%) drop-shadow(0 0 40px ${colors.neon.red}) drop-shadow(0 0 80px ${colors.neon.red}66)`,
-                `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 30px ${colors.neon.red}) drop-shadow(0 0 60px ${colors.neon.red}44)`
-              ]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
+          <WarpedVNVNC height={128} animated />
         </motion.div>
         
         {/* Circular loading ring */}

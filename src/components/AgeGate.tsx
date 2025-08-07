@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors } from '../utils/colors'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
+import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const AgeGate = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -74,14 +75,9 @@ const AgeGate = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
-                <img 
-                  src="/logo.png" 
-                  alt="VNVNC" 
-                  className="h-20 md:h-24 w-auto mx-auto"
-                  style={{ 
-                    filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%) drop-shadow(0 0 30px ${colors.neon.red})`
-                  }}
-                />
+                <div className="flex justify-center">
+                  <WarpedVNVNC height={88} animated />
+                </div>
               </motion.div>
 
               {/* Question */}

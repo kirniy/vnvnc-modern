@@ -67,7 +67,7 @@ const NeonText = forwardRef<HTMLElement, NeonTextProps>(
       <MotionComponent
         ref={ref}
         className={cn(
-          'font-bold',
+          'font-display font-extrabold',
           variants[variant],
           sizes[size],
           animate && 'animate-pulse-neon',

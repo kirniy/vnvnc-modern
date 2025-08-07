@@ -93,3 +93,162 @@ exports.healthCheck = functions.https.onRequest((req, res) => {
     });
   });
 });
+
+// Telegram Bot configuration
+const TELEGRAM_BOT_TOKEN = '8225858735:AAHfXBuoCEOqmOgXJKM_JguJixdQDC9kgh4';
+const BOOKING_MANAGER_ID = '429156227';
+const ADMIN_ID = '433491';
+const HELP_CHAT_USERNAME = '@vnvnc_help';
+
+// Helper function to send Telegram message
+async function sendTelegramMessage(chatId, text) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify({
+      chat_id: chatId,
+      text: text,
+      parse_mode: 'HTML'
+    });
+
+    const options = {
+      hostname: 'api.telegram.org',
+      port: 443,
+      path: `/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.ok) {
+            resolve(result);
+          } else {
+            reject(new Error(result.description || 'Failed to send Telegram message'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+
+    request.on('error', (error) => {
+      reject(error);
+    });
+
+    request.write(postData);
+    request.end();
+  });
+}
+
+// Booking submission function
+exports.submitBooking = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    if (request.method !== 'POST') {
+      return response.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { name, phone, date, guests, tableType, message } = request.body;
+
+      // Validate required fields
+      if (!name || !phone || !date || !guests || !tableType) {
+        return response.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Format table type for display
+      const tableTypes = {
+        'standard': 'Стандартный стол (14,000₽)',
+        'comfort': 'Комфорт зона (21,000₽)',
+        'vip': 'VIP ложа (35,000₽)'
+      };
+
+      // Format the message for Telegram
+      const telegramMessage = `
+🎉 <b>Новое бронирование!</b>
+
+👤 <b>Имя:</b> ${name}
+📱 <b>Телефон:</b> ${phone}
+📅 <b>Дата:</b> ${date}
+👥 <b>Количество гостей:</b> ${guests}
+🎭 <b>Тип стола:</b> ${tableTypes[tableType] || tableType}
+${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
+
+#booking #vnvnc
+      `.trim();
+
+      // Send messages to both booking manager and admin
+      await Promise.all([
+        sendTelegramMessage(BOOKING_MANAGER_ID, telegramMessage),
+        sendTelegramMessage(ADMIN_ID, telegramMessage)
+      ]);
+
+      return response.status(200).json({ 
+        success: true, 
+        message: 'Booking submitted successfully' 
+      });
+    } catch (error) {
+      console.error('Error processing booking:', error);
+      return response.status(500).json({ 
+        error: 'Failed to process booking', 
+        details: error.message 
+      });
+    }
+  });
+});
+
+// Contact form submission function
+exports.submitContact = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    if (request.method !== 'POST') {
+      return response.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { name, phone, message } = request.body;
+
+      // Validate required fields
+      if (!name || !phone || !message) {
+        return response.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Format the message for Telegram
+      const telegramMessage = `
+📨 <b>Новое сообщение с сайта!</b>
+
+👤 <b>Имя:</b> ${name}
+📱 <b>Телефон:</b> ${phone}
+💬 <b>Сообщение:</b> ${message}
+
+#contact #website
+      `.trim();
+
+      // For contact form, we need to send to the help chat
+      // Since we can't send directly to @vnvnc_help without the chat ID,
+      // we'll send to admin who can forward it or set up proper routing
+      await sendTelegramMessage(ADMIN_ID, telegramMessage + '\n\n⚠️ Пожалуйста, перешлите в @vnvnc_help');
+
+      return response.status(200).json({ 
+        success: true, 
+        message: 'Contact form submitted successfully' 
+      });
+    } catch (error) {
+      console.error('Error processing contact form:', error);
+      return response.status(500).json({ 
+        error: 'Failed to process contact form', 
+        details: error.message 
+      });
+    }
+  });
+});

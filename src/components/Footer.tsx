@@ -4,6 +4,7 @@ import { FaTelegram, FaInstagram, FaVk } from 'react-icons/fa'
 import NeonText from './ui/NeonText'
 import { colors } from '../utils/colors'
 import Dither from './Dither'
+import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const Footer = () => {
   return (
@@ -70,8 +71,8 @@ const Footer = () => {
             <div className="space-y-3">
               <a href="/events" className="block transition-colors hover:opacity-80">Афиша</a>
               <a href="/gallery" className="block transition-colors hover:opacity-80">Галерея</a>
-              <a href="/reservations" className="block transition-colors hover:opacity-80">Бронирование</a>
               <a href="/rules" className="block transition-colors hover:opacity-80">Правила</a>
+              <a href="/reservations" className="block transition-colors hover:opacity-80">Бронирование</a>
               <a href="/contact" className="block transition-colors hover:opacity-80">Контакты</a>
             </div>
           </motion.div>
@@ -167,8 +168,10 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/10 text-center">
-          <p className="text-white/60">
-            © {new Date().getFullYear()} <img src="/logo.png" alt="VNVNC" className="inline-block h-4 w-auto mx-1" style={{ filter: `brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(6719%) hue-rotate(341deg) brightness(105%) contrast(120%)` }} />. Официальный сайт.
+          <p className="text-white/60 flex items-center justify-center gap-2">
+            <span>© {new Date().getFullYear()}</span>
+            <WarpedVNVNC height={16} animated />
+            <span>. Официальный сайт.</span>
           </p>
         </div>
       </div>
