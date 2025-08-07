@@ -22,10 +22,8 @@ const ModernHero = () => {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
-      {/* Grid overlay with dots pattern like reference */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
-      </div>
+      {/* Убираем старый паттерн точек */}
+      <div className="absolute inset-0" />
 
       {/* Animated gradient overlay */}
       <motion.div
@@ -54,16 +52,13 @@ const ModernHero = () => {
         >
           {/* Enhanced VNVNC Branding */}
           <div className="relative">
-            {/* Background glow effect */}
+            {/* Фоновый мягкий глоу */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div 
-                className="w-full h-32 md:h-48"
-                style={{
-                  background: `radial-gradient(ellipse at center, ${colors.neon.red}40 0%, transparent 70%)`,
-                  filter: 'blur(40px)',
-                  transform: 'scale(1.5)',
-                }}
-              />
+              <div className="w-full h-40 md:h-56" style={{
+                background: `radial-gradient(ellipse at center, ${colors.neon.red}33 0%, transparent 70%)`,
+                filter: 'blur(50px)',
+                transform: 'scale(1.6)'
+              }} />
             </div>
             
             {/* Main logo with enhanced styling */}
@@ -73,7 +68,7 @@ const ModernHero = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="relative flex justify-center"
             >
-              <WarpedVNVNC height={120} animated className="md:h-32 lg:h-40" />
+              <WarpedVNVNC height={140} animated className="md:h-36 lg:h-44" tight />
             </motion.div>
             
             {/* Subtle underline effect */}
@@ -105,7 +100,7 @@ const ModernHero = () => {
             </p>
           </motion.div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link to="/events">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -136,7 +131,7 @@ const ModernHero = () => {
                 className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
               >
                 <Ticket size={20} />
-                Бронировать стол
+                бронировать стол
               </motion.button>
             </Link>
           </div>

@@ -6,7 +6,7 @@ import { ticketsCloudService } from '../services/ticketsCloud'
 import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import { colors } from '../utils/colors'
-import DitherBackground from '../components/DitherBackground'
+// Убрали DitherBackground — по фидбеку
 
 const HomePage = () => {
   const { data: events = [], isLoading } = useQuery({
@@ -45,8 +45,6 @@ const HomePage = () => {
       
       {/* Upcoming Events Section */}
       <section className="py-16 relative">
-        {/* Dither Background for Events Section */}
-        <DitherBackground />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

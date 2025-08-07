@@ -38,7 +38,7 @@ const Footer = () => {
             transition={{ duration: 0.5 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">Контакты</NeonText>
+            <NeonText variant="red" size="xl" className="mb-8">контакты</NeonText>
             <div className="space-y-3">
               <a
                 href="https://yandex.ru/maps/-/CHDQRW0Z"
@@ -67,7 +67,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">Быстрые ссылки</NeonText>
+            <NeonText variant="red" size="xl" className="mb-8">быстрые ссылки</NeonText>
             <div className="space-y-3">
               <a href="/events" className="block transition-colors hover:opacity-80">Афиша</a>
               <a href="/gallery" className="block transition-colors hover:opacity-80">Галерея</a>
@@ -84,7 +84,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">Социальные сети</NeonText>
+            <NeonText variant="red" size="xl" className="mb-8">социальные сети</NeonText>
             <div className="grid grid-cols-4 gap-3 max-w-[240px]">
               <a 
                 href="https://vk.com/vnvnc_spb" 

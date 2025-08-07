@@ -10,12 +10,12 @@ const Navigation = () => {
   const location = useLocation()
 
   const navItems = [
-    { name: 'Главная', path: '/' },
-    { name: 'Афиша', path: '/events' },
-    { name: 'Галерея', path: '/gallery' },
-    { name: 'Правила', path: '/rules' },
-    { name: 'Бронирование', path: '/reservations' },
-    { name: 'Контакты', path: '/contact' },
+    { name: 'главная', path: '/' },
+    { name: 'афиша', path: '/events' },
+    { name: 'галерея', path: '/gallery' },
+    { name: 'правила', path: '/rules' },
+    { name: 'бронирование', path: '/reservations' },
+    { name: 'контакты', path: '/contact' },
   ]
 
   const [scrolled, setScrolled] = useState(false)

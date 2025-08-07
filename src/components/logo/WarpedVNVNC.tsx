@@ -24,8 +24,8 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
   animated = true,
   tight = false,
 }) => {
-  const viewBoxWidth = 600
-  const viewBoxHeight = 180
+  const viewBoxWidth = 700
+  const viewBoxHeight = 200
 
   return (
     <motion.svg
@@ -71,16 +71,16 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
       </defs>
 
       {/* Дубли для эффекта «контур + заливка + смещение» */}
-      <g filter="url(#distort)">
+      <g filter="url(#distort)" style={{ overflow: 'visible' }}>
         {/* Толстый контур */}
         <motion.text
           x={viewBoxWidth / 2}
-          y={tight ? 120 : 115}
+          y={tight ? 130 : 128}
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={800}
-          fontSize={tight ? 150 : 160}
-          letterSpacing={tight ? 8 : 12}
+          fontSize={tight ? 170 : 178}
+          letterSpacing={tight ? 10 : 12}
           fill="none"
           stroke={color}
           strokeWidth={18}
@@ -95,11 +95,11 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
         {/* Смещённая тень */}
         <text
           x={viewBoxWidth / 2 + 4}
-          y={(tight ? 120 : 115) + 4}
+          y={(tight ? 130 : 128) + 4}
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={900}
-          fontSize={tight ? 150 : 160}
+          fontSize={tight ? 170 : 178}
           letterSpacing={tight ? 8 : 12}
           fill={`${color}33`}
           opacity={0.7}
@@ -111,11 +111,11 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
         {/* Основная заливка с маской */}
         <motion.text
           x={viewBoxWidth / 2}
-          y={tight ? 120 : 115}
+          y={tight ? 130 : 128}
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={900}
-          fontSize={tight ? 150 : 160}
+          fontSize={tight ? 170 : 178}
           letterSpacing={tight ? 8 : 12}
           fill={color}
           mask="url(#grungeMask)"
