@@ -30,15 +30,15 @@ const sizeMap = {
   lg: { padX: 20, padY: 12, font: 16 },
 }
 
-// Наклейка‑стикер со слегка рваной кривой и мелким дрифтом
-const Sticker: React.FC<StickerProps> = ({ children, color = 'red', size = 'md', angle = -6, className }) => {
+// Наклейка‑стикер. Для 18+ используем статичную версию без анимаций.
+const Sticker: React.FC<StickerProps> = ({ children, color = 'red', size = 'md', angle = 0, className }) => {
   const { bg, fg } = colorMap[color]
   const s = sizeMap[size]
   return (
     <motion.div
       className={className}
       initial={false}
-      whileHover={{ rotate: angle * -1.2, scale: 1.04 }}
+      whileHover={{}}
       style={{ rotate: `${angle}deg`, display: 'inline-block' }}
     >
       <svg
@@ -62,7 +62,7 @@ const Sticker: React.FC<StickerProps> = ({ children, color = 'red', size = 'md',
               fontSize: s.font,
               letterSpacing: 1,
               textTransform: 'lowercase',
-              borderRadius: 10,
+              borderRadius: 12,
               boxShadow: `${bg}40 0px 12px 30px`,
               position: 'relative',
             }}

@@ -8,6 +8,7 @@ import 'yet-another-react-lightbox/styles.css'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import { colors } from '../utils/colors'
 import CountdownTimer from '../components/CountdownTimer'
+import Sticker from '../components/ui/Sticker'
 // Убрали DitherBackground
 
 const EventDetailPage = () => {
@@ -71,7 +72,7 @@ const EventDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="relative">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
           <div className="absolute inset-0 animate-ping rounded-full h-32 w-32 border-red-600 opacity-20"></div>
@@ -82,7 +83,7 @@ const EventDetailPage = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Мероприятие не найдено</h1>
           <Link to="/events" className="text-red-500 hover:text-red-400">
@@ -94,7 +95,7 @@ const EventDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen relative">
       {/* Content wrapper with higher z-index */}
       <div className="relative z-10">
         {/* Hero Section */}
@@ -120,10 +121,15 @@ const EventDetailPage = () => {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-6xl font-bold text-white flex-1"
+                className="text-4xl md:text-6xl font-display font-extrabold text-white flex-1 text-stretch-y-120 lowercase"
               >
                 {event.title}
               </motion.h1>
+              {event.age_rating && (
+                <div className="hidden md:block">
+                  <Sticker size="md" color="red" className="-rotate-3">{event.age_rating}+ </Sticker>
+                </div>
+              )}
               
               {/* Share Button */}
               <motion.div
@@ -198,40 +204,22 @@ const EventDetailPage = () => {
               <div className="order-2 md:order-1 space-y-6">
                 <p className="text-white/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
                 
-                {/* Prominent Ticket Button - positioned where marked in green */}
+                {/* CTA: outline brat-style, без тяжёлых эффектов */}
                 <motion.a 
                   href="#"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 text-white relative overflow-hidden group"
-                  style={{ 
-                    backgroundColor: colors.neon.red,
-                    boxShadow: `0 8px 30px ${colors.neon.red}77`
-                  }}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 rounded-xl font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
                   data-tc-event={event.id}
                   data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
                   data-tc-lang="ru"
                   data-tc-mini="1"
                   data-tc-style="1"
                 >
-                  {/* Animated background pulse */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute inset-0 animate-pulse" 
-                         style={{ 
-                           background: `radial-gradient(circle at center, ${colors.neon.red}44 0%, transparent 70%)`
-                         }} />
-                  </div>
-                  
-                  <ShoppingCart size={24} className="relative z-10" />
-                  <span className="relative z-10">ТИКЕТЫ</span>
-                  
-                  {/* Price badge */}
+                  <ShoppingCart size={22} />
+                  тикеты
                   {event.price && (
-                    <span className="ml-2 px-3 py-1 rounded-full text-sm relative z-10"
-                          style={{ 
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            backdropFilter: 'blur(10px)'
-                          }}>
+                    <span className="ml-2 px-3 py-1 rounded-md text-sm border border-white/20">
                       {event.price}
                     </span>
                   )}
@@ -274,11 +262,9 @@ const EventDetailPage = () => {
             className="backdrop-blur-lg rounded-3xl p-8 border border-white/10 relative overflow-hidden"
             style={{ backgroundColor: colors.glass.dark }}
           >
-            {/* Subtle gradient background */}
-            <div className="absolute inset-0 opacity-30 pointer-events-none"
-                 style={{ 
-                   background: `radial-gradient(circle at top right, ${colors.neon.red}22 0%, transparent 50%)`
-                 }} />
+            {/* лёгкий фон без анимации */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none"
+                 style={{ background: `radial-gradient(1200px 600px at 100% 0%, ${colors.neon.red}22, transparent)` }} />
             
             <h3 className="text-2xl font-bold text-white mb-8 relative">Информация о мероприятии</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -367,53 +353,22 @@ const EventDetailPage = () => {
                 )}
               </div>
               
-              {/* Tickets Button - Enhanced with animation */}
-              <div className="flex items-start justify-end">
-                <div className="relative">
-                  {/* Animated ring - slower and contained */}
-                  <div className="absolute inset-0 rounded-full pointer-events-none" 
-                       style={{ 
-                         backgroundColor: colors.neon.red,
-                         opacity: 0.2,
-                         animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                         transform: 'scale(1.1)'
-                       }} />
-                  
-                  <motion.a 
-                    href="#"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="ticketscloud-widget relative px-10 py-5 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 text-white group overflow-hidden"
-                    style={{ 
-                      backgroundColor: colors.neon.red,
-                      boxShadow: `0 8px 40px ${colors.neon.red}88`,
-                      border: `2px solid ${colors.neon.red}`
-                    }}
-                    data-tc-event={event.id}
-                    data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
-                    data-tc-lang="ru"
-                    data-tc-mini="1"
-                    data-tc-style="1"
-                  >
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 -top-2 -bottom-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer" />
-                    </div>
-                    
-                    <ShoppingCart size={24} className="relative z-10" />
-                    <span className="relative z-10">ТИКЕТЫ</span>
-                    
-                    {/* Arrow animation on hover */}
-                    <motion.span
-                      className="relative z-10 ml-1"
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 3 }}
-                      transition={{ type: "spring", stiffness: 400 }}
-                    >
-                      →
-                    </motion.span>
-                  </motion.a>
-                </div>
+              {/* CTA справа: outline без анимаций */}
+              <div className="flex items-start md:justify-end">
+                <motion.a 
+                  href="#"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="ticketscloud-widget px-8 py-4 rounded-xl font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
+                  data-tc-event={event.id}
+                  data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
+                  data-tc-lang="ru"
+                  data-tc-mini="1"
+                  data-tc-style="1"
+                >
+                  <ShoppingCart size={22} />
+                  тикеты
+                </motion.a>
               </div>
             </div>
           </motion.div>

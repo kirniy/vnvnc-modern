@@ -3,32 +3,22 @@ import { motion } from 'framer-motion'
 import { FaTelegram, FaInstagram, FaVk } from 'react-icons/fa'
 import NeonText from './ui/NeonText'
 import { colors } from '../utils/colors'
-import Dither from './Dither'
-import WarpedVNVNC from './logo/WarpedVNVNC'
+import NewsTicker from './ui/NewsTicker'
+// Убрали Dither для лёгкости
+// import WarpedVNVNC from './logo/WarpedVNVNC'
 
 const Footer = () => {
   return (
     <footer className="relative bg-black border-t border-white/10 text-white overflow-hidden">
-      {/* Dithering background matching the rest of the site */}
-      <div className="absolute inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="absolute inset-0" style={{ 
-          filter: 'blur(6px)', 
-          opacity: 0.6,
-          transform: 'scale(1.1)'
-        }}>
-          <Dither
-            waveColor={[0.6, 0.15, 0.15]} // Red and black only, no white
-            disableAnimation={false}
-            enableMouseInteraction={false}
-            mouseRadius={0.3}
-            colorNum={3} // Less colors to avoid white
-            waveAmplitude={0.35}
-            waveFrequency={3.0}
-            waveSpeed={0.01}
-            pixelSize={2} // Same small grain as everywhere else
-          />
+      <div className="py-0 border-b border-white/10">
+        <div className="relative overflow-hidden" style={{ background: `linear-gradient(90deg, ${colors.neon.red}, #b30000)` }}>
+          <NewsTicker className="text-[11px] sm:text-sm tracking-[0.15em] uppercase text-white py-2" speedMs={52000} />
         </div>
       </div>
+      {/* Лёгкий градиент без анимации */}
+      <div className="absolute inset-0" style={{
+        background: `radial-gradient(1200px 600px at 80% 20%, ${colors.neon.red}12, transparent)`,
+      }} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Contact Info */}
@@ -168,10 +158,10 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/10 text-center">
-          <p className="text-white/60 flex items-center justify-center gap-2">
+          <p className="text-white/70 flex items-center justify-center gap-2">
             <span>© {new Date().getFullYear()}</span>
-            <span className="inline-flex items-center overflow-visible"><WarpedVNVNC height={16} animated /></span>
-            <span>. Официальный сайт.</span>
+            <span className="font-display font-extrabold lowercase" style={{ color: colors.neon.red }}>vnvnc</span>
+            <span>· официальный сайт</span>
           </p>
         </div>
       </div>

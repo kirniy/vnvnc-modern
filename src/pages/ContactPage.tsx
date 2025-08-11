@@ -77,12 +77,10 @@ const ContactPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            <span className="text-stretch-y-140 inline-block">контакты</span> <NeonText variant="red" size="3xl" glow className="text-stretch-y-120 inline-block">vnvnc</NeonText>
+          <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-2 lowercase text-stretch-heading">
+            контакты <NeonText variant="red" size="3xl" glow className="inline-block">vnvnc</NeonText>
           </h1>
-          <p className="text-xl text-white/80">
-            Свяжитесь с нами для бронирования и вопросов
-          </p>
+          <p className="text-lg text-white/70 lowercase text-stretch-body">свяжитесь с нами для бронирования и вопросов</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

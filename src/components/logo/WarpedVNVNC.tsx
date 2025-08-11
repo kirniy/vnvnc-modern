@@ -51,7 +51,7 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
             numOctaves={3}
             seed={3}
             result="noise"
-            animate={animated ? { baseFrequency: [0.01, 0.018, 0.012] } : undefined as any}
+            animate={animated ? { baseFrequency: [0.01, 0.018, 0.012] } : undefined}
             transition={animated ? { duration: 6, repeat: Infinity, ease: 'easeInOut' } : undefined}
           />
           <feDisplacementMap in="SourceGraphic" in2="noise" scale={tight ? 6 : 12} xChannelSelector="R" yChannelSelector="G" />

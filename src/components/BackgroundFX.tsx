@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react'
  * Экономичный Canvas‑бэкграунд в стиле BRAT: красные «метаболлы»/боки, мягкие вспышки,
  * зерно и сканлайны. Работает только в зоне хиро.
  */
+import { shouldUseHeavyFX } from '../utils/perf'
+
 const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const rafRef = useRef<number | null>(null)
@@ -16,7 +18,9 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
     let height = 0
     const DPR = Math.min(window.devicePixelRatio || 1, 2)
 
-    const blobs = Array.from({ length: Math.floor(10 * intensity) }, () => ({
+    const heavy = shouldUseHeavyFX()
+    const blobCount = heavy ? Math.floor(8 * intensity) : Math.floor(3 * intensity)
+    const blobs = Array.from({ length: blobCount }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 60 + Math.random() * 160,
@@ -43,7 +47,7 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
 
       // мягкий тёмный фон, чтобы усилить красные пятна
       ctx.globalCompositeOperation = 'source-over'
-      const grad = ctx.createRadialGradient(width * 0.5, height * 0.6, 0, width * 0.5, height * 0.6, Math.max(width, height))
+       const grad = ctx.createRadialGradient(width * 0.5, height * 0.6, 0, width * 0.5, height * 0.6, Math.max(width, height))
       grad.addColorStop(0, 'rgba(0,0,0,0.2)')
       grad.addColorStop(1, 'rgba(0,0,0,0.6)')
       ctx.fillStyle = grad
@@ -60,8 +64,8 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
         const py = b.y * height
         const r = b.r * (0.8 + 0.2 * Math.sin(t * 0.001 + b.ph))
         const g = ctx.createRadialGradient(px, py, 0, px, py, r)
-        g.addColorStop(0, 'rgba(255,0,64,0.35)')
-        g.addColorStop(1, 'rgba(255,0,64,0)')
+                g.addColorStop(0, 'rgba(255,26,26,0.35)')
+                g.addColorStop(1, 'rgba(255,26,26,0)')
         ctx.fillStyle = g
         ctx.beginPath()
         ctx.arc(px, py, r, 0, Math.PI * 2)
@@ -69,20 +73,21 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
       })
 
       // зерно
-      ctx.globalCompositeOperation = 'overlay'
-      const grainDensity = 0.07 * intensity
+       ctx.globalCompositeOperation = 'overlay'
+              const grainDensity = (heavy ? 0.04 : 0.015) * intensity
       for (let j = 0; j < width * grainDensity; j++) {
         const x = Math.random() * width
         const y = Math.random() * height
         const a = Math.random() * 0.09
-        ctx.fillStyle = `rgba(255,0,64,${a})`
+                ctx.fillStyle = `rgba(255,26,26,${a})`
         ctx.fillRect(x, y, 1, 1)
       }
 
       // сканлайны
-      ctx.globalCompositeOperation = 'soft-light'
+       ctx.globalCompositeOperation = 'soft-light'
       ctx.fillStyle = 'rgba(255,255,255,0.03)'
-      for (let y = 0; y < height; y += 3) {
+      const lineStep = heavy ? 3 : 5
+      for (let y = 0; y < height; y += lineStep) {
         ctx.fillRect(0, y, width, 1)
       }
 

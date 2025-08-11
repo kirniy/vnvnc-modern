@@ -1,6 +1,6 @@
 export const colors = {
   neon: {
-    red: '#ff0040',
+    red: '#ff1a1a',
     pink: '#ff0080',
     purple: '#8000ff',
     blue: '#00d4ff',

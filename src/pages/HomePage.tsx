@@ -5,6 +5,7 @@ import { Calendar, ArrowRight } from 'lucide-react'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import LiquidHero from '../components/LiquidHero'
 import EventCardNew from '../components/EventCardNew'
+import NewsTicker from '../components/ui/NewsTicker'
 import { colors } from '../utils/colors'
 // Убрали DitherBackground — по фидбеку
 
@@ -40,8 +41,20 @@ const HomePage = () => {
     .slice(0, 3)
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen">
       <LiquidHero />
+      
+      {/* Ticker between sections */}
+      <div 
+        className="relative z-20 border-t border-b border-white/10" 
+        style={{ background: `linear-gradient(90deg, ${colors.neon.red}, #b30000)` }}
+      >
+        <NewsTicker 
+          text="конюшенная 2в × конюшенная 2в × " 
+          speedMs={52000} 
+          className="text-[11px] sm:text-sm tracking-[0.15em] uppercase text-white py-2" 
+        />
+      </div>
       
       {/* Upcoming Events Section */}
       <section className="py-16 relative">
@@ -52,8 +65,8 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold text-white mb-4">Предстоящие мероприятия</h2>
-            <p className="text-xl text-white/70">Ближайшие события в VNVNC</p>
+            <h2 className="text-4xl font-display font-extrabold text-white mb-4 lowercase text-stretch-y-120">предстоящие</h2>
+            <p className="text-xl text-white/70 lowercase tracking-wide block">ближайшие события в vnvnc</p>
           </motion.div>
 
           {isLoading ? (
@@ -61,7 +74,7 @@ const HomePage = () => {
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500"></div>
             </div>
           ) : upcomingEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((event: any, index: number) => (
                 <EventCardNew key={event.id} event={event} index={index} />
               ))}
@@ -78,21 +91,9 @@ const HomePage = () => {
             <div className="text-center mt-12">
               <Link
                 to="/events"
-                className="inline-flex items-center text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 gap-2"
-                style={{ 
-                  backgroundColor: colors.neon.red,
-                  boxShadow: `0 4px 15px ${colors.neon.red}66`
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = `0 6px 25px ${colors.neon.red}99`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = `0 4px 15px ${colors.neon.red}66`;
-                }}
+                className="inline-flex items-center px-8 py-3 rounded-xl font-display font-extrabold gap-2 border-2 border-white text-white hover:bg-white hover:text-black transition-colors"
               >
-                Все мероприятия
+                все мероприятия
                 <ArrowRight size={20} />
               </Link>
             </div>

@@ -7,7 +7,7 @@ import WarpedVNVNC from './logo/WarpedVNVNC'
 const ModernHero = () => {
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
       {/* Background Video */}
       <div className="absolute inset-0">
         <video

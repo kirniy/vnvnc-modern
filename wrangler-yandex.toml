@@ -1,0 +1,10 @@
+name = "vnvnc-yandex-gallery"
+main = "cloudflare-worker-yandex-final.js"
+compatibility_date = "2025-07-12"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "vnvnc-yandex-gallery-prod"
+
+[env.staging]
+name = "vnvnc-yandex-gallery-staging"

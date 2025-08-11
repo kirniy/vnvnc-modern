@@ -48,7 +48,7 @@ const EventsPage = () => {
     .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen relative">
       <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,38 +56,32 @@ const EventsPage = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold text-white mb-4"><span className="text-stretch-y-120 inline-block">мероприятия</span></h1>
-          <p className="text-xl text-white/70"><span className="text-stretch-y-110 inline-block">все события в vnvnc</span></p>
+          <h1 className="text-5xl font-display font-extrabold text-white mb-4 lowercase text-stretch-heading">мероприятия</h1>
+          <p className="text-lg text-white/70 lowercase text-stretch-body tracking-wide block">все события в vnvnc</p>
         </motion.div>
 
         {/* Tab Navigation */}
         <div className="flex justify-center mb-8">
-          <div className="bg-gray-900 rounded-lg p-1">
+          <div className="bg-white/5 radius p-1">
             <button
               onClick={() => setActiveTab('current')}
-              className={`px-6 py-3 rounded-md font-semibold transition-colors ${
-                activeTab === 'current'
-                  ? 'bg-red-600 text-white'
-                  : 'text-white/70 hover:text-white'
-              }`}
+              className={`px-6 py-3 radius font-semibold transition-colors ${activeTab === 'current' ? 'text-white' : 'text-white/70 hover:text-white'}`}
+              style={activeTab === 'current' ? { backgroundColor: '#ff1a1a' } : {}}
             >
               Актуальные
             </button>
             <button
               onClick={() => setActiveTab('archive')}
-              className={`px-6 py-3 rounded-md font-semibold transition-colors ${
-                activeTab === 'archive'
-                  ? 'bg-red-600 text-white'
-                  : 'text-white/70 hover:text-white'
-              }`}
+              className={`px-6 py-3 radius font-semibold transition-colors ${activeTab === 'archive' ? 'text-white' : 'text-white/70 hover:text-white'}`}
+              style={activeTab === 'archive' ? { backgroundColor: '#ff1a1a' } : {}}
             >
               Архив
             </button>
           </div>
         </div>
 
-        {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Events Grid – мобильные карточки более компактные */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {activeTab === 'current' ? (
             currentEvents.map((event: any, index: number) => (
               <EventCardNew key={event.id} event={event} index={index} />

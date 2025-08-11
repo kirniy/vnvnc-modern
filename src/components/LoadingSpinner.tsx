@@ -2,27 +2,35 @@ import { motion } from 'framer-motion'
 import { colors } from '../utils/colors'
 import WarpedVNVNC from './logo/WarpedVNVNC'
 
-const LoadingSpinner = () => {
+type LoadingSpinnerProps = {
+  inline?: boolean
+}
+
+const LoadingSpinner = ({ inline = false }: LoadingSpinnerProps) => {
+  const ringSize = inline ? 120 : 250
+  const glowSize = inline ? 160 : 300
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
+    <div className={inline ? 'relative flex flex-col items-center justify-center' : 'fixed inset-0 flex flex-col items-center justify-center min-h-[100svh] bg-black overflow-hidden pt-safe pb-safe'}>
       {/* Background gradient effect */}
-      <div className="absolute inset-0">
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(circle at center, ${colors.neon.red}08 0%, transparent 50%)`,
-            animation: 'pulse 4s ease-in-out infinite'
-          }}
-        />
-      </div>
+      {!inline && (
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(circle at center, ${colors.neon.red}08 0%, transparent 50%)`,
+              animation: 'pulse 4s ease-in-out infinite'
+            }}
+          />
+        </div>
+      )}
       
       <div className="relative">
         {/* Outer glow ring */}
         <motion.div
           className="absolute inset-0"
           style={{
-            width: '300px',
-            height: '300px',
+            width: `${glowSize}px`,
+            height: `${glowSize}px`,
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)'
@@ -58,15 +66,15 @@ const LoadingSpinner = () => {
             ease: "easeInOut"
           }}
         >
-          <WarpedVNVNC height={128} animated />
+          <WarpedVNVNC height={inline ? 64 : 128} animated />
         </motion.div>
         
         {/* Circular loading ring */}
         <motion.div
           className="absolute inset-0"
           style={{
-            width: '250px',
-            height: '250px',
+            width: `${ringSize}px`,
+            height: `${ringSize}px`,
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)'
@@ -148,13 +156,13 @@ const LoadingSpinner = () => {
             key={rotation}
             className="absolute"
             style={{
-              width: '4px',
-              height: '4px',
+              width: inline ? '3px' : '4px',
+              height: inline ? '3px' : '4px',
               backgroundColor: colors.neon.red,
               borderRadius: '50%',
               left: '50%',
               top: '50%',
-              transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-140px)`,
+              transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-${Math.round(ringSize * 0.56)}px)`,
               boxShadow: `0 0 10px ${colors.neon.red}`
             }}
             animate={{
@@ -171,34 +179,35 @@ const LoadingSpinner = () => {
         ))}
       </div>
       
-      {/* Loading text with dots animation */}
-      <motion.div
-        className="mt-20 flex items-center gap-1"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <span className="text-white/80 text-sm tracking-[0.3em] uppercase font-light">Loading</span>
-        <div className="flex gap-1">
-          {[0, 1, 2].map((index) => (
-            <motion.span
-              key={index}
-              className="text-white/80 text-sm"
-              animate={{
-                opacity: [0.3, 1, 0.3],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: index * 0.2
-              }}
-            >
-              •
-            </motion.span>
-          ))}
-        </div>
-      </motion.div>
+      {!inline && (
+        <motion.div
+          className="mt-20 flex items-center gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <span className="text-white/80 text-sm tracking-[0.3em] uppercase font-light">Loading</span>
+          <div className="flex gap-1">
+            {[0, 1, 2].map((index) => (
+              <motion.span
+                key={index}
+                className="text-white/80 text-sm"
+                animate={{
+                  opacity: [0.3, 1, 0.3],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: index * 0.2
+                }}
+              >
+                •
+              </motion.span>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }

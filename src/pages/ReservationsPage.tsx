@@ -131,12 +131,10 @@ const ReservationsPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-white">
-            <span className="text-stretch-y-140 inline-block">бронирование</span> <NeonText variant="red" size="5xl" glow className="text-stretch-y-120 inline-block">столов</NeonText>
+          <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-2 lowercase text-stretch-heading">
+            бронирование <NeonText variant="red" size="5xl" glow className="inline-block">столов</NeonText>
           </h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto text-stretch-y-110">
-            забронируйте лучшие места в клубе с vip‑входом без очереди
-          </p>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto lowercase text-stretch-body">забронируйте лучшие места в клубе с vip‑входом без очереди</p>
         </motion.div>
 
         {/* Quick Contact */}

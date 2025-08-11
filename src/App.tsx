@@ -6,6 +6,8 @@ import Footer from './components/Footer'
 import LoadingSpinner from './components/LoadingSpinner'
 import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
+import CursorFX from './components/ui/CursorFX'
+// import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -37,6 +39,8 @@ function App() {
       <AgeGate />
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
+      {/* <BackgroundShader /> - DISABLED - causing SVG errors */}
+      <CursorFX />
       
       <main className="relative">
         <Suspense fallback={<LoadingWithHiddenFooter />}>

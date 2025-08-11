@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, Ticket } from 'lucide-react'
 import BratButton from './ui/BratButton'
 import BackgroundFX from './BackgroundFX'
+import { shouldUseVideoBG, shouldUseHeavyFX } from '../utils/perf'
 import { colors } from '../utils/colors'
 
 type Point = { x: number; y: number }
@@ -12,6 +13,9 @@ const LiquidHero = () => {
   const trailGroupRef = useRef<SVGGElement | null>(null)
   const [points, setPoints] = useState<Point[]>([])
   const [burst, setBurst] = useState(false)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [videoActive, setVideoActive] = useState(false)
 
   // размеры для вычисления координат курсора в viewBox
   const viewBox = useMemo(() => ({ w: 1600, h: 900 }), [])
@@ -24,9 +28,10 @@ const LiquidHero = () => {
       const rect = svg.getBoundingClientRect()
       const x = ((e.clientX - rect.left) / rect.width) * viewBox.w
       const y = ((e.clientY - rect.top) / rect.height) * viewBox.h
+      const max = shouldUseHeavyFX() ? 10 : 6
       setPoints((prev) => {
         const next = [...prev, { x, y }]
-        if (next.length > 20) next.shift()
+        if (next.length > max) next.splice(0, next.length - max)
         return next
       })
     }
@@ -41,13 +46,58 @@ const LiquidHero = () => {
     return () => clearTimeout(t)
   }, [burst])
 
+  // Активируем/останавливаем видео только когда блок в зоне видимости и устройство мощное
+  useEffect(() => {
+    const canShowVideo = shouldUseVideoBG()
+    if (!canShowVideo) return setVideoActive(false)
+
+    const el = sectionRef.current
+    if (!el) return
+
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0]
+      setVideoActive(entry.isIntersecting)
+    }, { rootMargin: '100px 0px 100px 0px', threshold: 0.01 })
+    io.observe(el)
+
+    const onVis = () => {
+      const v = videoRef.current
+      if (!v) return
+      if (document.visibilityState === 'visible' && videoActive) {
+        v.play().catch(() => {})
+      } else {
+        v.pause()
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
+
+    return () => {
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [videoActive])
+
   return (
-    <section className="relative h-[88vh] min-h-[640px] flex items-center justify-center overflow-hidden bg-black">
+    <section ref={sectionRef as any} className="relative min-h-[92svh] sm:min-h-[86svh] min-h-[560px] flex items-center justify-center overflow-hidden pb-8 pt-safe pb-safe">
       {/* Video background remains behind for mood */}
       <div className="absolute inset-0">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-25">
-          <source src="/herovideo.mp4" type="video/mp4" />
-        </video>
+        {videoActive && (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            disableRemotePlayback
+            className="absolute inset-0 w-full h-full object-cover opacity-20 will-change-transform"
+            onPlay={(e) => {
+              try { (e.currentTarget as HTMLVideoElement).playbackRate = shouldUseHeavyFX() ? 1 : 0.8 } catch {}
+            }}
+          >
+            <source src="/herovideo.mp4" type="video/mp4" />
+          </video>
+        )}
         {/* noise overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -56,8 +106,9 @@ const LiquidHero = () => {
               'radial-gradient(circle at 30% 20%, rgba(255,0,64,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255,0,64,0.05) 0%, transparent 50%)',
           }}
         />
-        {/* BRAT‑style FX */}
-        <BackgroundFX intensity={1} />
+
+        {/* BRAT‑style FX only for heavy devices */}
+        {shouldUseHeavyFX() && <BackgroundFX intensity={0.8} />}
       </div>
 
       {/* Liquid SVG headline */}
@@ -120,24 +171,25 @@ const LiquidHero = () => {
 
           <g ref={trailGroupRef} id="trail">
             {points.map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y} r={Math.max(2, i)} fill={`${colors.neon.red}${(20 + i * 2).toString(16)}`} />
+              <rect key={i} x={p.x - 8 - i} y={p.y - 2} width={16 + i * 2} height={4} fill={`${colors.neon.red}${(28 + i * 2).toString(16)}`} rx={2} />
             ))}
           </g>
         </svg>
 
         {/* CTA buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link to="/events">
-            <BratButton>
+        <div className="mt-6 w-full max-w-[560px] mx-auto px-4 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch">
+          <Link to="/events" className="w-full">
+            <BratButton className="w-full">
               <Calendar size={18} /> афиша
             </BratButton>
           </Link>
-          <Link to="/reservations">
-            <BratButton>
+          <Link to="/reservations" className="w-full">
+            <BratButton className="w-full">
               <Ticket size={18} /> бронировать стол
             </BratButton>
           </Link>
         </div>
+
       </div>
     </section>
   )

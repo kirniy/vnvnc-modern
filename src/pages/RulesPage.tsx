@@ -53,9 +53,9 @@ const RulesPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-block px-8 py-4 mb-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-white">
-              Правила <NeonText variant="red" size="5xl" glow>VNVNC</NeonText>
+          <div className="inline-block px-8 py-2 mb-4">
+            <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white lowercase text-stretch-heading">
+              правила <NeonText variant="red" size="5xl" glow>vnvnc</NeonText>
             </h1>
           </div>
         </motion.div>
