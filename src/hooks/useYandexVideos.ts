@@ -34,6 +34,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
   const [recentVideoIds, setRecentVideoIds] = useState<string[]>([]); // Track recently played videos
   const [preloadedVideosCache] = useState<Map<string, HTMLVideoElement>>(new Map()); // Cache preloaded video elements
   const [isLoadingVideos, setIsLoadingVideos] = useState(false); // Track if we're already loading
+  const [pendingVideoSwitch, setPendingVideoSwitch] = useState(false); // Track if user wants to switch but videos aren't ready
 
   // Initialize with background video immediately
   useEffect(() => {
@@ -63,6 +64,28 @@ export const useYandexVideos = (): UseYandexVideosResult => {
       return () => clearTimeout(timeoutId);
     }
   }, [currentVideo, videos]);
+
+  // Watch for videos to be loaded and switch if user clicked early
+  useEffect(() => {
+    if (pendingVideoSwitch && videos.length > 0 && !isLoadingVideos) {
+      console.log('Videos loaded! Switching to random video now...');
+      setPendingVideoSwitch(false);
+      setHasShuffled(true);
+      
+      // Pick a random video from the loaded ones
+      const availableVideos = videos.filter(v => v.id !== currentVideo?.id);
+      if (availableVideos.length > 0) {
+        const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 6)); // Pick from first 6 for better chance of preloaded
+        const randomVideo = availableVideos[randomIndex];
+        
+        if (randomVideo) {
+          setCurrentVideo(randomVideo);
+          setRecentVideoIds(prev => [...prev, randomVideo.id].slice(-15));
+          console.log('Auto-switched to:', randomVideo.title);
+        }
+      }
+    }
+  }, [videos.length, isLoadingVideos, pendingVideoSwitch, currentVideo?.id]);
 
   const loadVideosInBackground = async () => {
     // Prevent duplicate loading
@@ -270,9 +293,13 @@ export const useYandexVideos = (): UseYandexVideosResult => {
         }
         return;
       } else {
-        // Videos still loading, just wait - don't reload
-        console.log('Videos still loading, please wait...');
-        // Don't call loadVideosInBackground again, it's already running
+        // Videos still loading, set flag to auto-switch when ready
+        console.log('Videos still loading, will switch automatically when ready...');
+        setPendingVideoSwitch(true);
+        // Start loading if not already
+        if (!isLoadingVideos) {
+          loadVideosInBackground();
+        }
         return;
       }
     }
