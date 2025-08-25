@@ -27,6 +27,17 @@ function proxify(url) {
   return `${base}/api/proxy-image?url=${encodeURIComponent(url)}`;
 }
 
+// Make sized variants from a direct preview URL (keeps other params intact)
+function withSize(directPreviewUrl, size) {
+  if (!directPreviewUrl) return directPreviewUrl;
+  const has = directPreviewUrl.includes('size=');
+  if (has) {
+    return directPreviewUrl.replace(/size=[^&]*/i, `size=${size}`);
+  }
+  const sep = directPreviewUrl.includes('?') ? '&' : '?';
+  return `${directPreviewUrl}${sep}size=${size}`;
+}
+
 // List only date-named folders (YYYY-MM-DD...) at root (with pagination)
 async function listDateFolders(publicKey) {
   const url = new URL(YANDEX_API_BASE);
@@ -84,17 +95,21 @@ async function fetchAllImagesForFolder(publicKey, startPath, inferredDate, maxDe
           if (item.preview) {
             // Use proxy to avoid 403 from Yandex when hotlinking many previews
             const direct = item.preview;
-            const src = proxify(direct);
-            const fullSrc = src;
+            const thumb = proxify(withSize(direct, 'M'));
+            const src = proxify(withSize(direct, 'XL'));
+            const fullSrc = proxify(withSize(direct, 'XXXL'));
             results.push({
               id: `yd-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
               src,
-              thumbnailSrc: src,
+              thumbnailSrc: thumb,
               fullSrc,
               originalUrl: direct,
+              filename: item.name,
               title: item.name.replace(/\.[^/.]+$/, ''),
               date: inferredDate || extractDateFromFolderName(item.path?.split('/')?.[1] || ''),
               size: item.size,
+              width: item.preview_size || 0,
+              height: item.preview_size || 0,
               name: item.name,
               path: item.path,
               mimeType: item.mime_type
@@ -150,18 +165,22 @@ async function fetchPhotosFromFolder(publicKey, path = '', folderInfo = {}, dept
       if (data.preview) {
         // Proxy preview URL to bypass hotlink 403
         const direct = data.preview;
-        const src = proxify(direct);
-        const fullSrc = src;
+        const thumb = proxify(withSize(direct, 'M'));
+        const src = proxify(withSize(direct, 'XL'));
+        const fullSrc = proxify(withSize(direct, 'XXXL'));
         
         return [{
           id: `yd-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           src,
-          thumbnailSrc: src,
+          thumbnailSrc: thumb,
           fullSrc,
           originalUrl: direct, // Keep original for reference
+          filename: data.name,
           title: folderInfo.eventName || data.name.replace(/\.[^/.]+$/, ''),
           date: folderInfo.date,
           size: data.size,
+          width: data.preview_size || 0,
+          height: data.preview_size || 0,
           name: data.name,
           path: data.path,
           mimeType: data.mime_type
@@ -197,18 +216,22 @@ async function fetchPhotosFromFolder(publicKey, path = '', folderInfo = {}, dept
           if (item.preview) {
             // Proxy preview URL to bypass hotlink 403
             const direct = item.preview;
-            const src = proxify(direct);
-            const fullSrc = src;
+            const thumb = proxify(withSize(direct, 'M'));
+            const src = proxify(withSize(direct, 'XL'));
+            const fullSrc = proxify(withSize(direct, 'XXXL'));
             
             photos.push({
               id: `yd-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
               src,
-              thumbnailSrc: src,
+              thumbnailSrc: thumb,
               fullSrc,
               originalUrl: direct, // Keep original for reference
+              filename: item.name,
               title: folderInfo.eventName || item.name.replace(/\.[^/.]+$/, ''),
               date: folderInfo.date,
               size: item.size,
+              width: item.preview_size || 0,
+              height: item.preview_size || 0,
               name: item.name,
               path: item.path,
               mimeType: item.mime_type
@@ -337,6 +360,193 @@ async function handleRequest(request) {
       });
     }
     
+    // Videos endpoint - fetch videos from the public folder
+    if (url.pathname === '/api/yandex-disk/videos') {
+      const limit = parseInt(url.searchParams.get('limit') || '50'); // Increased default limit
+      const publicKey = url.searchParams.get('public_key') || PUBLIC_LINK;
+      
+      console.log(`Fetching videos from public link: ${publicKey}`);
+      
+      try {
+        // Fetch the folder contents
+        const apiUrl = new URL(YANDEX_API_BASE);
+        apiUrl.searchParams.append('public_key', publicKey);
+        apiUrl.searchParams.append('limit', '200'); // Fetch more items
+        apiUrl.searchParams.append('fields', '_embedded.items');
+        
+        const response = await fetch(apiUrl.toString());
+        
+        if (!response.ok) {
+          console.error(`Failed to fetch from Yandex Disk: ${response.status}`);
+          return new Response(JSON.stringify({ videos: [], total: 0, success: false }), { 
+            headers: corsHeaders,
+            status: response.status 
+          });
+        }
+        
+        const data = await response.json();
+        const videos = [];
+        
+        // Process items looking for video files
+        if (data._embedded && data._embedded.items) {
+          for (const item of data._embedded.items) {
+            // Check if it's a video file
+            if (item.type === 'file' && item.mime_type && item.mime_type.startsWith('video/')) {
+              // For videos, we need to get a download URL
+              try {
+                // Get download URL for the video
+                const downloadUrl = new URL(`${YANDEX_API_BASE}/download`);
+                downloadUrl.searchParams.append('public_key', publicKey);
+                downloadUrl.searchParams.append('path', item.path);
+                
+                const downloadResponse = await fetch(downloadUrl.toString());
+                
+                if (downloadResponse.ok) {
+                  const downloadData = await downloadResponse.json();
+                  // The response should contain a 'href' field with the direct download URL
+                  const videoUrl = downloadData.href || item.file || item.public_url;
+                  
+                  // Use proxy URL instead of direct download URL
+                  const proxyUrl = `https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev/api/yandex-disk/video-proxy?public_key=${encodeURIComponent(publicKey)}&path=${encodeURIComponent(item.path)}`;
+                  
+                  videos.push({
+                    id: `video-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                    url: proxyUrl,
+                    originalUrl: item.file || item.public_url || item.preview,
+                    title: item.name.replace(/\.[^/.]+$/, ''),
+                    name: item.name,
+                    path: item.path,
+                    size: item.size,
+                    mimeType: item.mime_type,
+                    duration: item.duration || null,
+                    preview: item.preview
+                  });
+                } else {
+                  // Fallback if we can't get download URL - still use proxy
+                  const proxyUrl = `https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev/api/yandex-disk/video-proxy?public_key=${encodeURIComponent(publicKey)}&path=${encodeURIComponent(item.path)}`;
+                  
+                  videos.push({
+                    id: `video-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                    url: proxyUrl,
+                    originalUrl: item.file || item.public_url || item.preview,
+                    title: item.name.replace(/\.[^/.]+$/, ''),
+                    name: item.name,
+                    path: item.path,
+                    size: item.size,
+                    mimeType: item.mime_type,
+                    duration: item.duration || null,
+                    preview: item.preview
+                  });
+                }
+              } catch (err) {
+                console.error('Error getting video download URL:', err);
+                // Fallback on error - still use proxy
+                const proxyUrl = `https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev/api/yandex-disk/video-proxy?public_key=${encodeURIComponent(publicKey)}&path=${encodeURIComponent(item.path)}`;
+                
+                videos.push({
+                  id: `video-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  url: proxyUrl,
+                  originalUrl: item.file || item.public_url || item.preview,
+                  title: item.name.replace(/\.[^/.]+$/, ''),
+                  name: item.name,
+                  path: item.path,
+                  size: item.size,
+                  mimeType: item.mime_type,
+                  duration: item.duration || null,
+                  preview: item.preview
+                });
+              }
+            }
+          }
+        }
+        
+        console.log(`Found ${videos.length} videos in folder`);
+        
+        // Return only requested number of videos
+        const limitedVideos = videos.slice(0, limit);
+        
+        return new Response(JSON.stringify({ 
+          videos: limitedVideos, 
+          total: videos.length,
+          limit,
+          success: true 
+        }), { 
+          headers: corsHeaders 
+        });
+        
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+        return new Response(JSON.stringify({ 
+          videos: [], 
+          total: 0, 
+          success: false,
+          error: error.message 
+        }), { 
+          headers: corsHeaders,
+          status: 500 
+        });
+      }
+    }
+    
+    // Video proxy endpoint - stream video content through the worker
+    if (url.pathname === '/api/yandex-disk/video-proxy') {
+      const publicKey = url.searchParams.get('public_key');
+      const path = url.searchParams.get('path');
+      
+      if (!publicKey || !path) {
+        return new Response('Missing parameters', { status: 400, headers: corsHeaders });
+      }
+      
+      try {
+        // Get fresh download URL
+        const downloadUrl = new URL(`${YANDEX_API_BASE}/download`);
+        downloadUrl.searchParams.append('public_key', publicKey);
+        downloadUrl.searchParams.append('path', path);
+        
+        const downloadResponse = await fetch(downloadUrl.toString());
+        if (!downloadResponse.ok) {
+          return new Response('Failed to get download URL', { status: downloadResponse.status, headers: corsHeaders });
+        }
+        
+        const downloadData = await downloadResponse.json();
+        
+        // Stream the video content through the worker
+        const videoResponse = await fetch(downloadData.href);
+        
+        // Create response headers for video streaming
+        const responseHeaders = new Headers(corsHeaders);
+        responseHeaders.set('Content-Type', videoResponse.headers.get('Content-Type') || 'video/mp4');
+        responseHeaders.set('Accept-Ranges', 'bytes');
+        responseHeaders.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        
+        const contentLength = videoResponse.headers.get('Content-Length');
+        if (contentLength) {
+          responseHeaders.set('Content-Length', contentLength);
+        }
+        
+        // Handle range requests for video seeking
+        const range = request.headers.get('Range');
+        if (range && videoResponse.headers.get('Content-Range')) {
+          responseHeaders.set('Content-Range', videoResponse.headers.get('Content-Range'));
+          return new Response(videoResponse.body, {
+            status: 206,
+            headers: responseHeaders
+          });
+        }
+        
+        return new Response(videoResponse.body, {
+          headers: responseHeaders
+        });
+        
+      } catch (error) {
+        console.error('Error proxying video:', error);
+        return new Response('Error proxying video', { 
+          status: 500, 
+          headers: corsHeaders 
+        });
+      }
+    }
+    
     // Get all available dates endpoint (fast: list root folders only)
     if (url.pathname === '/api/yandex-disk/dates') {
       console.log('Fetching all available dates (folders)');
@@ -440,6 +650,8 @@ async function handleRequest(request) {
       error: 'Invalid endpoint',
       availableEndpoints: [
         '/api/yandex-disk/photos',
+        '/api/yandex-disk/videos',
+        '/api/yandex-disk/dates',
         '/api/health'
       ]
     }), {

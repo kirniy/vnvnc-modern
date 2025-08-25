@@ -257,8 +257,8 @@ const GalleryPage = () => {
               {/* Scrollable Date Container */}
               <div
                 ref={scrollContainerRef}
-                className="flex gap-2 overflow-x-auto scrollbar-hide flex-1"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex gap-2 overflow-x-auto overflow-y-hidden scrollbar-hide flex-1 whitespace-nowrap snap-x snap-mandatory py-1"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' as any }}
               >
                 {/* Date Buttons */}
                 {uniqueDates.map((date, index) => {
@@ -271,7 +271,7 @@ const GalleryPage = () => {
                     <button
                       key={date}
                       onClick={() => setSelectedDate(date)}
-                      className={`px-4 py-2 radius text-sm font-medium transition-all duration-300 flex-shrink-0 flex items-center gap-2 ${
+                      className={`inline-flex items-center gap-2 h-10 leading-none px-4 radius text-sm font-medium transition-colors duration-200 flex-shrink-0 snap-start ${
                         isSelected
                           ? ''
                           : 'bg-white/10 hover:bg-white/20 text-white'
@@ -317,9 +317,8 @@ const GalleryPage = () => {
 
         {/* Loading State */}
         {isLoading && !useFallback && (
-          <div className="flex justify-center items-center py-20">
-            <LoadingSpinner />
-            <span className="ml-3 text-white/60">Загружаем фотографии...</span>
+          <div className="fixed inset-0 z-[95] flex items-center justify-center">
+            <LoadingSpinner message="Loading" scrimOpacity={0.75} />
           </div>
         )}
 
@@ -344,18 +343,25 @@ const GalleryPage = () => {
           {filteredImages.map((image, index) => (
             <motion.div
               key={image.id || index}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.5) }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.2) }}  // Reduced delays
               className="relative group cursor-pointer"
               onClick={() => openLightbox(index)}
             >
               <div className="relative overflow-hidden radius aspect-[3/4]">
                 <img 
-                  src={image.src} 
-                  alt={image.title} 
+                  src={image.src}
+                  srcSet={[
+                    image.thumbnailSrc ? `${image.thumbnailSrc} 300w` : '',
+                    `${image.src} 800w`,
+                    (image as any).fullSrc ? `${(image as any).fullSrc} 1280w` : ''
+                  ].filter(Boolean).join(', ')}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  alt={image.title}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
                 
                 {/* Hover Overlay */}
@@ -407,7 +413,7 @@ const GalleryPage = () => {
           className="mt-12 sm:mt-16 text-center"
         >
           <a
-            href="https://www.instagram.com/vnvnc_concerthall/"
+            href="https://www.instagram.com/vnvnc_spb"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 radius border-2 border-white text-white font-display font-extrabold lowercase hover:bg-white hover:text-black transition-colors"

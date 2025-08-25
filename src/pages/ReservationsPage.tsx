@@ -20,6 +20,19 @@ const ReservationsPage = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedTable, setSelectedTable] = useState('standard')
+  
+  // Simple phone formatter: +7 (XXX) XXX-XX-XX
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '')
+    let res = '+7 '
+    const src = digits.startsWith('7') ? digits.slice(1) : digits.startsWith('8') ? digits.slice(1) : digits
+    if (src.length > 0) res += '(' + src.slice(0, 3)
+    if (src.length >= 3) res += ') '
+    if (src.length >= 4) res += src.slice(3, 6)
+    if (src.length >= 6) res += '-' + src.slice(6, 8)
+    if (src.length >= 8) res += '-' + src.slice(8, 10)
+    return res.trim()
+  }
 
   const tableTypes = [
     {
@@ -109,7 +122,7 @@ const ReservationsPage = () => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'phone' ? formatPhone(value) : value
     }))
     if (name === 'tableType') {
       setSelectedTable(value)
@@ -122,8 +135,8 @@ const ReservationsPage = () => {
   const minDate = tomorrow.toISOString().split('T')[0]
 
   return (
-    <div className="min-h-screen pt-20 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+    <div className="min-h-screen pt-20 pb-28 sm:pb-0 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-safe relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -299,7 +312,7 @@ const ReservationsPage = () => {
               Оформить бронь
             </h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form id="reservation-form" onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2">
@@ -335,7 +348,9 @@ const ReservationsPage = () => {
                       backgroundColor: colors.glass.white,
                       '--tw-ring-color': `${colors.neon.red}66`
                     } as any}
-                    placeholder="+7 (999) 123-45-67"
+                    placeholder="+7 (___) ___-__-__"
+                    inputMode="numeric"
+                    autoComplete="tel"
                   />
                 </div>
               </div>
@@ -434,6 +449,15 @@ const ReservationsPage = () => {
               </Button>
             </form>
           </motion.div>
+        </div>
+
+        {/* Sticky action bar on mobile */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden pb-safe" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.6))' }}>
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <Button form="reservation-form" type="submit" variant="primary" className="w-full" glow disabled={isSubmitting}>
+              {isSubmitting ? 'Оформляем бронь...' : 'Забронировать стол'}
+            </Button>
+          </div>
         </div>
 
         {/* FAQ Section */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
@@ -8,6 +8,7 @@ import EventCardNew from '../components/EventCardNew'
 
 const EventsPage = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'archive'>('current')
+  const [activeMonth, setActiveMonth] = useState<string | 'all'>('all')
 
   const { data: events = [] } = useQuery({
     queryKey: ['events'],
@@ -47,6 +48,8 @@ const EventsPage = () => {
     })
     .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
+  const months = useMemo(() => ['all','01','02','03','04','05','06','07','08','09','10','11','12'], [])
+
   return (
     <div className="min-h-screen relative">
       <div className="container mx-auto px-4 py-16 relative z-10">
@@ -80,6 +83,20 @@ const EventsPage = () => {
           </div>
         </div>
 
+        {/* Month chips (mobile‑scrollable) - only for archive */}
+        {activeTab === 'archive' && (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {months.map(m => (
+              <button
+                key={m}
+                onClick={() => setActiveMonth(m)}
+                className={`px-3 py-1.5 radius text-sm whitespace-nowrap ${activeMonth===m? 'text-white' : 'text-white/70 hover:text-white'}`}
+                style={activeMonth===m? { backgroundColor: '#ff1a1a' } : { backgroundColor: 'rgba(255,255,255,0.06)' }}
+              >{m==='all' ? 'все месяцы' : m}</button>
+            ))}
+          </div>
+        )}
+
         {/* Events Grid – мобильные карточки более компактные */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {activeTab === 'current' ? (
@@ -87,9 +104,11 @@ const EventsPage = () => {
               <EventCardNew key={event.id} event={event} index={index} />
             ))
           ) : (
-            archiveEvents.map((event: any, index: number) => (
-              <EventCardNew key={event.id} event={event} index={index} />
-            ))
+            archiveEvents
+              .filter((event: any) => activeMonth==='all' ? true : (new Date(event.rawDate).toISOString().slice(5,7)===activeMonth))
+              .map((event: any, index: number) => (
+                <EventCardNew key={event.id} event={event} index={index} />
+              ))
           )}
         </div>
 

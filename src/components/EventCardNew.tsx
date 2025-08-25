@@ -19,6 +19,8 @@ interface Event {
   age_rating?: number
   widget_available?: boolean
   purchase_url?: string
+  poster_small?: string
+  poster_original?: string
   hasPrice: boolean
   rawDate: Date
 }
@@ -49,9 +51,9 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.2) }}  // Reduced delays
       whileHover={{ y: -2, scale: 1.005 }}
       onClick={() => navigate(`/events/${event.id}`)}
       className="relative group cursor-pointer"
@@ -62,16 +64,24 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
         {/* 3:4 Portrait Image Container - Properly scaled on mobile */}
         <div className="relative aspect-[3/4] overflow-hidden bg-black">
           <img
-            src={event.image}
+            src={event.poster_small || event.image}  // Use small image if available
             alt={event.title}
-            className="w-full h-full object-cover object-center transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-            style={{ backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+            loading="lazy"  // Enable lazy loading for performance
+            decoding="async"  // Async decoding for better performance
+            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            style={{ 
+              backfaceVisibility: 'hidden', 
+              transform: 'translateZ(0)',
+              willChange: 'transform'  // Optimize for animations
+            }}
           />
           
           {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 z-10" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neon-red/0 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500" 
                style={{ background: `linear-gradient(45deg, transparent, ${colors.neon.red}33, transparent)` }} />
+          {/* Hard bottom blocker to prevent poster bleed */}
+          <div className="absolute bottom-0 left-0 right-0 h-5 sm:h-6 bg-black z-20 pointer-events-none" />
           
           {/* Age Rating Sticker */}
           {event.age_rating && (
@@ -91,7 +101,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           )}
           
           {/* Content Overlay - Positioned at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black via-black/90 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black via-black/90 to-transparent z-30">
             <h3 className="text-base sm:text-xl md:text-2xl font-display font-extrabold lowercase text-white mb-1 drop-shadow-lg text-stretch-heading">
               {event.title}
             </h3>
@@ -178,13 +188,14 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           </div>
         </div>
 
-        {/* Hover Glow Effect with base to prevent poster bleed-through */}
-        <div className="absolute inset-0 radius-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
-             style={{ 
-               boxShadow: `0 0 24px ${colors.neon.red}55, inset 0 0 18px ${colors.neon.red}22`,
-               border: `2px solid ${colors.neon.red}55`,
-               background: 'rgba(0,0,0,0.06)'
-             }} />
+        {/* Hover Glow Effect with solid base to prevent bottom bleed-through */}
+        <div className="absolute inset-0 radius-lg pointer-events-none">
+          {/* solid base */}
+          <div className="absolute inset-0 bg-black/20" />
+          {/* glow border */}
+          <div className="absolute inset-0 radius-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+               style={{ boxShadow: `0 0 24px ${colors.neon.red}55, inset 0 0 18px ${colors.neon.red}22`, border: `1px solid ${colors.neon.red}40` }} />
+        </div>
       </div>
     </motion.div>
   )

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, ArrowRight } from 'lucide-react'
 import { ticketsCloudService } from '../services/ticketsCloud'
-import LiquidHero from '../components/LiquidHero'
+import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import NewsTicker from '../components/ui/NewsTicker'
 import { colors } from '../utils/colors'
@@ -42,7 +42,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      <LiquidHero />
+      <ModernHero />
       
       {/* Ticker between sections */}
       <div 

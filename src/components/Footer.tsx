@@ -20,7 +20,7 @@ const Footer = () => {
         background: `radial-gradient(1200px 600px at 80% 20%, ${colors.neon.red}12, transparent)`,
       }} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
           {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -28,7 +28,7 @@ const Footer = () => {
             transition={{ duration: 0.5 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">контакты</NeonText>
+            <NeonText variant="red" size="xl" className="mb-6">контакты</NeonText>
             <div className="space-y-3">
               <a
                 href="https://yandex.ru/maps/-/CHDQRW0Z"
@@ -39,13 +39,16 @@ const Footer = () => {
                 <MapPin size={16} style={{ color: colors.neon.red }} className="mt-0.5 flex-shrink-0" />
                 <span className="underline transition-colors hover:opacity-80">Конюшенная площадь 2B, Санкт-Петербург</span>
               </a>
-              <div className="flex items-center space-x-3">
+              <a 
+                href="tel:+79214104440"
+                className="flex items-center space-x-3 hover:text-red-400 transition-colors"
+              >
                 <Phone size={16} style={{ color: colors.neon.red }} className="flex-shrink-0" />
-                <span>+7 (921) 410-44-40</span>
-              </div>
+                <span className="underline transition-colors hover:opacity-80">+7 (921) 410-44-40</span>
+              </a>
               <div className="flex items-center space-x-3">
                 <Clock size={16} style={{ color: colors.neon.red }} className="flex-shrink-0" />
-                <span>Пт-Сб: 23:00-06:00</span>
+                <span>Пт-Вс: 23:00-06:00</span>
               </div>
             </div>
           </motion.div>
@@ -57,8 +60,8 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">быстрые ссылки</NeonText>
-            <div className="space-y-3">
+            <NeonText variant="red" size="xl" className="mb-6">быстрые ссылки</NeonText>
+            <div className="space-y-2.5">
               <a href="/events" className="block transition-colors hover:opacity-80">Афиша</a>
               <a href="/gallery" className="block transition-colors hover:opacity-80">Галерея</a>
               <a href="/rules" className="block transition-colors hover:opacity-80">Правила</a>
@@ -74,7 +77,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-8">социальные сети</NeonText>
+            <NeonText variant="red" size="xl" className="mb-6">социальные сети</NeonText>
             <div className="grid grid-cols-4 gap-3 max-w-[240px]">
               <a 
                 href="https://vk.com/vnvnc_spb" 

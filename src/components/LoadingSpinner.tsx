@@ -1,16 +1,43 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { colors } from '../utils/colors'
-import WarpedVNVNC from './logo/WarpedVNVNC'
 
 type LoadingSpinnerProps = {
   inline?: boolean
+  message?: string
+  scrimOpacity?: number // 0..1, only for fullscreen
 }
 
-const LoadingSpinner = ({ inline = false }: LoadingSpinnerProps) => {
-  const ringSize = inline ? 120 : 250
-  const glowSize = inline ? 160 : 300
+const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val))
+
+const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: LoadingSpinnerProps) => {
+  const [ringSize, setRingSize] = useState<number>(inline ? 120 : 200)
+  const [glowSize, setGlowSize] = useState<number>(inline ? 160 : 260)
+  const [fontSize, setFontSize] = useState<string>(inline ? 'text-4xl' : 'text-5xl md:text-6xl')
+
+  useEffect(() => {
+    if (inline) return
+    const compute = () => {
+      const vw = window.innerWidth || 375
+      // ring tuned for mobile; keep smaller to avoid cutoffs
+      const size = clamp(Math.round(vw * 0.36), 140, 220)
+      setRingSize(size)
+      setGlowSize(Math.round(size * 1.25))
+      // Adjust font size based on viewport
+      if (vw < 640) {
+        setFontSize('text-5xl')
+      } else {
+        setFontSize('text-6xl')
+      }
+    }
+    compute()
+    window.addEventListener('resize', compute)
+    return () => window.removeEventListener('resize', compute)
+  }, [inline])
   return (
-    <div className={inline ? 'relative flex flex-col items-center justify-center' : 'fixed inset-0 flex flex-col items-center justify-center min-h-[100svh] bg-black overflow-hidden pt-safe pb-safe'}>
+    <div className={inline ? 'relative flex flex-col items-center justify-center' : 'fixed inset-0 z-[9998] flex flex-col items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe'}
+      style={!inline ? { backgroundColor: `rgba(0,0,0,${scrimOpacity})` } : undefined}
+    >
       {/* Background gradient effect */}
       {!inline && (
         <div className="absolute inset-0">
@@ -56,7 +83,7 @@ const LoadingSpinner = ({ inline = false }: LoadingSpinnerProps) => {
         
         {/* Main logo container */}
         <motion.div
-          className="relative z-10"
+          className="relative z-10 flex items-center justify-center"
           animate={{
             scale: [1, 1.05, 1],
           }}
@@ -66,7 +93,10 @@ const LoadingSpinner = ({ inline = false }: LoadingSpinnerProps) => {
             ease: "easeInOut"
           }}
         >
-          <WarpedVNVNC height={inline ? 64 : 128} animated />
+          <span className={`font-display font-extrabold ${fontSize} lowercase`}
+                style={{ color: colors.neon.red }}>
+            vnvnc
+          </span>
         </motion.div>
         
         {/* Circular loading ring */}
@@ -179,28 +209,21 @@ const LoadingSpinner = ({ inline = false }: LoadingSpinnerProps) => {
         ))}
       </div>
       
-      {!inline && (
+      {message && (
         <motion.div
-          className="mt-20 flex items-center gap-1"
+          className="mt-6 flex items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.3 }}
         >
-          <span className="text-white/80 text-sm tracking-[0.3em] uppercase font-light">Loading</span>
+          <span className="text-white/80 text-sm tracking-[0.2em] uppercase font-light">{message}</span>
           <div className="flex gap-1">
             {[0, 1, 2].map((index) => (
               <motion.span
                 key={index}
                 className="text-white/80 text-sm"
-                animate={{
-                  opacity: [0.3, 1, 0.3],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: index * 0.2
-                }}
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: index * 0.2 }}
               >
                 •
               </motion.span>

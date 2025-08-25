@@ -40,19 +40,18 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
         width: 'auto',
         overflow: 'visible',
         filter: glow ? `drop-shadow(0 0 18px ${color}) drop-shadow(0 0 36px ${color}66)` : undefined,
+        transform: 'translateX(2px)' // subtle inward shift to avoid edge cut on small screens
       }}
     >
       <defs>
         {/* Шум для «грязи» */}
         <motion.filter id="distort" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
-          <motion.feTurbulence
+          <feTurbulence
             type="fractalNoise"
-            baseFrequency={0.012}
-            numOctaves={3}
-            seed={3}
+            baseFrequency="0.012"
+            numOctaves="2"
+            seed="3"
             result="noise"
-            animate={animated ? { baseFrequency: [0.01, 0.018, 0.012] } : undefined}
-            transition={animated ? { duration: 6, repeat: Infinity, ease: 'easeInOut' } : undefined}
           />
           <feDisplacementMap in="SourceGraphic" in2="noise" scale={tight ? 6 : 12} xChannelSelector="R" yChannelSelector="G" />
         </motion.filter>
@@ -81,7 +80,7 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={800}
-          fontSize={tight ? 170 : 178}
+          fontSize={tight ? 152 : 170}
           letterSpacing={tight ? 10 : 12}
           fill="none"
           stroke={color}
@@ -101,7 +100,7 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={900}
-          fontSize={tight ? 170 : 178}
+          fontSize={tight ? 152 : 170}
           letterSpacing={tight ? 8 : 12}
           fill={`${color}33`}
           opacity={0.7}
@@ -117,7 +116,7 @@ const WarpedVNVNC: React.FC<WarpedVNVNCProps> = ({
           textAnchor="middle"
           fontFamily="Unbounded, Oswald, Bebas Neue, Impact, sans-serif"
           fontWeight={900}
-          fontSize={tight ? 170 : 178}
+          fontSize={tight ? 152 : 170}
           letterSpacing={tight ? 8 : 12}
           fill={color}
           mask="url(#grungeMask)"

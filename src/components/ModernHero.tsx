@@ -2,15 +2,18 @@ import { motion } from 'framer-motion'
 import { ChevronDown, Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
-import WarpedVNVNC from './logo/WarpedVNVNC'
+import VideoCircle from './VideoCircle'
+import { useRef } from 'react'
 
 const ModernHero = () => {
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null)
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
       {/* Background Video */}
       <div className="absolute inset-0">
         <video
+          ref={backgroundVideoRef}
           autoPlay
           loop
           muted
@@ -26,7 +29,7 @@ const ModernHero = () => {
       <div className="absolute inset-0" />
 
       {/* Animated gradient overlay */}
-      <motion.div
+        <motion.div
         className="absolute inset-0"
         animate={{
           background: [
@@ -50,74 +53,34 @@ const ModernHero = () => {
           transition={{ duration: 1, delay: 0.2 }}
           className="space-y-8"
         >
-          {/* Enhanced VNVNC Branding */}
-          <div className="relative">
-            {/* Фоновый мягкий глоу */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-full h-40 md:h-56" style={{
-                background: `radial-gradient(ellipse at center, ${colors.neon.red}33 0%, transparent 70%)`,
-                filter: 'blur(50px)',
-                transform: 'scale(1.6)'
-              }} />
-            </div>
-            
-            {/* Main logo with enhanced styling */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="relative flex justify-center"
-            >
-              <WarpedVNVNC height={140} animated className="md:h-36 lg:h-44 overflow-visible" tight />
-            </motion.div>
-            
-            {/* Subtle underline effect */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="h-0.5 w-32 md:w-48 mx-auto mt-4"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${colors.neon.red}, transparent)`,
-                boxShadow: `0 0 20px ${colors.neon.red}`,
-              }}
-            />
-          </div>
-
-          {/* Enhanced tagline */}
+          {/* Enhanced tagline - Now the main focus */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="space-y-2"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-3 mb-12"
           >
-            <p className="text-xl md:text-2xl text-white/90 font-light tracking-wide">
-              Эпицентр ночной жизни Санкт-Петербурга
+            <h1 className="text-3xl md:text-5xl lg:text-6xl text-white font-display font-extrabold tracking-tight">
+              Эпицентр ночной жизни
+            </h1>
+            <p className="text-xl md:text-2xl text-white/80">
+              Санкт-Петербурга
             </p>
             <p className="text-sm md:text-base uppercase tracking-[0.3em] font-semibold"
                style={{ color: colors.neon.red }}>
-              Concert Hall
+              Concert Hall • Est. 2018
             </p>
           </motion.div>
 
-           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* Video Circles Feature - ensure it's above particles */}
+          <VideoCircle className="my-16 relative z-10" backgroundVideoRef={backgroundVideoRef} />
+
+           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-2">
             <Link to="/events">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-2 backdrop-blur-sm border border-white/10"
-                style={{ 
-                  backgroundColor: colors.neon.red,
-                  boxShadow: `0 4px 20px ${colors.neon.red}66`
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = `0 8px 30px ${colors.neon.red}99`
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = `0 4px 20px ${colors.neon.red}66`
-                }}
+                 className="border-2 border-white text-white px-6 py-3 h-12 radius font-semibold text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
               >
                 <Calendar size={20} />
                 Афиша
@@ -128,10 +91,10 @@ const ModernHero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
+                 className="border-2 border-white text-white px-6 py-3 h-12 radius font-semibold text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
               >
                 <Ticket size={20} />
-                бронировать стол
+                Бронировать стол
               </motion.button>
             </Link>
           </div>
@@ -143,16 +106,21 @@ const ModernHero = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex items-center justify-center gap-2"
           >
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10"
-                 style={{ backgroundColor: colors.glass.white }}>
+            <a 
+              href="https://yandex.ru/maps/-/CHDQRW0Z" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 radius backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-300 no-underline"
+              style={{ backgroundColor: colors.glass.white, textDecoration: 'none' }}
+            >
               <MapPin size={16} style={{ color: colors.neon.red }} />
-              <span className="text-white/80 text-sm">Конюшенная площадь 2В, Санкт-Петербург</span>
-            </div>
+              <span className="text-white/80 text-sm hover:text-white transition-colors" style={{ textDecoration: 'none' }}>Конюшенная площадь 2В, Санкт-Петербург</span>
+            </a>
           </motion.div>
         </motion.div>
 
-        {/* Floating particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Floating particles - behind content with z-0 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}

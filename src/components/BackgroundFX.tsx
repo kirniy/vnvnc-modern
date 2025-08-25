@@ -41,16 +41,22 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
 
+    // Cache gradients to avoid recreation every frame
+    let bgGradient: CanvasGradient | null = null
+    
     const draw = (t: number) => {
       if (!runningRef.current) return
       ctx.clearRect(0, 0, width, height)
 
       // мягкий тёмный фон, чтобы усилить красные пятна
       ctx.globalCompositeOperation = 'source-over'
-       const grad = ctx.createRadialGradient(width * 0.5, height * 0.6, 0, width * 0.5, height * 0.6, Math.max(width, height))
-      grad.addColorStop(0, 'rgba(0,0,0,0.2)')
-      grad.addColorStop(1, 'rgba(0,0,0,0.6)')
-      ctx.fillStyle = grad
+      // Create gradient only once or on resize
+      if (!bgGradient) {
+        bgGradient = ctx.createRadialGradient(width * 0.5, height * 0.6, 0, width * 0.5, height * 0.6, Math.max(width, height))
+        bgGradient.addColorStop(0, 'rgba(0,0,0,0.2)')
+        bgGradient.addColorStop(1, 'rgba(0,0,0,0.6)')
+      }
+      ctx.fillStyle = bgGradient
       ctx.fillRect(0, 0, width, height)
 
       // красные «блики»
@@ -72,15 +78,17 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
         ctx.fill()
       })
 
-      // зерно
-       ctx.globalCompositeOperation = 'overlay'
-              const grainDensity = (heavy ? 0.04 : 0.015) * intensity
-      for (let j = 0; j < width * grainDensity; j++) {
-        const x = Math.random() * width
-        const y = Math.random() * height
-        const a = Math.random() * 0.09
-                ctx.fillStyle = `rgba(255,26,26,${a})`
-        ctx.fillRect(x, y, 1, 1)
+      // зерно - reduce particle count and skip frames
+      if (t % 3 === 0) { // Only draw grain every 3rd frame
+        ctx.globalCompositeOperation = 'overlay'
+        const grainDensity = (heavy ? 0.02 : 0.008) * intensity // Reduced by 50%
+        for (let j = 0; j < width * grainDensity; j++) {
+          const x = Math.random() * width
+          const y = Math.random() * height
+          const a = Math.random() * 0.09
+          ctx.fillStyle = `rgba(255,26,26,${a})`
+          ctx.fillRect(x, y, 1, 1)
+        }
       }
 
       // сканлайны
@@ -91,7 +99,10 @@ const BackgroundFX = ({ intensity = 1 }: { intensity?: number }) => {
         ctx.fillRect(0, y, width, 1)
       }
 
-      rafRef.current = requestAnimationFrame(draw)
+      // Throttle to 30fps instead of 60fps
+      setTimeout(() => {
+        rafRef.current = requestAnimationFrame(draw)
+      }, 33) // ~30fps
     }
     rafRef.current = requestAnimationFrame(draw)
 

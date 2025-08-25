@@ -4,9 +4,8 @@
 import axios from 'axios';
 
 // Use the Cloudflare Worker URL
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev' // Deployed worker URL
-  : 'http://localhost:8787'; // For local development with wrangler
+// For now, always use production worker since local isn't running
+const API_BASE_URL = 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev';
 
 export interface YandexPhoto {
   id: string;

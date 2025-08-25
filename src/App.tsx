@@ -6,7 +6,7 @@ import Footer from './components/Footer'
 import LoadingSpinner from './components/LoadingSpinner'
 import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
-import CursorFX from './components/ui/CursorFX'
+import MinimalCursor from './components/ui/MinimalCursor'
 // import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
 
 // Lazy load pages for better performance
@@ -40,7 +40,7 @@ function App() {
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
       {/* <BackgroundShader /> - DISABLED - causing SVG errors */}
-      <CursorFX />
+      <MinimalCursor />
       
       <main className="relative">
         <Suspense fallback={<LoadingWithHiddenFooter />}>

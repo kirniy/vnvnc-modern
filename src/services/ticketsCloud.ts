@@ -13,9 +13,6 @@
  * This service uses a custom Cloudflare Worker as CORS proxy.
  */
 
-const API_BASE_URL = 'https://ticketscloud.com'
-const STAGE_BASE_URL = 'https://stage.freetc.net'
-
 interface TicketsCloudConfig {
   apiKey: string
   useStage?: boolean
@@ -107,45 +104,13 @@ interface ApiEvent {
 
 class TicketsCloudService {
   private apiKey: string
-  private baseUrl: string
 
   constructor(config: TicketsCloudConfig) {
     this.apiKey = config.apiKey
-    this.baseUrl = config.useStage ? STAGE_BASE_URL : API_BASE_URL
   }
 
-  private async makeRequest(endpoint: string, options: RequestInit = {}) {
-    // Check if we're in a browser environment that needs proxy
-    const needsProxy = typeof window !== 'undefined' && 
-                      window.location.hostname !== 'localhost' &&
-                      window.location.hostname !== '127.0.0.1'
-    
-    if (!needsProxy) {
-      // Direct API call for development
-      const url = `${this.baseUrl}${endpoint}`
-      const headers = {
-        'Authorization': `key ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...options.headers,
-      }
-
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        mode: 'cors',
-        credentials: 'omit',
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
-      }
-
-      return await response.json()
-    }
-
-    // Production: Use our custom Cloudflare Worker CORS proxy
+  private async makeRequest(endpoint: string) {
+    // Always use the CORS proxy to avoid issues
     try {
       const workerUrl = `https://vnvnc-cors-proxy.kirlich-ps3.workers.dev/api${endpoint}?key=${this.apiKey}`
       console.log('Using Cloudflare Worker proxy:', workerUrl)
@@ -200,10 +165,10 @@ class TicketsCloudService {
       eventTimestamp = eventDate.getTime()
     }
     
-    // Get the best quality poster image available
-    const posterImage = apiEvent.media?.cover_original?.url || 
-                       apiEvent.media?.cover?.url || 
+    // Use smaller images for list view, save original for detail view
+    const posterImage = apiEvent.media?.cover?.url ||  // Medium size first
                        apiEvent.media?.cover_small?.url || 
+                       apiEvent.media?.cover_original?.url || 
                        '/default-event.jpg'
     
     const prices = apiEvent.ticket_types?.map(t => t.price_min ?? t.price_max).filter(p => p != null) || []

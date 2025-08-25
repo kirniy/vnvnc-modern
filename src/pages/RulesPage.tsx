@@ -67,7 +67,7 @@ const RulesPage = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-center mb-12 max-w-3xl mx-auto"
         >
-          <div className="rounded-2xl p-8 backdrop-blur-md border border-white/10"
+          <div className="radius-xl p-8 backdrop-blur-md border border-white/10"
                style={{ backgroundColor: colors.glass.darker }}>
             <p className="text-lg text-white/90 leading-relaxed">
               Мы не про скучные юридические тексты, но чтобы все наши вечера были в кайф, есть пара моментов, которые стоит помнить. VNVNC — это не просто адрес, это наша атмосфера. И мы хотим, чтобы она оставалась такой, какой ты ее любишь.
@@ -83,22 +83,22 @@ const RulesPage = () => {
           className="flex justify-center gap-8 mb-12"
         >
           <div className="flex flex-col items-center gap-2">
-            <div className="p-3 rounded-full" style={{ backgroundColor: colors.glass.dark }}>
+            <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Shield size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">Безопасность</span>
+            <span className="text-sm text-white/60">🛡️ Безопасность</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="p-3 rounded-full" style={{ backgroundColor: colors.glass.dark }}>
+            <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Heart size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">Уважение</span>
+            <span className="text-sm text-white/60">❤️ Уважение</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="p-3 rounded-full" style={{ backgroundColor: colors.glass.dark }}>
+            <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Sparkles size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">Атмосфера</span>
+            <span className="text-sm text-white/60">✨ Атмосфера</span>
           </div>
         </motion.div>
 
@@ -118,16 +118,21 @@ const RulesPage = () => {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-12"
         >
-          <div className="rounded-2xl p-6 border flex items-start gap-4"
+          <div className="radius-lg p-6 border flex items-start gap-4"
                style={{ 
                  backgroundColor: colors.glass.darker,
                  borderColor: colors.neon.red + '33'
                }}>
             <AlertTriangle size={24} style={{ color: colors.neon.red }} className="flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-bold text-white mb-2">Важно помнить</h3>
-              <p className="text-white/80">
-                Если ты нарушаешь правила или портишь атмосферу, мы попросим тебя на выход без возврата денег за билет. Мы тут для своих, а не для проблемных.
+              <h3 className="font-bold text-white mb-2">⚡ Важно помнить</h3>
+              <p className="text-white/80 leading-relaxed">
+                VNVNC — это про взаимное уважение и крутую атмосферу. Мы строим это место вместе с тобой, 
+                и каждый вечер здесь — это история, которую мы создаём. Администрация заботится о безопасности 
+                и комфорте всех гостей, поэтому оставляет за собой право принимать решения о допуске в клуб. 
+                Если что-то пошло не так — не переживай, бывает. Главное — мы все здесь для того, чтобы 
+                классно провести время, танцевать под отличную музыку и чувствовать себя свободно. 
+                Соблюдение правил — это твой вклад в атмосферу VNVNC. Спасибо, что ты с нами! 🖤
               </p>
             </div>
           </div>

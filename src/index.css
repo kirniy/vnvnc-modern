@@ -36,11 +36,7 @@
     font-variant-ligatures: none;
   }
 
-  body p, body li, body span, body label, body input, body textarea, body button, body a {
-    transform: scaleY(1.06);
-    transform-origin: center;
-    display: inline-block;
-  }
+  /* Убираем глобальное вертикальное растяжение для текста — применяем только к заголовкам через утилиты */
   
   /* Custom scrollbar */
   ::-webkit-scrollbar {
