@@ -32,6 +32,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
   const [preloadedVideoElement, setPreloadedVideoElement] = useState<HTMLVideoElement | null>(null);
   const [hasShuffled, setHasShuffled] = useState(false); // Track if user has shuffled
   const [recentVideoIds, setRecentVideoIds] = useState<string[]>([]); // Track recently played videos
+  const [preloadedVideosCache] = useState<Map<string, HTMLVideoElement>>(new Map()); // Cache preloaded video elements
 
   // Initialize with background video immediately
   useEffect(() => {
@@ -46,10 +47,8 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     };
     setCurrentVideo(backgroundVideo);
     
-    // Load Yandex videos in background after a short delay
-    setTimeout(() => {
-      loadVideosInBackground();
-    }, 500);
+    // Load Yandex videos immediately in background
+    loadVideosInBackground();
   }, []);
 
   // Preload next video whenever current video changes (with delay to not block initial load)
@@ -74,15 +73,34 @@ export const useYandexVideos = (): UseYandexVideosResult => {
       console.log('Fetched videos in background:', fetchedVideos);
       setVideos(fetchedVideos);
       
-      // Preload the first Yandex video so it's ready when user clicks shuffle
+      // Aggressively preload first 5-8 Yandex videos so they're ready immediately
       if (fetchedVideos.length > 0) {
-        const firstYandexVideo = fetchedVideos[0];
-        const video = document.createElement('video');
-        video.src = firstYandexVideo.url;
-        video.preload = 'auto';
-        video.muted = true;
-        video.load();
-        console.log('Preloading first Yandex video:', firstYandexVideo.title);
+        const videosToPreload = fetchedVideos.slice(0, Math.min(8, fetchedVideos.length));
+        
+        videosToPreload.forEach((videoData, index) => {
+          const video = document.createElement('video');
+          video.src = videoData.url;
+          video.preload = 'auto';
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          
+          // Add to cache immediately
+          preloadedVideosCache.set(videoData.id, video);
+          
+          // Start loading immediately, but stagger slightly to avoid congestion
+          setTimeout(() => {
+            video.load();
+            console.log(`Preloading video ${index + 1}:`, videoData.title);
+            
+            // For the first few videos, ensure they're fully buffered
+            if (index < 3) {
+              video.addEventListener('canplaythrough', () => {
+                console.log(`Video ${index + 1} fully preloaded:`, videoData.title);
+              });
+            }
+          }, index * 100); // Reduced delay for faster loading
+        });
       }
     } catch (err) {
       console.error('Error loading videos in background:', err);
@@ -152,32 +170,40 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     if (next && next.url !== nextVideo?.url) {
       setNextVideo(next);
       
+      // Check if already in cache
+      if (preloadedVideosCache.has(next.id)) {
+        console.log('Next video already preloaded from cache:', next.title);
+        setPreloadedVideoElement(preloadedVideosCache.get(next.id)!);
+        return;
+      }
+      
       // Use requestIdleCallback to preload when browser is idle (non-blocking)
       const preloadFunction = () => {
         // Create a video element to preload the next video
         const video = document.createElement('video');
         video.src = next.url;
-        video.preload = 'metadata'; // Start with metadata only
+        video.preload = 'auto'; // Changed to auto for immediate loading
         video.muted = true;
         video.loop = true;
         video.playsInline = true;
         
-        // Gradually upgrade preload level
-        video.addEventListener('loadedmetadata', () => {
-          video.preload = 'auto'; // Now load the full video
-        });
+        // Add to cache
+        preloadedVideosCache.set(next.id, video);
+        
+        // Start loading immediately
+        video.load();
         
         // Store the preloaded element
         setPreloadedVideoElement(video);
         
-        console.log('Preloading next video in background:', next.title);
+        console.log('Preloading next video:', next.title);
       };
       
       // Use requestIdleCallback if available, otherwise use setTimeout
       if ('requestIdleCallback' in window) {
         window.requestIdleCallback(preloadFunction);
       } else {
-        setTimeout(preloadFunction, 100);
+        setTimeout(preloadFunction, 50); // Reduced delay
       }
     }
   };
@@ -191,6 +217,10 @@ export const useYandexVideos = (): UseYandexVideosResult => {
       if (videos.length > 0) {
         const randomVideo = getRandomVideo(currentVideo?.id);
         if (randomVideo) {
+          // Check if video is already preloaded
+          if (preloadedVideosCache.has(randomVideo.id)) {
+            console.log('Using preloaded video from cache:', randomVideo.title);
+          }
           setCurrentVideo(randomVideo);
           setRecentVideoIds(prev => [...prev, randomVideo.id].slice(-15)); // Keep last 15
           console.log('First shuffle - switching to Yandex video:', randomVideo.title);
