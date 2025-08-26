@@ -15,39 +15,69 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [progress, setProgress] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
   const [isEnlarged, setIsEnlarged] = useState(false)
   const [isRandomizing, setIsRandomizing] = useState(false)
   const [showMuteButton, setShowMuteButton] = useState(false)
   const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
-  // Handle randomizer click with amazing animation
+  // Handle randomizer click with smooth transition
   const handleRandomize = async () => {
     setIsRandomizing(true)
-    setIsLoading(true)
-    setProgress(0)
+    setIsTransitioning(true)
     
-    // Preserve current mute state
+    // Preserve current mute state and keep video playing
     const currentMuteState = isMuted
     
-    // Add some delay for animation effect
-    setTimeout(async () => {
-      await fetchRandomVideo()
+    // Fetch new video while keeping current playing
+    await fetchRandomVideo()
+    
+    // Wait for new video to be ready before switching
+    if (videoRef.current && currentVideo) {
+      const newVideo = document.createElement('video')
+      newVideo.src = currentVideo.url
+      newVideo.muted = currentMuteState
+      newVideo.playsInline = true
+      newVideo.loop = true
       
-      setTimeout(() => {
-        setIsLoading(false)
-        setIsRandomizing(false)
-        // Auto-play the new video with preserved mute state
+      // Preload the new video
+      newVideo.load()
+      
+      const handleCanPlay = () => {
+        // Only switch when new video is ready
         if (videoRef.current) {
+          videoRef.current.src = newVideo.src
           videoRef.current.muted = currentMuteState
-          videoRef.current.play()
-          setIsPlaying(true)
+          videoRef.current.load()
+          
+          videoRef.current.play().then(() => {
+            setIsTransitioning(false)
+            setIsRandomizing(false)
+            setProgress(0)
+            setIsPlaying(true)
+          }).catch(() => {
+            setIsTransitioning(false)
+            setIsRandomizing(false)
+          })
         }
-      }, 300)
-    }, 500)
+      }
+      
+      newVideo.addEventListener('canplaythrough', handleCanPlay, { once: true })
+    }
   }
 
   // Handle click on video circle - Telegram style
@@ -174,7 +204,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
 
   // Auto-play on video change and sync background
   useEffect(() => {
-    if (videoRef.current && currentVideo) {
+    if (videoRef.current && currentVideo && !isTransitioning) {
       // Update background video source to match circle video
       if (backgroundVideoRef?.current) {
         backgroundVideoRef.current.src = currentVideo.url
@@ -188,7 +218,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         .then(() => setIsPlaying(true))
         .catch(err => console.log('Autoplay failed:', err))
     }
-  }, [currentVideo, isMuted, backgroundVideoRef])
+  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning])
 
   // Log when next video is preloaded
   useEffect(() => {
@@ -211,9 +241,18 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
     return (
       <div className={`relative ${className}`}>
         <div className="relative mx-auto w-[176px] h-[176px] md:w-[220px] md:h-[220px]">
-          <div className="absolute inset-0 rounded-full p-[3px]" style={{ background: '#ff0040' }}>
-            <div className="w-full h-full rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          <motion.div 
+            className="absolute inset-0 rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            style={{
+              background: `conic-gradient(from 0deg, transparent, ${colors.neon.red}40, transparent)`,
+              filter: 'blur(8px)'
+            }}
+          />
+          <div className="absolute inset-0 rounded-full border border-white/10 bg-black/90 backdrop-blur-md flex items-center justify-center">
+            <div className="text-white/60 text-sm tracking-wider uppercase">
+              Портал
             </div>
           </div>
         </div>
@@ -238,59 +277,69 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         }}
         className="relative mx-auto"
         style={{
-          marginTop: isEnlarged ? '100px' : '0',
-          marginBottom: isEnlarged ? '80px' : '0',
-          transition: 'margin 0.3s ease'
+          // On mobile, push down only; on desktop, center vertically
+          marginTop: isEnlarged ? (isMobile ? '40px' : '100px') : '0',
+          marginBottom: isEnlarged ? (isMobile ? '140px' : '80px') : '0',
+          transition: 'margin 0.3s ease',
+          // On mobile, use transform to push down instead of margin-top negative space
+          transform: isEnlarged && isMobile ? 'translateY(60px)' : undefined
         }}
       >
-        {/* Amazing randomization effect */}
+        {/* Portal activation pulse */}
         <AnimatePresence>
           {isRandomizing && (
             <motion.div
               initial={{ scale: 1, opacity: 0 }}
               animate={{ 
-                scale: [1, 1.5, 2],
-                opacity: [0.5, 0.3, 0],
-                rotate: [0, 180, 360]
+                scale: [1, 1.8],
+                opacity: [0.8, 0]
               }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{
-                background: `radial-gradient(circle, ${colors.neon.red}60 0%, transparent 70%)`,
-                filter: 'blur(20px)',
+                border: `1px solid ${colors.neon.red}`,
+                boxShadow: `0 0 20px ${colors.neon.red}40`
               }}
             />
           )}
         </AnimatePresence>
 
-        {/* Glow effect when playing */}
+        {/* Subtle glow when playing */}
         <AnimatePresence>
           {isPlaying && !isEnlarged && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ 
+                opacity: [0.3, 0.5, 0.3]
+              }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 rounded-full"
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+              className="absolute inset-0 rounded-full pointer-events-none"
               style={{
-                background: `radial-gradient(circle, ${colors.neon.red}30 0%, transparent 70%)`,
-                filter: 'blur(30px)',
-                transform: 'scale(1.3)',
+                background: `radial-gradient(circle, ${colors.neon.red}20 0%, transparent 60%)`,
+                filter: 'blur(40px)',
+                transform: 'scale(1.4)',
               }}
             />
           )}
         </AnimatePresence>
 
-        {/* Main Circle */}
+        {/* Main Portal Circle */}
         <motion.div 
           className="relative w-[176px] h-[176px] md:w-[220px] md:h-[220px] cursor-pointer mx-auto"
           onClick={handleCircleClick}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          whileHover={{ scale: 1.02 }}
           animate={isRandomizing ? {
-            rotate: [0, -10, 10, -10, 10, 0],
+            scale: [1, 0.98, 1.02, 1],
           } : {}}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
         >
           {/* Border using CSS border instead of padding to avoid artifacts */}
           <div className="absolute inset-0 rounded-full border-[3px] border-[#ff0040] overflow-hidden">
@@ -305,6 +354,45 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
                 preload="auto"
                 autoPlay
               />
+              
+              {/* Transition overlay - subtle with interesting animation */}
+              <AnimatePresence>
+                {isTransitioning && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    {/* Portal vortex effect */}
+                    <motion.div className="absolute inset-0 rounded-full pointer-events-none"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      style={{
+                        background: `conic-gradient(from 0deg, transparent, ${colors.neon.red}20, transparent, ${colors.neon.red}20, transparent)`,
+                        filter: 'blur(4px)'
+                      }}
+                    />
+                    
+                    {/* Central portal spinner */}
+                    <div className="relative">
+                      <motion.div
+                        animate={{ rotate: -360, scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        className="w-16 h-16 rounded-full border-2 border-white/20"
+                        style={{ borderTopColor: colors.neon.red, borderRightColor: colors.neon.red }}
+                      />
+                      <motion.div
+                        animate={{ rotate: 360, scale: [1, 0.8, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+                        className="absolute inset-2 rounded-full border border-white/30"
+                        style={{ borderTopColor: 'transparent', borderBottomColor: 'transparent' }}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Center Mute/Unmute Button when enlarged and hovering */}
               <AnimatePresence>
@@ -360,26 +448,13 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
             isPlaying={isPlaying}
           />
 
-          {/* Loading Overlay */}
-          <AnimatePresence>
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center"
-              >
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
       </motion.div>
 
       {/* Randomizer Button */}
       <motion.div
         animate={{ 
-          y: isEnlarged ? 30 : 0 
+          y: isEnlarged ? (isMobile ? 60 : 30) : 0 
         }}
         transition={{ 
           duration: 0.3,
@@ -390,25 +465,27 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
       >
         <VideoCircleButton
           onClick={handleRandomize}
-          isLoading={isLoading}
+          isLoading={isTransitioning}
           isRandomizing={isRandomizing}
           className="mt-6"
         />
       </motion.div>
 
-      {/* Hint text with arrow */}
+      {/* Refined hint text */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ 
-          opacity: 1, 
-          y: isEnlarged ? 30 : 0 
+          opacity: 0.5, 
+          y: isEnlarged ? (isMobile ? 60 : 30) : 0 
         }}
-        transition={{ delay: 0.5 }}
-        className="text-center text-white/40 text-xs mt-3 flex items-center justify-center gap-1"
+        transition={{ delay: 0.5, duration: 0.8 }}
+        className="text-center text-white/30 text-xs mt-4 tracking-widest uppercase"
       >
-        <span>↑</span>
-        <span>Моменты из архива VNVNC</span>
-        <span>↑</span>
+        <div className="flex items-center justify-center gap-4">
+          <span className="block w-8 h-px bg-white/20" />
+          <span>Моменты из архива VNVNC</span>
+          <span className="block w-8 h-px bg-white/20" />
+        </div>
       </motion.div>
     </div>
   )
