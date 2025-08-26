@@ -324,21 +324,23 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
           transform: isEnlarged && isMobile ? 'translateY(100px)' : undefined
         }}
       >
-        {/* Portal activation pulse */}
+        {/* Portal activation pulse - perfect circle */}
         <AnimatePresence>
           {isRandomizing && (
             <motion.div
-              initial={{ scale: 1, opacity: 0 }}
+              initial={{ width: '100%', height: '100%', opacity: 0 }}
               animate={{ 
-                scale: [1, 1.8],
+                width: ['100%', '180%'],
+                height: ['100%', '180%'],
                 opacity: [0.8, 0]
               }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="absolute inset-0 rounded-full pointer-events-none"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
               style={{
-                border: `1px solid ${colors.neon.red}`,
-                boxShadow: `0 0 20px ${colors.neon.red}40`
+                aspectRatio: '1 / 1',
+                border: `2px solid ${colors.neon.red}`,
+                boxShadow: `0 0 30px ${colors.neon.red}60`
               }}
             />
           )}
