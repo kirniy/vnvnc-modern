@@ -328,17 +328,20 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         <AnimatePresence>
           {isRandomizing && (
             <motion.div
-              initial={{ width: '100%', height: '100%', opacity: 0 }}
+              initial={{ 
+                width: isMobile ? 176 : 220, 
+                height: isMobile ? 176 : 220, 
+                opacity: 0 
+              }}
               animate={{ 
-                width: ['100%', '180%'],
-                height: ['100%', '180%'],
+                width: isMobile ? [176, 316] : [220, 396],
+                height: isMobile ? [176, 316] : [220, 396],
                 opacity: [0.8, 0]
               }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
               style={{
-                aspectRatio: '1 / 1',
                 border: `2px solid ${colors.neon.red}`,
                 boxShadow: `0 0 30px ${colors.neon.red}60`
               }}
