@@ -243,9 +243,9 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
   // Auto-play on video change - but DON'T update background during transitions
   useEffect(() => {
     if (videoRef.current && currentVideo && !isTransitioning && !isRandomizing) {
-      // Only update background on initial load (not during portal transitions)
-      // During transitions, handleRandomize will sync both videos together
-      if (backgroundVideoRef?.current) {
+      // Don't update background if it's the initial hero video - they're meant to be different
+      // Only sync background after the first portal click
+      if (backgroundVideoRef?.current && hasShuffled) {
         backgroundVideoRef.current.src = currentVideo.url
         backgroundVideoRef.current.load()
         backgroundVideoRef.current.play()
@@ -257,7 +257,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         .then(() => setIsPlaying(true))
         .catch(err => console.log('Autoplay failed:', err))
     }
-  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning, isRandomizing])
+  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning, isRandomizing, hasShuffled])
 
   // Log when next video is preloaded
   useEffect(() => {

@@ -38,13 +38,13 @@ export const useYandexVideos = (): UseYandexVideosResult => {
 
   // Initialize with background video immediately
   useEffect(() => {
-    // Set the background video as initial video (same as hero background)
+    // Set the compressed 1x1 video with sound for the circle
     const backgroundVideo: YandexVideo = {
       id: 'background-hero',
-      url: '/herovideo.mp4', // Same as background video in ModernHero
+      url: '/herovideo-compressed-1x1.mp4', // Compressed 1x1 version with sound for circle
       title: 'VNVNC',
-      name: 'herovideo.mp4',
-      path: '/herovideo.mp4',
+      name: 'herovideo-compressed-1x1.mp4',
+      path: '/herovideo-compressed-1x1.mp4',
       duration: 10
     };
     setCurrentVideo(backgroundVideo);
