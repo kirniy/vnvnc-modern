@@ -11,7 +11,8 @@ interface VideoCircleProps {
 }
 
 const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) => {
-  const { currentVideo, nextVideo, isLoading: videosLoading, fetchRandomVideo } = useYandexVideos()
+  const { currentVideo: initialVideo, nextVideo, isLoading: videosLoading, videos } = useYandexVideos()
+  const [currentVideo, setCurrentVideo] = useState(initialVideo)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [progress, setProgress] = useState(0)
@@ -21,6 +22,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
   const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [hasShuffled, setHasShuffled] = useState(false)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,50 +36,86 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+  
+  // Sync with initial video from hook (for initial load)
+  useEffect(() => {
+    if (initialVideo && !currentVideo) {
+      setCurrentVideo(initialVideo)
+    }
+  }, [initialVideo, currentVideo])
 
   // Handle randomizer click with smooth transition
   const handleRandomize = async () => {
     setIsRandomizing(true)
     setIsTransitioning(true)
     
-    // Preserve current mute state and keep video playing
+    // Preserve current mute state and keep current video playing
     const currentMuteState = isMuted
     
-    // Fetch new video while keeping current playing
-    await fetchRandomVideo()
-    
-    // Wait for new video to be ready before switching
-    if (videoRef.current && currentVideo) {
-      const newVideo = document.createElement('video')
-      newVideo.src = currentVideo.url
-      newVideo.muted = currentMuteState
-      newVideo.playsInline = true
-      newVideo.loop = true
-      
-      // Preload the new video
-      newVideo.load()
-      
-      const handleCanPlay = () => {
-        // Only switch when new video is ready
-        if (videoRef.current) {
-          videoRef.current.src = newVideo.src
-          videoRef.current.muted = currentMuteState
-          videoRef.current.load()
-          
-          videoRef.current.play().then(() => {
-            setIsTransitioning(false)
-            setIsRandomizing(false)
-            setProgress(0)
-            setIsPlaying(true)
-          }).catch(() => {
-            setIsTransitioning(false)
-            setIsRandomizing(false)
-          })
+    // Get a random video WITHOUT changing currentVideo yet
+    let newVideoData = null
+    if (!hasShuffled) {
+      setHasShuffled(true)
+      // First shuffle - switch from background to Yandex
+      if (videos.length > 0) {
+        const availableVideos = videos.filter(v => v.id !== currentVideo?.id)
+        if (availableVideos.length > 0) {
+          const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 6))
+          newVideoData = availableVideos[randomIndex]
         }
       }
-      
-      newVideo.addEventListener('canplaythrough', handleCanPlay, { once: true })
+    } else {
+      // Subsequent shuffles
+      const availableVideos = videos.filter(v => v.id !== currentVideo?.id)
+      if (availableVideos.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableVideos.length)
+        newVideoData = availableVideos[randomIndex]
+      }
     }
+    
+    if (!newVideoData) {
+      setIsTransitioning(false)
+      setIsRandomizing(false)
+      return
+    }
+    
+    // Preload the new video WITHOUT updating currentVideo
+    const newVideo = document.createElement('video')
+    newVideo.src = newVideoData.url
+    newVideo.muted = currentMuteState
+    newVideo.playsInline = true
+    newVideo.loop = true
+    
+    // Preload the new video
+    newVideo.load()
+    
+    const handleCanPlay = () => {
+      // NOW update both videos simultaneously
+      if (videoRef.current && backgroundVideoRef?.current) {
+        // Update both videos at exactly the same time
+        videoRef.current.src = newVideoData.url
+        videoRef.current.muted = currentMuteState
+        videoRef.current.load()
+        
+        backgroundVideoRef.current.src = newVideoData.url
+        backgroundVideoRef.current.load()
+        backgroundVideoRef.current.play()
+        
+        videoRef.current.play().then(() => {
+          setIsTransitioning(false)
+          setIsRandomizing(false)
+          setProgress(0)
+          setIsPlaying(true)
+          // NOW update the currentVideo state after both are playing
+          setCurrentVideo(newVideoData)
+        }).catch(() => {
+          setIsTransitioning(false)
+          setIsRandomizing(false)
+        })
+      }
+    }
+    
+    newVideo.addEventListener('canplaythrough', handleCanPlay, { once: true })
   }
 
   // Handle click on video circle - Telegram style
@@ -202,10 +240,11 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
     }
   }, [currentVideo, backgroundVideoRef])
 
-  // Auto-play on video change and sync background
+  // Auto-play on video change - but DON'T update background during transitions
   useEffect(() => {
-    if (videoRef.current && currentVideo && !isTransitioning) {
-      // Update background video source to match circle video
+    if (videoRef.current && currentVideo && !isTransitioning && !isRandomizing) {
+      // Only update background on initial load (not during portal transitions)
+      // During transitions, handleRandomize will sync both videos together
       if (backgroundVideoRef?.current) {
         backgroundVideoRef.current.src = currentVideo.url
         backgroundVideoRef.current.load()
@@ -218,7 +257,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         .then(() => setIsPlaying(true))
         .catch(err => console.log('Autoplay failed:', err))
     }
-  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning])
+  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning, isRandomizing])
 
   // Log when next video is preloaded
   useEffect(() => {
@@ -277,12 +316,12 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         }}
         className="relative mx-auto"
         style={{
-          // On mobile, push down only; on desktop, center vertically
-          marginTop: isEnlarged ? (isMobile ? '40px' : '100px') : '0',
-          marginBottom: isEnlarged ? (isMobile ? '140px' : '80px') : '0',
-          transition: 'margin 0.3s ease',
-          // On mobile, use transform to push down instead of margin-top negative space
-          transform: isEnlarged && isMobile ? 'translateY(60px)' : undefined
+          // On mobile, only push down with no top margin; on desktop, center vertically
+          marginTop: isEnlarged ? (isMobile ? '0' : '100px') : '0',
+          marginBottom: isEnlarged ? (isMobile ? '60px' : '80px') : '0',
+          transition: 'margin 0.3s ease, transform 0.3s ease',
+          // On mobile, use transform to push down the enlarged circle
+          transform: isEnlarged && isMobile ? 'translateY(100px)' : undefined
         }}
       >
         {/* Portal activation pulse */}
