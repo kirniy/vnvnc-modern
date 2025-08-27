@@ -102,41 +102,127 @@ interface ApiEvent {
   }>
 }
 
+// Cache configuration
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+  ttl: number
+}
+
 class TicketsCloudService {
   private apiKey: string
+  private cache = new Map<string, CacheEntry<any>>()
+  private readonly DEFAULT_TTL = 60 * 1000 // 1 minute for high traffic
+  private readonly EXTENDED_TTL = 5 * 60 * 1000 // 5 minutes for stable data
+  private pendingRequests = new Map<string, Promise<any>>() // Prevent duplicate requests
 
   constructor(config: TicketsCloudConfig) {
     this.apiKey = config.apiKey
+    
+    // Clean up expired cache entries every minute
+    setInterval(() => this.cleanupCache(), 60 * 1000)
+  }
+  
+  private cleanupCache() {
+    const now = Date.now()
+    for (const [key, entry] of this.cache.entries()) {
+      if (now - entry.timestamp > entry.ttl) {
+        this.cache.delete(key)
+        console.log(`Cache expired for: ${key}`)
+      }
+    }
+  }
+  
+  private getCached<T>(key: string): T | null {
+    const entry = this.cache.get(key)
+    if (!entry) return null
+    
+    const now = Date.now()
+    if (now - entry.timestamp > entry.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+    
+    console.log(`Cache hit for: ${key}`)
+    return entry.data as T
+  }
+  
+  private setCache<T>(key: string, data: T, ttl?: number) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttl || this.DEFAULT_TTL
+    })
+    console.log(`Cache set for: ${key} with TTL: ${ttl || this.DEFAULT_TTL}ms`)
   }
 
-  private async makeRequest(endpoint: string) {
-    // Always use the CORS proxy to avoid issues
-    try {
-      const workerUrl = `https://vnvnc-cors-proxy.kirlich-ps3.workers.dev/api${endpoint}?key=${this.apiKey}`
-      console.log('Using Cloudflare Worker proxy:', workerUrl)
-
-      const response = await fetch(workerUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-        credentials: 'omit',
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Worker proxy error! status: ${response.status}, message: ${errorText}`)
-      }
-
-      const data = await response.json()
-      console.log('✅ Cloudflare Worker proxy successful')
-      return data
-    } catch (error) {
-      console.error('❌ Cloudflare Worker proxy failed:', error)
-      throw new Error('Failed to fetch from TicketsCloud API via worker proxy.')
+  private async makeRequest(endpoint: string, ttl?: number) {
+    const cacheKey = `api:${endpoint}`
+    
+    // Check cache first
+    const cached = this.getCached(cacheKey)
+    if (cached !== null) {
+      return cached
     }
+    
+    // Check if there's already a pending request for this endpoint
+    const pendingRequest = this.pendingRequests.get(cacheKey)
+    if (pendingRequest) {
+      console.log(`Reusing pending request for: ${endpoint}`)
+      return pendingRequest
+    }
+    
+    // Create new request and store as pending
+    const requestPromise = (async () => {
+      try {
+        const workerUrl = `https://vnvnc-cors-proxy.kirlich-ps3.workers.dev/api${endpoint}?key=${this.apiKey}`
+        console.log('Making API request:', endpoint)
+
+        const response = await fetch(workerUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            // Add cache headers for CDN
+            'Cache-Control': 'public, max-age=60',
+          },
+          mode: 'cors',
+          credentials: 'omit',
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          throw new Error(`Worker proxy error! status: ${response.status}, message: ${errorText}`)
+        }
+
+        const data = await response.json()
+        console.log('✅ API request successful:', endpoint)
+        
+        // Cache the successful response
+        this.setCache(cacheKey, data, ttl)
+        
+        return data
+      } catch (error) {
+        console.error('❌ API request failed:', endpoint, error)
+        
+        // Try to return stale cache if available (stale-while-revalidate pattern)
+        const staleCache = this.cache.get(cacheKey)
+        if (staleCache) {
+          console.log('Returning stale cache due to error')
+          return staleCache.data
+        }
+        
+        throw new Error('Failed to fetch from TicketsCloud API.')
+      } finally {
+        // Clean up pending request
+        this.pendingRequests.delete(cacheKey)
+      }
+    })()
+    
+    // Store as pending request
+    this.pendingRequests.set(cacheKey, requestPromise)
+    
+    return requestPromise
   }
 
   private formatApiEvent(apiEvent: ApiEvent): Event {
@@ -231,11 +317,13 @@ class TicketsCloudService {
       if (params.status) query.append('status', params.status)
 
       const endpoint = `/v1/resources/events${query.toString() ? `?${query.toString()}` : ''}`
-      const response = await this.makeRequest(endpoint)
+      
+      // Use default TTL for event lists (1 minute during high traffic)
+      const response = await this.makeRequest(endpoint, this.DEFAULT_TTL)
       
       // v1 API returns object with numbered keys (0, 1, 2, etc.)
       const events = Object.values(response).filter(event => event && typeof event === 'object') as ApiEvent[]
-      const formattedEvents = events.map(this.formatApiEvent)
+      const formattedEvents = events.map(this.formatApiEvent.bind(this))
       return formattedEvents.sort((a, b) => (a.eventTimestamp ?? Infinity) - (b.eventTimestamp ?? Infinity))
     } catch (error) {
       console.error('Failed to fetch events:', error)
@@ -246,7 +334,8 @@ class TicketsCloudService {
   async getEventDetails(eventId: string): Promise<Event | null> {
     try {
       // Using working v1 endpoint: GET /v1/resources/events/{event_id}
-      const response = await this.makeRequest(`/v1/resources/events/${eventId}`)
+      // Use extended TTL for event details (5 minutes) since they change less frequently
+      const response = await this.makeRequest(`/v1/resources/events/${eventId}`, this.EXTENDED_TTL)
       return this.formatApiEvent(response as ApiEvent)
     } catch (error) {
       console.error('Failed to fetch event details:', error)

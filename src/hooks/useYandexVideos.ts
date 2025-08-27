@@ -105,65 +105,98 @@ export const useYandexVideos = (): UseYandexVideosResult => {
       console.log('Fetched videos in background:', fetchedVideos);
       setVideos(fetchedVideos);
       
-      // Smart progressive preloading - start with 2, then load more
+      // OPTIMIZED: Smarter progressive preloading based on connection speed
       if (fetchedVideos.length > 0) {
-        // PHASE 1: Load just 2 videos immediately for instant playback
-        const firstBatch = fetchedVideos.slice(0, 2);
+        // Check connection speed
+        const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+        const effectiveType = connection?.effectiveType || '4g';
+        const saveData = connection?.saveData || false;
         
-        firstBatch.forEach((videoData, index) => {
+        // Adjust preloading based on connection
+        let videosToPreload = 6; // Default for good connections
+        let preloadStrategy = 'auto';
+        
+        if (saveData) {
+          videosToPreload = 1; // Minimal for data saving mode
+          preloadStrategy = 'metadata';
+        } else if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+          videosToPreload = 1;
+          preloadStrategy = 'metadata';
+        } else if (effectiveType === '3g') {
+          videosToPreload = 2;
+          preloadStrategy = 'metadata';
+        } else if (effectiveType === '4g') {
+          videosToPreload = 4;
+          preloadStrategy = 'auto';
+        }
+        
+        console.log(`Connection: ${effectiveType}, preloading ${videosToPreload} videos with ${preloadStrategy} strategy`);
+        
+        // PHASE 1: Load first video immediately (always)
+        const firstVideo = fetchedVideos[0];
+        if (firstVideo) {
           const video = document.createElement('video');
-          video.src = videoData.url;
-          video.preload = 'auto';
+          video.src = firstVideo.url;
+          video.preload = 'auto'; // Always preload first one fully
           video.muted = true;
           video.loop = true;
           video.playsInline = true;
           
-          // Add to cache
-          preloadedVideosCache.set(videoData.id, video);
-          
-          // Load immediately
+          preloadedVideosCache.set(firstVideo.id, video);
           video.load();
-          console.log(`Priority preload ${index + 1}:`, videoData.title);
+          console.log('Priority preload:', firstVideo.title);
           
           video.addEventListener('canplaythrough', () => {
-            console.log(`Video ${index + 1} ready:`, videoData.title);
+            console.log('First video ready:', firstVideo.title);
           }, { once: true });
-        });
+        }
         
-        // PHASE 2: After 1 second, load 2 more videos
-        setTimeout(() => {
-          const secondBatch = fetchedVideos.slice(2, 4);
-          secondBatch.forEach((videoData) => {
-            const video = document.createElement('video');
-            video.src = videoData.url;
-            video.preload = 'auto';
-            video.muted = true;
-            video.loop = true;
-            video.playsInline = true;
-            
-            preloadedVideosCache.set(videoData.id, video);
-            video.load();
-            console.log('Background preload:', videoData.title);
-          });
-        }, 1000);
-        
-        // PHASE 3: After 3 seconds, preload 2 more (total 6)
-        setTimeout(() => {
-          const thirdBatch = fetchedVideos.slice(4, 6);
-          thirdBatch.forEach((videoData) => {
-            if (!preloadedVideosCache.has(videoData.id)) {
-              const video = document.createElement('video');
-              video.src = videoData.url;
-              video.preload = 'metadata'; // Less aggressive for later videos
-              video.muted = true;
-              video.loop = true;
-              video.playsInline = true;
-              
-              preloadedVideosCache.set(videoData.id, video);
-              console.log('Lazy preload:', videoData.title);
+        // PHASE 2: Progressive loading based on connection
+        if (videosToPreload > 1) {
+          // Use requestIdleCallback for non-blocking preloading
+          const preloadNextBatch = (startIndex: number, count: number, delay: number) => {
+            setTimeout(() => {
+              const batch = fetchedVideos.slice(startIndex, startIndex + count);
+              batch.forEach((videoData) => {
+                if (!preloadedVideosCache.has(videoData.id)) {
+                  const idleCallback = () => {
+                    const video = document.createElement('video');
+                    video.src = videoData.url;
+                    video.preload = (startIndex < 2 ? preloadStrategy : 'metadata') as '' | 'metadata' | 'none' | 'auto';
+                    video.muted = true;
+                    video.loop = true;
+                    video.playsInline = true;
+                    
+                    preloadedVideosCache.set(videoData.id, video);
+                    
+                    // Only call load() for high priority videos
+                    if (startIndex < 3 && preloadStrategy === 'auto') {
+                      video.load();
+                    }
+                    console.log(`Preload (${preloadStrategy}):`, videoData.title);
+                  };
+                  
+                  if ('requestIdleCallback' in window) {
+                    window.requestIdleCallback(idleCallback, { timeout: 2000 });
+                  } else {
+                    setTimeout(idleCallback, 100);
+                  }
+                }
+              });
+            }, delay);
+          };
+          
+          // Smart batching based on connection
+          if (videosToPreload >= 4) {
+            preloadNextBatch(1, 1, 500);   // 2nd video after 0.5s
+            preloadNextBatch(2, 2, 2000);  // 3rd-4th after 2s
+            if (videosToPreload >= 6) {
+              preloadNextBatch(4, 2, 5000);  // 5th-6th after 5s
             }
-          });
-        }, 3000);
+          } else if (videosToPreload >= 2) {
+            preloadNextBatch(1, videosToPreload - 1, 1000); // Rest after 1s
+          }
+        }
       }
     } catch (err) {
       console.error('Error loading videos in background:', err);
