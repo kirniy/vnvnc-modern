@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2 } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { ticketsCloudService } from '../services/ticketsCloud'
@@ -99,8 +100,32 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     )
   }
 
+  // Clean up description for meta tags
+  const cleanDescription = event.description
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+    .substring(0, 160); // Limit to 160 characters for meta description
+
   return (
     <div className="min-h-screen relative">
+      <Helmet>
+        <title>{event.title} | VNVNC Concert Hall</title>
+        <meta name="description" content={`${event.title} - ${event.date}. ${cleanDescription}`} />
+        
+        {/* Open Graph tags for social media */}
+        <meta property="og:title" content={`${event.title} | VNVNC`} />
+        <meta property="og:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
+        <meta property="og:image" content={event.poster_original || event.image} />
+        <meta property="og:type" content="event" />
+        <meta property="og:site_name" content="VNVNC Concert Hall" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${event.title} | VNVNC`} />
+        <meta name="twitter:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
+        <meta name="twitter:image" content={event.poster_original || event.image} />
+      </Helmet>
+
       {/* Content wrapper with higher z-index */}
       <div className="relative z-10">
         {/* Hero Section */}

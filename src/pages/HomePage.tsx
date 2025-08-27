@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, ArrowRight } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
@@ -42,6 +43,24 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>VNVNC | Официальный портал</title>
+        <meta name="description" content="VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга. Живая музыка, вечеринки, культурные события." />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="VNVNC Concert Hall" />
+        <meta property="og:description" content="VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="VNVNC" />
+        <meta property="og:image" content="/logo.png" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="VNVNC Concert Hall" />
+        <meta name="twitter:description" content="VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга" />
+        <meta name="twitter:image" content="/logo.png" />
+      </Helmet>
+
       <ModernHero />
       
       {/* Ticker between sections */}

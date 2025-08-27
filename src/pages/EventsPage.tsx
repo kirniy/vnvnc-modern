@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 // Dither удалён по фидбеку
@@ -52,6 +53,24 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen relative">
+      <Helmet>
+        <title>Афиша | VNVNC Concert Hall</title>
+        <meta name="description" content="Афиша концертов и вечеринок в VNVNC. Актуальные и предстоящие события, билеты онлайн. Конюшенная 2В, Санкт-Петербург." />
+        
+        {/* Open Graph tags */}
+        <meta property="og:title" content="Афиша | VNVNC Concert Hall" />
+        <meta property="og:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="VNVNC" />
+        <meta property="og:image" content="/logo.png" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Афиша | VNVNC Concert Hall" />
+        <meta name="twitter:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
+        <meta name="twitter:image" content="/logo.png" />
+      </Helmet>
+
       <div className="container mx-auto px-4 py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
