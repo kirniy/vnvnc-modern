@@ -52,10 +52,10 @@ export default {
       },
       
       fontFamily: {
-        'display': ['Unbounded', 'Bebas Neue', 'Impact', 'sans-serif'],
-        'body': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'display': ['Arial Narrow', 'Arial', 'sans-serif'],
+        'body': ['Arial Narrow', 'Arial', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Courier New', 'monospace'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Arial Narrow', 'Arial', 'sans-serif'],
       },
       
       fontSize: {
