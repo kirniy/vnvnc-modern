@@ -91,7 +91,7 @@ const HomePage = () => {
             <div className="text-center mt-12">
               <Link
                 to="/events"
-                className="inline-flex items-center px-8 py-3 rounded-xl font-display font-extrabold gap-2 border-2 border-white text-white hover:bg-white hover:text-black transition-colors"
+                className="inline-flex items-center px-8 py-3 radius font-display font-extrabold gap-2 border-2 border-white text-white hover:bg-white hover:text-black transition-colors"
               >
                 все мероприятия
                 <ArrowRight size={20} />

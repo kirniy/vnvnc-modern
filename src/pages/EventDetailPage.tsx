@@ -209,7 +209,7 @@ const EventDetailPage = () => {
                   href="#"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
-                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 rounded-xl font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
+                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
                   data-tc-event={event.id}
                   data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
                   data-tc-lang="ru"
@@ -359,7 +359,7 @@ const EventDetailPage = () => {
                   href="#"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
-                  className="ticketscloud-widget px-8 py-4 rounded-xl font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
+                  className="ticketscloud-widget px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
                   data-tc-event={event.id}
                   data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
                   data-tc-lang="ru"
