@@ -166,6 +166,7 @@ const Footer = () => {
             <span className="font-display font-extrabold lowercase" style={{ color: colors.neon.red }}>vnvnc</span>
             <span>· официальный сайт</span>
           </p>
+          <p className="text-white/50 text-sm mt-2">Все права защищены</p>
         </div>
       </div>
     </footer>
