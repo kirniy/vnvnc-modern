@@ -32,6 +32,20 @@ interface EventCardProps {
 
 const EventCardNew = ({ event, index }: EventCardProps) => {
   const navigate = useNavigate();
+  
+  // Generate short date-based URL for the event
+  const getShortUrl = () => {
+    if (event.rawDate) {
+      const eventDate = new Date(event.rawDate);
+      const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+      const day = moscowDate.getDate().toString().padStart(2, '0');
+      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = moscowDate.getFullYear().toString().slice(-2);
+      return `/e/${day}-${month}-${year}`;
+    }
+    // Fallback to regular URL if no date
+    return `/events/${event.id}`;
+  };
 
   // Calculate if this is an archived event based on date
   const now = new Date()
@@ -55,7 +69,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.2) }}  // Reduced delays
       whileHover={{ y: -2, scale: 1.005 }}
-      onClick={() => navigate(`/events/${event.id}`)}
+      onClick={() => navigate(getShortUrl())}
       className="relative group cursor-pointer"
     >
       <div className="relative overflow-hidden radius-lg backdrop-blur-lg border border-white/10"
@@ -153,7 +167,10 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="px-4 py-2 radius font-display font-extrabold text-sm flex items-center gap-2 border-2 border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors"
-                onClick={() => {}}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(getShortUrl());
+                }}
               >
                 <ShoppingCart size={16} />
                 тикеты
