@@ -33,7 +33,7 @@ const VideoCircleButton = ({ onClick, isLoading = false, isRandomizing = false, 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       disabled={isLoading}
-      className={`px-10 py-5 radius-lg backdrop-blur-md text-white transition-all duration-700 mx-auto relative overflow-hidden ${className}`}
+      className={`px-4 sm:px-10 py-3 sm:py-5 radius-lg backdrop-blur-md text-white transition-all duration-700 mx-auto relative overflow-hidden ${className}`}
       style={{ 
         background: isHovered 
           ? 'linear-gradient(135deg, rgba(255, 0, 64, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)'
@@ -42,7 +42,7 @@ const VideoCircleButton = ({ onClick, isLoading = false, isRandomizing = false, 
         boxShadow: isHovered
           ? '0 8px 32px rgba(255, 0, 64, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           : '0 4px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-        minWidth: '320px'
+        minWidth: 'auto'
       }}
     >
       {/* Sophisticated shimmer */}
@@ -98,7 +98,7 @@ const VideoCircleButton = ({ onClick, isLoading = false, isRandomizing = false, 
               className="block w-5 h-5 rounded-full border-2 border-t-transparent"
               style={{ borderColor: `${colors.neon.red} transparent ${colors.neon.red} ${colors.neon.red}` }}
             />
-            <span className="text-base font-light tracking-wider uppercase">
+            <span className="text-sm sm:text-base tracking-wider uppercase font-medium">
               Открываем портал
             </span>
           </motion.div>
@@ -117,13 +117,9 @@ const VideoCircleButton = ({ onClick, isLoading = false, isRandomizing = false, 
                 </span>
               </motion.div>
               
-              <motion.h3 
-                className="text-lg font-light tracking-wider uppercase"
-                animate={isHovered ? { letterSpacing: '0.15em' } : { letterSpacing: '0.1em' }}
-                transition={{ duration: 0.3 }}
-              >
+              <h3 className="text-xs sm:text-lg tracking-wider uppercase font-medium">
                 Портал в Виновницу
-              </motion.h3>
+              </h3>
             </div>
           </>
         )}

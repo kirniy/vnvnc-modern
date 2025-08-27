@@ -77,36 +77,48 @@ export const useTelegramWebApp = () => {
       // Expand to full height
       tg.expand()
 
-      // Set dark theme colors to match VNVNC aesthetic
-      tg.setHeaderColor('#000000')
-      tg.setBackgroundColor('#000000')
+      // Set dark theme colors to match VNVNC aesthetic (if supported)
+      if (tg.setHeaderColor) {
+        tg.setHeaderColor('#ff191b')  // VNVNC red color
+      }
+      if (tg.setBackgroundColor) {
+        tg.setBackgroundColor('#000000')
+      }
 
       // Add haptic feedback to clicks
       const handleClick = (event: MouseEvent) => {
         const target = event.target as HTMLElement
+        if (!target) return
         
         // Check if clicked element is interactive
         if (
           target.tagName === 'BUTTON' ||
           target.tagName === 'A' ||
-          target.classList.contains('clickable') ||
+          (target.classList && target.classList.contains('clickable')) ||
           target.closest('button') ||
           target.closest('a')
         ) {
-          tg.HapticFeedback.impactOccurred('light')
+          // Check if HapticFeedback is available in this version
+          if (tg.HapticFeedback && tg.HapticFeedback.impactOccurred) {
+            tg.HapticFeedback.impactOccurred('light')
+          }
         }
       }
 
       // Add haptic feedback to hover effects
       const handleHover = (event: MouseEvent) => {
         const target = event.target as HTMLElement
+        if (!target || !target.classList) return
         
         if (
           target.tagName === 'BUTTON' ||
           target.tagName === 'A' ||
           target.classList.contains('hover-haptic')
         ) {
-          tg.HapticFeedback.selectionChanged()
+          // Check if HapticFeedback is available in this version
+          if (tg.HapticFeedback && tg.HapticFeedback.selectionChanged) {
+            tg.HapticFeedback.selectionChanged()
+          }
         }
       }
 

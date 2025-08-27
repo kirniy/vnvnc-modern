@@ -8,9 +8,10 @@ import useYandexVideos from '../../hooks/useYandexVideos'
 interface VideoCircleProps {
   className?: string
   backgroundVideoRef?: React.RefObject<HTMLVideoElement | null>
+  onExpandChange?: (isExpanded: boolean) => void
 }
 
-const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) => {
+const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: VideoCircleProps) => {
   const { currentVideo: initialVideo, nextVideo, isLoading: videosLoading, videos } = useYandexVideos()
   const [currentVideo, setCurrentVideo] = useState(initialVideo)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -123,6 +124,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
     if (!isEnlarged) {
       // Enlarge and unmute
       setIsEnlarged(true)
+      onExpandChange?.(true) // Notify parent
       setIsMuted(false)
       setShowMuteButton(true) // Show mute button immediately
       if (videoRef.current) {
@@ -140,6 +142,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
     } else {
       // If enlarged, clicking outside mute button makes it smaller
       setIsEnlarged(false)
+      onExpandChange?.(false) // Notify parent
       setShowMuteButton(false)
       if (hideTimeout) {
         clearTimeout(hideTimeout)
@@ -306,7 +309,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ 
           opacity: 1, 
-          scale: isEnlarged ? 1.5 : 1,
+          scale: isEnlarged ? (isMobile ? 1.15 : 1.5) : 1,
         }}
         transition={{ 
           duration: 0.3,
@@ -316,12 +319,12 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         }}
         className="relative mx-auto"
         style={{
-          // On mobile, only push down with no top margin; on desktop, center vertically
-          marginTop: isEnlarged ? (isMobile ? '0' : '100px') : '0',
-          marginBottom: isEnlarged ? (isMobile ? '60px' : '80px') : '0',
-          transition: 'margin 0.3s ease, transform 0.3s ease',
-          // On mobile, use transform to push down the enlarged circle
-          transform: isEnlarged && isMobile ? 'translateY(100px)' : undefined
+          // On mobile, move down when expanded; on desktop, center vertically
+          marginTop: isEnlarged ? (isMobile ? '30px' : '100px') : '0',
+          marginBottom: isEnlarged ? (isMobile ? '20px' : '80px') : '0',
+          transition: 'margin 0.3s ease',
+          // No transform needed
+          transform: undefined
         }}
       >
         {/* Portal activation ripples - multiple expanding circles */}
@@ -564,7 +567,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
       {/* Randomizer Button */}
       <motion.div
         animate={{ 
-          y: isEnlarged ? (isMobile ? 60 : 30) : 0 
+          y: isEnlarged ? (isMobile ? 20 : 30) : 0 
         }}
         transition={{ 
           duration: 0.3,
@@ -581,15 +584,18 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
         />
       </motion.div>
 
-      {/* Refined hint text */}
+      {/* Refined hint text - hide on mobile when expanded */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ 
-          opacity: 0.5, 
-          y: isEnlarged ? (isMobile ? 60 : 30) : 0 
+          opacity: (isEnlarged && isMobile) ? 0 : (isMobile ? 0.7 : 0.5), 
+          y: isEnlarged ? (isMobile ? 15 : 30) : 0 
         }}
         transition={{ delay: 0.5, duration: 0.8 }}
-        className="text-center text-white/30 text-xs mt-4 tracking-widest uppercase"
+        className="text-center text-white/40 sm:text-white/30 text-xs mt-4 tracking-widest uppercase"
+        style={{
+          display: (isEnlarged && isMobile) ? 'none' : 'block'
+        }}
       >
         <div className="flex items-center justify-center gap-4">
           <span className="block w-8 h-px bg-white/20" />

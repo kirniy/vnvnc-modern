@@ -10,7 +10,7 @@ const EventsPage = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'archive'>('current')
   const [activeMonth, setActiveMonth] = useState<string | 'all'>('all')
 
-  const { data: events = [] } = useQuery({
+  const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: () => ticketsCloudService.getEvents(),
   })
@@ -97,22 +97,32 @@ const EventsPage = () => {
           </div>
         )}
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            <p className="text-white/70 mt-4">Загружаем события...</p>
+          </div>
+        )}
+
         {/* Events Grid – мобильные карточки более компактные */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {activeTab === 'current' ? (
-            currentEvents.map((event: any, index: number) => (
-              <EventCardNew key={event.id} event={event} index={index} />
-            ))
-          ) : (
-            archiveEvents
-              .filter((event: any) => activeMonth==='all' ? true : (new Date(event.rawDate).toISOString().slice(5,7)===activeMonth))
-              .map((event: any, index: number) => (
+        {!isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {activeTab === 'current' ? (
+              currentEvents.map((event: any, index: number) => (
                 <EventCardNew key={event.id} event={event} index={index} />
               ))
-          )}
-        </div>
+            ) : (
+              archiveEvents
+                .filter((event: any) => activeMonth==='all' ? true : (new Date(event.rawDate).toISOString().slice(5,7)===activeMonth))
+                .map((event: any, index: number) => (
+                  <EventCardNew key={event.id} event={event} index={index} />
+                ))
+            )}
+          </div>
+        )}
 
-        {activeTab === 'current' && currentEvents.length === 0 && (
+        {!isLoading && activeTab === 'current' && currentEvents.length === 0 && (
           <div className="text-center text-white">
             <Ticket size={64} className="mx-auto mb-4 text-red-500" />
             <h3 className="text-2xl font-bold mb-2">Нет актуальных мероприятий</h3>
@@ -120,7 +130,7 @@ const EventsPage = () => {
           </div>
         )}
 
-        {activeTab === 'archive' && archiveEvents.length === 0 && (
+        {!isLoading && activeTab === 'archive' && archiveEvents.length === 0 && (
           <div className="text-center text-white">
             <Ticket size={64} className="mx-auto mb-4 text-red-500" />
             <h3 className="text-2xl font-bold mb-2">Архив пуст</h3>

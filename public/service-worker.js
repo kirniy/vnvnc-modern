@@ -5,13 +5,11 @@ const API_CACHE = `api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;
 const VIDEO_CACHE = `videos-${CACHE_VERSION}`;
 
-// Assets to cache immediately
+// Assets to cache immediately - skip videos initially to prevent errors
 const CRITICAL_ASSETS = [
   '/',
   '/index.html',
-  '/assets/js/react-vendor.js',
-  '/assets/js/index.js',
-  '/herovideo-compressed-1x1.mp4', // Initial video
+  // JS/CSS bundles will be cached on first load
 ];
 
 // Cache size limits
@@ -33,14 +31,21 @@ const CACHE_TTL = {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      // Don't wait for all - just try to cache what we can
-      return Promise.allSettled(
-        CRITICAL_ASSETS.map(url => 
-          cache.add(url).catch(err => console.log(`Failed to cache ${url}:`, err))
-        )
+      // Cache critical assets individually to prevent one failure from blocking all
+      const promises = CRITICAL_ASSETS.map(url => 
+        cache.add(url).catch(err => {
+          console.log(`Failed to cache ${url}:`, err);
+          // Continue with other assets even if one fails
+          return Promise.resolve();
+        })
       );
+      return Promise.all(promises);
     }).then(() => {
       // Skip waiting and activate immediately
+      self.skipWaiting();
+    }).catch(err => {
+      console.log('Service Worker installation error:', err);
+      // Still skip waiting even if caching fails
       self.skipWaiting();
     })
   );
@@ -94,7 +99,8 @@ async function networkFirstStrategy(request, cacheName, ttl) {
   try {
     const networkResponse = await fetch(request);
     
-    if (networkResponse.ok) {
+    // Only cache successful 200 responses - skip 206 partial responses
+    if (networkResponse.ok && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       // Add timestamp and cache the response
       cache.put(request, addTimestamp(networkResponse.clone()));
@@ -126,7 +132,8 @@ async function cacheFirstStrategy(request, cacheName, ttl) {
   try {
     const networkResponse = await fetch(request);
     
-    if (networkResponse.ok) {
+    // Only cache successful 200 responses - skip 206 partial responses
+    if (networkResponse.ok && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, addTimestamp(networkResponse.clone()));
     }
@@ -148,7 +155,8 @@ async function staleWhileRevalidateStrategy(request, cacheName, ttl) {
   
   // Fetch fresh data in background
   const fetchPromise = fetch(request).then(async (networkResponse) => {
-    if (networkResponse.ok) {
+    // Only cache successful responses (200 OK) - skip 206 partial responses
+    if (networkResponse.ok && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, addTimestamp(networkResponse.clone()));
     }

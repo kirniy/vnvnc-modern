@@ -183,8 +183,7 @@ class TicketsCloudService {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            // Add cache headers for CDN
-            'Cache-Control': 'public, max-age=60',
+            // Don't send Cache-Control header - it causes CORS issues
           },
           mode: 'cors',
           credentials: 'omit',

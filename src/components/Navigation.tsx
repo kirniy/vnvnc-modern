@@ -125,7 +125,8 @@ const Navigation = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed inset-0 z-[70] bg-black/95 overflow-y-auto pt-safe pb-safe"
+            className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[70] bg-black/95 overflow-y-auto pt-safe pb-safe"
+            style={{ height: '100vh', maxHeight: '100vh' }}
           >
             {/* Animated red gradient background */}
             <style>{`
@@ -157,8 +158,8 @@ const Navigation = () => {
             <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
 
             {/* Items */}
-            <div className="absolute inset-0 px-6 py-16 flex pointer-events-none">
-              <div className="flex flex-col gap-4 pointer-events-auto min-h-full w-full justify-center">
+            <div className="absolute inset-0 px-6 py-16 flex pointer-events-none overflow-y-auto">
+              <div className="flex flex-col gap-4 pointer-events-auto min-h-full w-full justify-center max-h-[calc(100vh-8rem)]">
               {navItems.map((item) => (
                 <Link
                   key={item.name}

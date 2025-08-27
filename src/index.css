@@ -34,6 +34,20 @@
     min-height: 100vh;
     /* лёгкое вертикальное растяжение для всего body‑текста */
     font-variant-ligatures: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Mobile-specific font improvements */
+  @media (max-width: 640px) {
+    body {
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    /* Ensure Unbounded loads properly on mobile */
+    .font-display {
+      font-family: 'Unbounded', 'Bebas Neue', 'Impact', sans-serif !important;
+    }
   }
 
   /* Убираем глобальное вертикальное растяжение для текста — применяем только к заголовкам через утилиты */

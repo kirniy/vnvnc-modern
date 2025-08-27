@@ -3,10 +3,21 @@ import { ChevronDown, Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
 import VideoCircle from './VideoCircle'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
@@ -46,55 +57,60 @@ const ModernHero = () => {
       />
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-4">
+      <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-3 sm:px-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           {/* Enhanced tagline - Now the main focus */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-3 mb-12"
+            className="space-y-2 sm:space-y-3 mb-8 sm:mb-12 mt-4 sm:mt-0"
           >
-            <h1 className="text-3xl md:text-5xl lg:text-6xl text-white font-display font-extrabold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-white font-display font-extrabold tracking-tight">
               Эпицентр ночной жизни
             </h1>
-            <p className="text-xl md:text-2xl text-white/80">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 sm:text-white/80">
               Санкт-Петербурга
             </p>
-            <p className="text-sm md:text-base uppercase tracking-[0.3em] font-semibold"
+            <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.2em] sm:tracking-[0.3em] font-semibold"
                style={{ color: colors.neon.red }}>
               Concert Hall • Est. 2018
             </p>
           </motion.div>
 
           {/* Video Circles Feature - ensure it's above particles */}
-          <VideoCircle className="my-16 relative z-10" backgroundVideoRef={backgroundVideoRef} />
+          <VideoCircle 
+            className="my-12 sm:my-16 relative z-10" 
+            backgroundVideoRef={backgroundVideoRef}
+            onExpandChange={setIsVideoExpanded}
+          />
 
-           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-2">
-            <Link to="/events">
+           <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center mt-2">
+            <Link to="/events" className="flex-1 sm:flex-none">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                 className="border-2 border-white text-white px-6 py-3 h-12 radius font-semibold text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
+                 className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto"
               >
-                <Calendar size={20} />
-                Афиша
+                <Calendar size={18} className="sm:w-5 sm:h-5" />
+                <span>Афиша</span>
               </motion.button>
             </Link>
 
-            <Link to="/reservations">
+            <Link to="/reservations" className="flex-1 sm:flex-none">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                 className="border-2 border-white text-white px-6 py-3 h-12 radius font-semibold text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 backdrop-blur-sm"
+                 className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto whitespace-nowrap"
               >
-                <Ticket size={20} />
-                Бронировать стол
+                <Ticket size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden xs:inline sm:inline">Бронировать стол</span>
+                <span className="xs:hidden">Бронь</span>
               </motion.button>
             </Link>
           </div>
@@ -110,11 +126,14 @@ const ModernHero = () => {
               href="https://yandex.ru/maps/-/CHDQRW0Z" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 radius backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-300 no-underline"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 radius backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-300 no-underline"
               style={{ backgroundColor: colors.glass.white, textDecoration: 'none' }}
             >
-              <MapPin size={16} style={{ color: colors.neon.red }} />
-              <span className="text-white/80 text-sm hover:text-white transition-colors" style={{ textDecoration: 'none' }}>Конюшенная площадь 2В, Санкт-Петербург</span>
+              <MapPin size={14} className="sm:w-4 sm:h-4" style={{ color: colors.neon.red }} />
+              <span className="text-white/80 text-xs sm:text-sm hover:text-white transition-colors" style={{ textDecoration: 'none' }}>
+                <span className="hidden sm:inline">Конюшенная площадь 2В, Санкт-Петербург</span>
+                <span className="sm:hidden">Конюшенная площадь 2В</span>
+              </span>
             </a>
           </motion.div>
         </motion.div>
@@ -144,22 +163,25 @@ const ModernHero = () => {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
+      {/* Scroll indicator - hide when video is expanded on mobile */}
+      {!(isVideoExpanded && isMobile) && (
         <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: (isVideoExpanded && isMobile) ? 0 : 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ delay: 1.5, duration: 0.3 }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
         >
-          <span className="text-sm text-gray-400">Подробнее</span>
-          <ChevronDown size={24} className="text-gray-400" />
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="flex flex-col items-center gap-2"
+          >
+            <span className="text-sm text-gray-400">Подробнее</span>
+            <ChevronDown size={24} className="text-gray-400" />
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </section>
   )
 }
