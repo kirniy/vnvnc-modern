@@ -11,15 +11,20 @@ import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
 // Убрали DitherBackground
 
-const EventDetailPage = () => {
+interface EventDetailPageProps {
+  eventIdOverride?: string
+}
+
+const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   const { id } = useParams<{ id: string }>()
+  const eventId = eventIdOverride || id  // Use override if provided, otherwise use URL param
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [showShareTooltip, setShowShareTooltip] = useState(false)
 
   const { data: event, isLoading } = useQuery({
-    queryKey: ['event', id],
+    queryKey: ['event', eventId],
     queryFn: async () => {
-      return await ticketsCloudService.getEventDetails(id || '')
+      return await ticketsCloudService.getEventDetails(eventId || '')
     },
   })
   

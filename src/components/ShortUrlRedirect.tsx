@@ -1,12 +1,14 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import LoadingSpinner from './LoadingSpinner'
+import EventDetailPage from '../pages/EventDetailPage'
 
 const ShortUrlRedirect = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const [eventId, setEventId] = useState<string | null>(null)
 
   // Fetch all events to find the one matching the date
   const { data: events = [], isLoading } = useQuery({
@@ -38,10 +40,9 @@ const ShortUrlRedirect = () => {
       })
       
       if (matchingEvent) {
-        navigate(`/events/${matchingEvent.id}`, { replace: true })
+        setEventId(matchingEvent.id)
       } else {
         // If no event found for this date, redirect to events page
-        console.log('No event found for date:', slug)
         navigate('/events', { replace: true })
       }
     }
@@ -49,6 +50,11 @@ const ShortUrlRedirect = () => {
 
   if (isLoading) {
     return <LoadingSpinner />
+  }
+
+  // If we found a matching event, render the EventDetailPage with that ID
+  if (eventId) {
+    return <EventDetailPage eventIdOverride={eventId} />
   }
 
   return <LoadingSpinner />
