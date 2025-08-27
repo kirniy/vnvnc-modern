@@ -324,28 +324,94 @@ const VideoCircle = ({ className = '', backgroundVideoRef }: VideoCircleProps) =
           transform: isEnlarged && isMobile ? 'translateY(100px)' : undefined
         }}
       >
-        {/* Portal activation pulse - perfect circle */}
+        {/* Portal activation ripples - multiple expanding circles */}
         <AnimatePresence>
           {isRandomizing && (
-            <motion.div
-              initial={{ 
-                width: isMobile ? 176 : 220, 
-                height: isMobile ? 176 : 220, 
-                opacity: 0 
-              }}
-              animate={{ 
-                width: isMobile ? [176, 316] : [220, 396],
-                height: isMobile ? [176, 316] : [220, 396],
-                opacity: [0.8, 0]
-              }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
-              style={{
-                border: `2px solid ${colors.neon.red}`,
-                boxShadow: `0 0 30px ${colors.neon.red}60`
-              }}
-            />
+            <>
+              {/* First ripple - starts immediately */}
+              <motion.div
+                initial={{ 
+                  width: isMobile ? 176 : 220, 
+                  height: isMobile ? 176 : 220, 
+                  opacity: 0 
+                }}
+                animate={{ 
+                  width: isMobile ? [176, 600] : [220, 800],
+                  height: isMobile ? [176, 600] : [220, 800],
+                  opacity: [0, 0.8, 0.6, 0]
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2, ease: 'easeOut' }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{
+                  border: `2px solid ${colors.neon.red}`,
+                  boxShadow: `0 0 40px ${colors.neon.red}80`
+                }}
+              />
+              
+              {/* Second ripple - starts after 0.3s */}
+              <motion.div
+                initial={{ 
+                  width: isMobile ? 176 : 220, 
+                  height: isMobile ? 176 : 220, 
+                  opacity: 0 
+                }}
+                animate={{ 
+                  width: isMobile ? [176, 800] : [220, 1200],
+                  height: isMobile ? [176, 800] : [220, 1200],
+                  opacity: [0, 0.7, 0.4, 0]
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2.5, ease: 'easeOut', delay: 0.3 }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{
+                  border: `1px solid ${colors.neon.red}`,
+                  boxShadow: `0 0 60px ${colors.neon.red}60`
+                }}
+              />
+              
+              {/* Third ripple - starts after 0.6s */}
+              <motion.div
+                initial={{ 
+                  width: isMobile ? 176 : 220, 
+                  height: isMobile ? 176 : 220, 
+                  opacity: 0 
+                }}
+                animate={{ 
+                  width: isMobile ? [176, 1000] : [220, 1600],
+                  height: isMobile ? [176, 1000] : [220, 1600],
+                  opacity: [0, 0.6, 0.3, 0]
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 3, ease: 'easeOut', delay: 0.6 }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{
+                  border: `1px solid ${colors.neon.red}`,
+                  boxShadow: `0 0 80px ${colors.neon.red}40`
+                }}
+              />
+              
+              {/* Fourth ripple - starts after 0.9s - goes really big */}
+              <motion.div
+                initial={{ 
+                  width: isMobile ? 176 : 220, 
+                  height: isMobile ? 176 : 220, 
+                  opacity: 0 
+                }}
+                animate={{ 
+                  width: isMobile ? [176, 1400] : [220, 2000],
+                  height: isMobile ? [176, 1400] : [220, 2000],
+                  opacity: [0, 0.5, 0.2, 0]
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 3.5, ease: 'easeOut', delay: 0.9 }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{
+                  border: `1px solid ${colors.neon.red}`,
+                  boxShadow: `0 0 100px ${colors.neon.red}30`
+                }}
+              />
+            </>
           )}
         </AnimatePresence>
 
