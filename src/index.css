@@ -1,4 +1,7 @@
-/* Arial Narrow is a system font, no need to import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+/* Заголовочный шрифт с поддержкой кириллицы для «gonzo» типографики */
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import "tailwindcss";
 @import "./styles/design-tokens.css";
 
@@ -23,8 +26,7 @@
   }
   
   body {
-    @apply bg-black text-white antialiased;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    @apply bg-black text-white font-sans antialiased;
     background-image: 
       radial-gradient(circle at 20% 50%, rgba(255, 0, 64, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, rgba(128, 0, 255, 0.1) 0%, transparent 50%),
@@ -32,37 +34,6 @@
     min-height: 100vh;
     /* лёгкое вертикальное растяжение для всего body‑текста */
     font-variant-ligatures: none;
-  }
-  
-  /* Ensure Arial Narrow is used throughout */
-  * {
-    font-family: 'Arial Narrow', Arial, sans-serif;
-  }
-  
-  /* Font weight utilities for Arial Narrow */
-  .font-normal {
-    font-weight: 400;
-  }
-  
-  .font-medium {
-    font-weight: 500;
-  }
-  
-  .font-semibold {
-    font-weight: 600;
-  }
-  
-  .font-bold {
-    font-weight: 700;
-  }
-  
-  .font-extrabold {
-    font-weight: 800;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Arial Narrow', Arial, sans-serif;
-    font-weight: 700;
   }
 
   /* Убираем глобальное вертикальное растяжение для текста — применяем только к заголовкам через утилиты */
@@ -105,8 +76,7 @@
   .btn-punk {
     @apply relative inline-flex items-center justify-center font-extrabold lowercase tracking-wide select-none border-2 border-white text-white px-6 py-3 transition-colors;
     border-radius: 12px;
-    font-family: 'Arial Narrow', Arial, sans-serif;
-    font-weight: 700;
+    font-family: 'Unbounded', 'Inter', sans-serif;
   }
   .btn-punk::before {
     content: "";
