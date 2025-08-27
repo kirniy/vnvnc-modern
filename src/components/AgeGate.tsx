@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors } from '../utils/colors'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
-import WarpedVNVNC from './logo/WarpedVNVNC'
+// import WarpedVNVNC from './logo/WarpedVNVNC' - using plain text for consistency
 
 const AgeGate = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -62,21 +62,30 @@ const AgeGate = () => {
             className="relative max-w-sm w-full z-10"
           >
             <div 
-              className="backdrop-blur-2xl rounded-3xl p-8 md:p-10 border border-white/10 shadow-2xl text-center"
+              className="backdrop-blur-2xl radius p-8 md:p-10 border border-white/10 shadow-2xl text-center"
               style={{ 
                 backgroundColor: colors.glass.darker,
                 boxShadow: `0 20px 60px rgba(0,0,0,0.8), 0 0 100px ${colors.neon.red}11`
               }}
             >
-              {/* Logo */}
+              {/* Logo - matching Navigation style */}
               <motion.div 
-                className="mb-8"
+                className="mb-10"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
                 <div className="flex justify-center">
-                  <WarpedVNVNC height={88} animated />
+                  <span 
+                    className="font-display font-extrabold text-5xl lg:text-6xl lowercase"
+                    style={{ 
+                      color: colors.neon.red,
+                      filter: `drop-shadow(0 0 40px ${colors.neon.red}44)`,
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    vnvnc
+                  </span>
                 </div>
               </motion.div>
 
@@ -105,7 +114,7 @@ const AgeGate = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleExit}
-                  className="flex-1 px-6 py-3 rounded-full backdrop-blur-sm border border-white/20 text-white font-medium transition-all duration-300"
+                  className="flex-1 px-6 py-3 radius backdrop-blur-sm border-2 border-white/20 text-white font-medium transition-all duration-300"
                   style={{ 
                     backgroundColor: colors.glass.white
                   }}
@@ -125,7 +134,7 @@ const AgeGate = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleConfirm}
-                  className="flex-1 px-6 py-3 rounded-full font-bold text-white transition-all duration-300 relative overflow-hidden group"
+                  className="flex-1 px-6 py-3 radius font-bold text-white transition-all duration-300 relative overflow-hidden group border-2 border-transparent"
                   style={{ 
                     backgroundColor: colors.neon.red,
                     boxShadow: `0 8px 30px ${colors.neon.red}66`

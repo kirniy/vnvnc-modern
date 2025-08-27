@@ -6,9 +6,9 @@ const GlitchScanLines = () => {
   const [glitchPosition, setGlitchPosition] = useState(0)
 
   useEffect(() => {
-    // Random glitch every 8-15 seconds
+    // Random glitch every 3-6 seconds (more frequent for visibility)
     const scheduleGlitch = () => {
-      const delay = Math.random() * 7000 + 8000 // 8-15 seconds
+      const delay = Math.random() * 3000 + 3000 // 3-6 seconds
       
       const timeout = setTimeout(() => {
         // Trigger glitch
@@ -30,24 +30,24 @@ const GlitchScanLines = () => {
   }, [])
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0" style={{ mixBlendMode: 'screen' }}>
+    <div className="fixed inset-0 pointer-events-none z-10">
       {/* Subtle scan lines - always visible but very faint */}
       <div 
-        className="absolute inset-0 opacity-[0.015]"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `repeating-linear-gradient(
             0deg,
             transparent,
             transparent 2px,
-            rgba(255, 255, 255, 0.03) 2px,
-            rgba(255, 255, 255, 0.03) 4px
+            rgba(255, 255, 255, 0.1) 2px,
+            rgba(255, 255, 255, 0.1) 4px
           )`,
         }}
       />
       
       {/* Moving scan line - subtle animation */}
       <motion.div
-        className="absolute left-0 right-0 h-[1px] opacity-[0.04]"
+        className="absolute left-0 right-0 h-[2px] opacity-[0.08]"
         style={{
           background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
           filter: 'blur(0.5px)',
@@ -76,9 +76,9 @@ const GlitchScanLines = () => {
                 background: `linear-gradient(
                   0deg,
                   transparent ${glitchPosition - 5}%,
-                  rgba(255, 0, 0, 0.01) ${glitchPosition - 2}%,
-                  rgba(0, 255, 0, 0.01) ${glitchPosition}%,
-                  rgba(0, 0, 255, 0.01) ${glitchPosition + 2}%,
+                  rgba(255, 0, 0, 0.03) ${glitchPosition - 2}%,
+                  rgba(0, 255, 0, 0.03) ${glitchPosition}%,
+                  rgba(0, 0, 255, 0.03) ${glitchPosition + 2}%,
                   transparent ${glitchPosition + 5}%
                 )`,
                 filter: 'blur(0.8px)',
@@ -88,12 +88,12 @@ const GlitchScanLines = () => {
             {/* Distortion band */}
             <motion.div
               initial={{ scaleX: 0.99, opacity: 0 }}
-              animate={{ scaleX: [0.99, 1.01, 0.99], opacity: [0, 0.03, 0] }}
+              animate={{ scaleX: [0.99, 1.01, 0.99], opacity: [0, 0.1, 0] }}
               exit={{ opacity: 0 }}
-              className="absolute left-0 right-0 h-[10px]"
+              className="absolute left-0 right-0 h-[20px]"
               style={{
                 top: `${glitchPosition}%`,
-                background: 'rgba(255, 255, 255, 0.02)',
+                background: 'rgba(255, 255, 255, 0.05)',
                 filter: 'blur(2px)',
                 transform: 'translateZ(0)', // Force GPU acceleration
               }}
