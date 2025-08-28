@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
@@ -74,6 +75,7 @@ function App() {
       
       <Footer />
       <TelegramButton />
+      <Analytics />
     </>
   )
 }
