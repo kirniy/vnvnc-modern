@@ -86,19 +86,19 @@ const RulesPage = () => {
             <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Shield size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">🛡️ Безопасность</span>
+            <span className="text-sm text-white/60">Безопасность</span>
           </div>
           <div className="flex flex-col items-center gap-2">
             <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Heart size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">❤️ Уважение</span>
+            <span className="text-sm text-white/60">Уважение</span>
           </div>
           <div className="flex flex-col items-center gap-2">
             <div className="p-3 radius-lg" style={{ backgroundColor: colors.glass.dark }}>
               <Sparkles size={24} style={{ color: colors.neon.red }} />
             </div>
-            <span className="text-sm text-white/60">✨ Атмосфера</span>
+            <span className="text-sm text-white/60">Атмосфера</span>
           </div>
         </motion.div>
 

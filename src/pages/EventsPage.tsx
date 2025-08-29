@@ -62,13 +62,17 @@ const EventsPage = () => {
         <meta property="og:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="VNVNC" />
-        <meta property="og:image" content="/logo.png" />
+        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="VNVNC Concert Hall - Афиша" />
+        <meta property="og:locale" content="ru_RU" />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Афиша | VNVNC Concert Hall" />
         <meta name="twitter:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
-        <meta name="twitter:image" content="/logo.png" />
+        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-16 relative z-10">

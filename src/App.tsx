@@ -20,6 +20,7 @@ const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const RulesPage = lazy(() => import('./pages/RulesPage'))
+const RentalPage = lazy(() => import('./pages/RentalPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
 // Custom loading component that hides the footer
@@ -69,6 +70,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/rules" element={<RulesPage />} />
+            <Route path="/rental" element={<RentalPage />} />
           </Routes>
         </Suspense>
       </main>

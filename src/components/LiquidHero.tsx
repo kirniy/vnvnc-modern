@@ -104,7 +104,7 @@ const LiquidHero = () => {
           </Link>
           <Link to="/reservations" className="w-full">
             <BratButton className="w-full">
-              <Ticket size={18} /> бронировать стол
+              <Ticket size={18} /> бронь
             </BratButton>
           </Link>
         </div>

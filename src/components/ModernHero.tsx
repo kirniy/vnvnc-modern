@@ -1,23 +1,12 @@
 import { motion } from 'framer-motion'
-import { ChevronDown, Calendar, Ticket, MapPin } from 'lucide-react'
+import { Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
 import VideoCircle from './VideoCircle'
-import { useRef, useState, useEffect } from 'react'
+import { useRef } from 'react'
 
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
-  const [isVideoExpanded, setIsVideoExpanded] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
@@ -87,7 +76,6 @@ const ModernHero = () => {
           <VideoCircle 
             className="my-12 sm:my-16 relative z-10" 
             backgroundVideoRef={backgroundVideoRef}
-            onExpandChange={setIsVideoExpanded}
           />
 
            <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center mt-2">
@@ -98,7 +86,7 @@ const ModernHero = () => {
                  className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto"
               >
                 <Calendar size={18} className="sm:w-5 sm:h-5" />
-                <span>Афиша</span>
+                <span>афиша</span>
               </motion.button>
             </Link>
 
@@ -109,8 +97,7 @@ const ModernHero = () => {
                  className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto whitespace-nowrap"
               >
                 <Ticket size={18} className="sm:w-5 sm:h-5" />
-                <span className="hidden xs:inline sm:inline">Бронировать стол</span>
-                <span className="xs:hidden">Бронь</span>
+                <span>бронь</span>
               </motion.button>
             </Link>
           </div>
@@ -163,25 +150,6 @@ const ModernHero = () => {
         </div>
       </div>
 
-      {/* Scroll indicator - hide when video is expanded on mobile */}
-      {!(isVideoExpanded && isMobile) && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: (isVideoExpanded && isMobile) ? 0 : 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ delay: 1.5, duration: 0.3 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="flex flex-col items-center gap-2"
-          >
-            <span className="text-sm text-gray-400">Подробнее</span>
-            <ChevronDown size={24} className="text-gray-400" />
-          </motion.div>
-        </motion.div>
-      )}
     </section>
   )
 }

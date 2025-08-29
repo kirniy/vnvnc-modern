@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { colors } from '../utils/colors'
 
 interface TelegramWebApp {
   ready: () => void
@@ -79,7 +80,7 @@ export const useTelegramWebApp = () => {
 
       // Set dark theme colors to match VNVNC aesthetic (if supported)
       if (tg.setHeaderColor) {
-        tg.setHeaderColor('#ff191b')  // VNVNC red color
+        tg.setHeaderColor(colors.neon.red)  // VNVNC red color (#ff1a1a)
       }
       if (tg.setBackgroundColor) {
         tg.setBackgroundColor('#000000')

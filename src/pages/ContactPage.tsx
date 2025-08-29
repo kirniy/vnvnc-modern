@@ -135,7 +135,7 @@ const ContactPage = () => {
                 <h3 className="font-semibold text-white mb-4">Быстрая связь</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <a
-                    href="https://t.me/vnvnc_bot"
+                    href="https://t.me/vnvncbattlebot"
                     target="_blank"
                     rel="noopener noreferrer"
                      className="flex items-center justify-center gap-2 p-3 rounded-[12px] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
@@ -269,9 +269,9 @@ const ContactPage = () => {
                  style={{ backgroundColor: colors.glass.white }}>
               <h3 className="font-semibold text-white mb-2">Важная информация</h3>
               <ul className="text-sm text-white/70 space-y-1">
-                <li>• Бронирование столов по телефону или через Telegram бот</li>
+                <li>• Бронирование столов через <a href="/reservations" className="underline hover:text-white transition-colors">форму</a> или по телефону +7 (921) 410-44-40</li>
                 <li>• VIP-вход без очереди для гостей с бронью</li>
-                <li>• Депозит включает сервисный сбор 10%</li>
+                <li>• Депозит: 10% — сервисный сбор, 90% — на бар и кухню</li>
                 <li>• Отмена брони возможна за 3 часа до мероприятия</li>
               </ul>
             </div>

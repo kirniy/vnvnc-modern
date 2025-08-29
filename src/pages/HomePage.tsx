@@ -52,13 +52,17 @@ const HomePage = () => {
         <meta property="og:description" content="VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="VNVNC" />
-        <meta property="og:image" content="/logo.png" />
+        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="VNVNC Concert Hall" />
+        <meta property="og:locale" content="ru_RU" />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="VNVNC Concert Hall" />
         <meta name="twitter:description" content="VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга" />
-        <meta name="twitter:image" content="/logo.png" />
+        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
       </Helmet>
 
       <ModernHero />

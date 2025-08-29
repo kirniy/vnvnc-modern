@@ -358,3 +358,209 @@ body.telegram-webapp {
   height: 100vh;
   height: -webkit-fill-available;
 }
+
+/* Custom date input styling - Full neon theme */
+input[type="date"] {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+  font-family: 'Inter', sans-serif;
+  min-height: 48px;
+}
+
+/* Hide the placeholder text completely and remove spaces between date parts */
+input[type="date"]::-webkit-datetime-edit-text {
+  display: none !important;
+}
+
+/* Hide placeholder in empty state but show the date when selected */
+input[type="date"]:invalid::-webkit-datetime-edit-fields-wrapper {
+  display: none;
+}
+
+input[type="date"]:valid::-webkit-datetime-edit-fields-wrapper {
+  display: block;
+}
+
+/* Calendar icon - make it visible and styled */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ff0040' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px #ff0040);
+}
+
+/* Date text styling when filled */
+input[type="date"]::-webkit-datetime-edit {
+  padding: 2px;
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  background: transparent;
+}
+
+input[type="date"]:valid::-webkit-datetime-edit-month-field,
+input[type="date"]:valid::-webkit-datetime-edit-day-field,
+input[type="date"]:valid::-webkit-datetime-edit-year-field {
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-day-field,
+input[type="date"]:focus::-webkit-datetime-edit-year-field {
+  color: white;
+  background: rgba(255, 0, 64, 0.15);
+}
+
+/* Firefox date input styling */
+input[type="date"]::-moz-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ff0040' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* Remove ugly date format placeholders */
+input[type="date"]::-webkit-datetime-edit-month-field::-webkit-textfield-decoration-container,
+input[type="date"]::-webkit-datetime-edit-day-field::-webkit-textfield-decoration-container,
+input[type="date"]::-webkit-datetime-edit-year-field::-webkit-textfield-decoration-container {
+  display: none;
+}
+
+/* Invalid date styling */
+input[type="date"]:invalid {
+  border-color: rgba(255, 0, 64, 0.5);
+}
+
+/* Better placeholders for all forms */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 300;
+}
+
+/* Style select dropdowns to match other inputs */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ff0040' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px !important;
+  min-height: 48px;
+}
+
+select option {
+  background-color: #000000;
+  color: white;
+  padding: 8px;
+}
+
+/* React DatePicker custom styles for VNVNC */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+  min-height: 48px;
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker {
+  background-color: #000000 !important;
+  border: 1px solid rgba(255, 0, 64, 0.3) !important;
+  border-radius: 12px !important;
+  font-family: 'Inter', sans-serif !important;
+  color: white !important;
+}
+
+.react-datepicker__header {
+  background-color: #1a0000 !important;
+  border-bottom: 1px solid rgba(255, 0, 64, 0.2) !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding-top: 8px !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: white !important;
+  font-weight: 600;
+}
+
+.react-datepicker__day-names {
+  margin-bottom: 0;
+}
+
+.react-datepicker__day {
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+  margin: 0.166rem;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(255, 0, 64, 0.2) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--selected:hover {
+  background-color: #ff0040 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(255, 0, 64, 0.3) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--disabled {
+  color: rgba(255, 255, 255, 0.3) !important;
+  cursor: not-allowed !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.react-datepicker__navigation {
+  top: 10px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #ff0040 !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: #ff0080 !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}

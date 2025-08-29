@@ -14,6 +14,7 @@ const Navigation = () => {
     { name: 'галерея', path: '/gallery' },
     { name: 'правила', path: '/rules' },
     { name: 'бронирование', path: '/reservations' },
+    { name: 'аренда', path: '/rental' },
     { name: 'контакты', path: '/contact' },
   ]
 

@@ -110,9 +110,10 @@ async function handleBooking(request, env) {
 
     // Format table type for display
     const tableTypes = {
-      'standard': 'Стандартный стол (14,000₽)',
-      'comfort': 'Комфорт зона (21,000₽)',
-      'vip': 'VIP ложа (35,000₽)'
+      'table2': 'Стол на 2 человека (7,000₽)',
+      'table3': 'Стол на 3 человека (10,500₽)',
+      'table4-5': 'Стол на 4-5 человек (от 14,000₽)',
+      'vip': 'VIP ложа (от 35,000₽)'
     };
 
     // Format the message for Telegram
@@ -126,7 +127,7 @@ async function handleBooking(request, env) {
 🎭 <b>Тип стола:</b> ${tableTypes[tableType] || tableType}
 ${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
 
-#booking #vnvnc
+#бронирование
     `.trim();
 
     // Create email content
@@ -175,6 +176,62 @@ ${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
   }
 }
 
+// Handle rental form submission
+async function handleRental(request, env) {
+  try {
+    const data = await request.json();
+    const { name, phone, email } = data;
+
+    // Validate required fields
+    if (!name || !phone || !email) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Format the message for Telegram
+    const telegramMessage = `
+🏢 <b>Новая заявка на аренду клуба!</b>
+
+👤 <b>Имя:</b> ${name}
+📱 <b>Телефон:</b> ${phone}
+📧 <b>Email:</b> ${email}
+
+#аренда
+    `.trim();
+
+    // Create email content
+    const emailSubject = `Новая заявка на аренду VNVNC - ${name}`;
+    const emailContent = telegramMessage
+      .replace(/<b>/g, '<strong>')
+      .replace(/<\/b>/g, '</strong>')
+      .replace(/\n/g, '<br>');
+
+    // Send to both Telegram and Email with a short timeout
+    // This ensures notifications are sent but doesn't block the response too long
+    await Promise.race([
+      Promise.allSettled([
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, BOOKING_MANAGER_ID, telegramMessage),
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
+        sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
+      ]),
+      new Promise(resolve => setTimeout(resolve, 3000)) // 3 second timeout
+    ]);
+
+    return new Response(JSON.stringify({ success: true, message: 'Rental form submitted successfully' }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error processing rental form:', error);
+    return new Response(JSON.stringify({ error: 'Failed to process rental form', details: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 // Handle contact form submission
 async function handleContact(request, env) {
   try {
@@ -197,7 +254,7 @@ async function handleContact(request, env) {
 📱 <b>Телефон:</b> ${phone}
 💬 <b>Сообщение:</b> ${message}
 
-#contact #website
+#контакт
 
 ⚠️ Пожалуйста, перешлите в @vnvnc_help
     `.trim();
@@ -209,10 +266,14 @@ async function handleContact(request, env) {
       .replace(/<\/b>/g, '</strong>')
       .replace(/\n/g, '<br>');
 
-    // Send to admin via Telegram and Email
-    await Promise.allSettled([
-      sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
-      sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
+    // Send to admin via Telegram and Email with a short timeout
+    // This ensures notifications are sent but doesn't block the response too long
+    await Promise.race([
+      Promise.allSettled([
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
+        sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
+      ]),
+      new Promise(resolve => setTimeout(resolve, 3000)) // 3 second timeout
     ]);
 
     return new Response(JSON.stringify({ success: true, message: 'Contact form submitted successfully' }), {
@@ -287,6 +348,8 @@ export default {
       return handleBooking(request, env);
     } else if (pathname === '/contact' && request.method === 'POST') {
       return handleContact(request, env);
+    } else if (pathname === '/rental' && request.method === 'POST') {
+      return handleRental(request, env);
     } else if (pathname.startsWith('/api/')) {
       return handleTicketsCloudProxy(request, pathname, url.searchParams);
     } else {
