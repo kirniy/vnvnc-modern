@@ -115,15 +115,20 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
         {/* Open Graph tags for social media */}
         <meta property="og:title" content={`${event.title} | VNVNC`} />
         <meta property="og:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
-        <meta property="og:image" content={event.poster_original || event.image || '/og-image.jpg'} />
+        <meta property="og:url" content={`https://vnvnc.ru${window.location.pathname}`} />
+        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="VNVNC Concert Hall" />
         <meta property="og:type" content="event" />
         <meta property="og:site_name" content="VNVNC Concert Hall" />
+        <meta property="og:locale" content="ru_RU" />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${event.title} | VNVNC`} />
         <meta name="twitter:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
-        <meta name="twitter:image" content={event.poster_original || event.image || '/og-image.jpg'} />
+        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
       </Helmet>
 
       {/* Content wrapper with higher z-index */}
