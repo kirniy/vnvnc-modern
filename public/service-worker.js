@@ -16,14 +16,14 @@ const CRITICAL_ASSETS = [
 const CACHE_LIMITS = {
   api: 50, // Max API responses to cache
   images: 100, // Max images
-  videos: 10, // Max videos (they're large)
+  videos: 25, // Increased to cache more videos for instant loading
 };
 
 // Cache TTLs (in milliseconds)
 const CACHE_TTL = {
   api: 60 * 1000, // 1 minute for API during high traffic
   images: 7 * 24 * 60 * 60 * 1000, // 7 days for images
-  videos: 24 * 60 * 60 * 1000, // 1 day for videos
+  videos: 7 * 24 * 60 * 60 * 1000, // 7 days for videos - they don't change often
   static: 365 * 24 * 60 * 60 * 1000, // 1 year for static assets
 };
 

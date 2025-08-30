@@ -27,7 +27,7 @@ export interface VideosResponse {
 
 class YandexVideoService {
   private cache: Map<string, { data: VideosResponse | YandexVideo[]; timestamp: number }> = new Map();
-  private cacheTimeout = 5 * 60 * 1000; // 5 minutes cache
+  private cacheTimeout = 30 * 60 * 1000; // 30 minutes cache - videos don't change often
   
   /**
    * Fetch videos from Yandex Disk via our Cloudflare Worker

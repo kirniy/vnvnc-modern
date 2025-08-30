@@ -112,21 +112,22 @@ export const useYandexVideos = (): UseYandexVideosResult => {
         const effectiveType = connection?.effectiveType || '4g';
         const saveData = connection?.saveData || false;
         
-        // Adjust preloading based on connection - INCREASED for instant switching
-        let videosToPreload = 12; // Increased default for instant response
+        // OPTIMIZED: Preload just the NEXT 2-3 videos for instant switching
+        // Too many = slower initial load and button response!
+        let videosToPreload = 3; // Only preload next few for instant switching
         let preloadStrategy = 'auto';
         
         if (saveData) {
-          videosToPreload = 3; // Still preload 3 for better UX
+          videosToPreload = 1; // Just next one
           preloadStrategy = 'metadata';
         } else if (effectiveType === 'slow-2g' || effectiveType === '2g') {
-          videosToPreload = 3;
+          videosToPreload = 1;
           preloadStrategy = 'metadata';
         } else if (effectiveType === '3g') {
-          videosToPreload = 6; // Increased from 2 for instant switching
-          preloadStrategy = 'auto'; // Changed to auto for faster loading
+          videosToPreload = 2; // Just next 2
+          preloadStrategy = 'auto';
         } else if (effectiveType === '4g') {
-          videosToPreload = 12; // Increased from 4 for instant response
+          videosToPreload = 3; // Just next 3 for instant response
           preloadStrategy = 'auto';
         }
         

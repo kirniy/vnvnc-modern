@@ -80,43 +80,31 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
     
-    // Preload the new video WITHOUT updating currentVideo
-    const newVideo = document.createElement('video')
-    newVideo.src = newVideoData.url
-    newVideo.muted = currentMuteState
-    newVideo.playsInline = true
-    newVideo.loop = true
+    // INSTANT SWITCH: Update videos immediately, don't wait for preload
+    // This makes the switch feel instant even if video buffers
+    setCurrentVideo(newVideoData)
     
-    // Preload the new video
-    newVideo.load()
-    
-    const handleCanPlay = () => {
-      // NOW update both videos simultaneously
-      if (videoRef.current && backgroundVideoRef?.current) {
-        // Update both videos at exactly the same time
-        videoRef.current.src = newVideoData.url
-        videoRef.current.muted = currentMuteState
-        videoRef.current.load()
-        
-        backgroundVideoRef.current.src = newVideoData.url
-        backgroundVideoRef.current.load()
-        backgroundVideoRef.current.play()
-        
-        videoRef.current.play().then(() => {
-          setIsTransitioning(false)
-          setIsRandomizing(false)
-          setProgress(0)
-          setIsPlaying(true)
-          // NOW update the currentVideo state after both are playing
-          setCurrentVideo(newVideoData)
-        }).catch(() => {
-          setIsTransitioning(false)
-          setIsRandomizing(false)
-        })
-      }
+    // Update both videos immediately for instant switch
+    if (videoRef.current && backgroundVideoRef?.current) {
+      videoRef.current.src = newVideoData.url
+      videoRef.current.muted = currentMuteState
+      
+      backgroundVideoRef.current.src = newVideoData.url
+      backgroundVideoRef.current.play()
+      
+      videoRef.current.play().then(() => {
+        setIsTransitioning(false)
+        setIsRandomizing(false)
+        setProgress(0)
+        setIsPlaying(true)
+      }).catch(() => {
+        setIsTransitioning(false)
+        setIsRandomizing(false)
+      })
+    } else {
+      setIsTransitioning(false)
+      setIsRandomizing(false)
     }
-    
-    newVideo.addEventListener('canplaythrough', handleCanPlay, { once: true })
   }
 
   // Handle click on video circle - Telegram style
@@ -464,8 +452,9 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
                 muted={isMuted}
                 loop
                 playsInline
-                preload="auto"
+                preload="metadata"
                 autoPlay
+                crossOrigin="anonymous"
               />
               
               {/* Transition overlay - subtle with interesting animation */}
