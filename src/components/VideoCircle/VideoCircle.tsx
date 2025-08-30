@@ -80,31 +80,55 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
     
-    // INSTANT SWITCH: Update videos immediately, don't wait for preload
-    // This makes the switch feel instant even if video buffers
-    setCurrentVideo(newVideoData)
+    // Show the loading animation while we load the new video
+    // But make it feel responsive by starting immediately
     
-    // Update both videos immediately for instant switch
-    if (videoRef.current && backgroundVideoRef?.current) {
-      videoRef.current.src = newVideoData.url
-      videoRef.current.muted = currentMuteState
+    // Create a new video element to preload
+    const preloadVideo = document.createElement('video')
+    preloadVideo.src = newVideoData.url
+    preloadVideo.muted = currentMuteState
+    preloadVideo.playsInline = true
+    preloadVideo.loop = true
+    
+    // Start loading
+    preloadVideo.load()
+    
+    // When ready to play, switch both videos
+    const handleCanPlay = () => {
+      // NOW update the current video and switch
+      setCurrentVideo(newVideoData)
       
-      backgroundVideoRef.current.src = newVideoData.url
-      backgroundVideoRef.current.play()
-      
-      videoRef.current.play().then(() => {
+      if (videoRef.current && backgroundVideoRef?.current) {
+        videoRef.current.src = newVideoData.url
+        videoRef.current.muted = currentMuteState
+        
+        backgroundVideoRef.current.src = newVideoData.url
+        backgroundVideoRef.current.play()
+        
+        videoRef.current.play().then(() => {
+          setIsTransitioning(false)
+          setIsRandomizing(false)
+          setProgress(0)
+          setIsPlaying(true)
+        }).catch(() => {
+          setIsTransitioning(false)
+          setIsRandomizing(false)
+        })
+      } else {
         setIsTransitioning(false)
         setIsRandomizing(false)
-        setProgress(0)
-        setIsPlaying(true)
-      }).catch(() => {
-        setIsTransitioning(false)
-        setIsRandomizing(false)
-      })
-    } else {
-      setIsTransitioning(false)
-      setIsRandomizing(false)
+      }
     }
+    
+    // Use 'canplay' for faster response than 'canplaythrough'
+    preloadVideo.addEventListener('canplay', handleCanPlay, { once: true })
+    
+    // Fallback timeout - if it takes too long, just switch anyway
+    setTimeout(() => {
+      if (isTransitioning) {
+        handleCanPlay()
+      }
+    }, 2000) // 2 second max wait
   }
 
   // Handle click on video circle - Telegram style
