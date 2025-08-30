@@ -31,14 +31,17 @@ export default function handler(request) {
     <meta property="og:url" content="https://vnvnc.ru/e/${date}">
     <meta property="og:title" content="${eventTitle} | VNVNC">
     <meta property="og:description" content="${description}">
-    <meta property="og:image" content="https://vnvnc.ru/logo.png">
+    <meta property="og:image" content="https://vnvnc.ru/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="VNVNC Concert Hall">
     <meta property="og:site_name" content="VNVNC Concert Hall">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${eventTitle} | VNVNC">
     <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="https://vnvnc.ru/logo.png">
+    <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg">
     
     <script>
       // Redirect to the actual React app after meta tags are loaded
