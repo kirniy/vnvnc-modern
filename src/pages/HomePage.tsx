@@ -49,7 +49,7 @@ const HomePage = () => {
         
         {/* Open Graph tags */}
         <meta property="og:title" content="VNVNC Concert Hall" />
-        <meta property="og:description" content="VNVNC Concert Hall, Конюшенная 2В - культовый клуб в центре Санкт-Петербурга" />
+        <meta property="og:description" content="Конюшенная 2В - культовый клуб в центре Санкт-Петербурга. Живая музыка, вечеринки, культурные события" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="VNVNC" />
         <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
@@ -61,7 +61,7 @@ const HomePage = () => {
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="VNVNC Concert Hall" />
-        <meta name="twitter:description" content="VNVNC Concert Hall, Конюшенная 2В - культовый клуб в центре Санкт-Петербурга" />
+        <meta name="twitter:description" content="Конюшенная 2В - культовый клуб в центре Санкт-Петербурга. Живая музыка, вечеринки, культурные события" />
         <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
       </Helmet>
 
