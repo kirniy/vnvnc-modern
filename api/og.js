@@ -17,7 +17,7 @@ export default function handler(request) {
   // Better description without duplicating the title
   const description = date 
     ? 'Конюшенная 2В, Санкт-Петербург • Билеты на сайте • 18+'
-    : 'VNVNC Concert Hall, Конюшенная 2В - культовый клуб в центре Санкт-Петербурга';
+    : 'Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно';
 
   const html = `<!DOCTYPE html>
 <html lang="ru">
