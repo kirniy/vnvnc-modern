@@ -62,6 +62,11 @@ const Navigation = () => {
           <Link 
             to="/" 
             className="flex items-center group pl-2 sm:pl-0 transition-all duration-300"
+            onClick={() => {
+              if (location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
           >
             <div className="relative flex items-center">
               <span 

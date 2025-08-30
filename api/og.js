@@ -16,7 +16,7 @@ export default function handler(request) {
   const eventTitle = eventDates[date] || 'VNVNC Concert Hall';
   const description = date 
     ? `${eventTitle} в VNVNC Concert Hall, Конюшенная 2В`
-    : 'VNVNC Concert Hall, Конюшенная 2В - концертная площадка в центре Санкт-Петербурга';
+    : 'VNVNC Concert Hall, Конюшенная 2В - культовый клуб в центре Санкт-Петербурга';
 
   const html = `<!DOCTYPE html>
 <html lang="ru">

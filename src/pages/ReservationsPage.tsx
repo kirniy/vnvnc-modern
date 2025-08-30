@@ -14,6 +14,7 @@ import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
 // Убрали DitherBackground
 import { api } from '../services/api'
+import BackButton from '../components/BackButton'
 
 const ReservationsPage = () => {
   const [formData, setFormData] = useState({
@@ -178,6 +179,7 @@ const ReservationsPage = () => {
   return (
     <div className="min-h-screen pt-20 pb-8 sm:pb-0 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-safe relative z-10">
+        <BackButton to="/" text="на главную" />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -185,10 +187,10 @@ const ReservationsPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-2 lowercase text-stretch-heading">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold text-white mb-6 lowercase text-stretch-heading break-words">
             бронирование <NeonText variant="red" size="5xl" glow className="inline-block">столов</NeonText>
           </h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto lowercase text-stretch-body">забронируйте лучшие места в клубе с VIP‑входом без очереди</p>
+          <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto lowercase text-stretch-body">забронируйте лучшие места в клубе с VIP‑входом без очереди</p>
         </motion.div>
 
         {/* Quick Contact */}

@@ -7,6 +7,7 @@ import Button from '../components/ui/Button'
 import NeonText from '../components/ui/NeonText'
 // Убрали DitherBackground
 import { api } from '../services/api'
+import BackButton from '../components/BackButton'
 
 const ContactPage = () => {
   const yandexMapRef = useRef<HTMLDivElement>(null)
@@ -71,16 +72,17 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen pt-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <BackButton to="/" text="на главную" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-2 lowercase text-stretch-heading">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold text-white mb-6 lowercase text-stretch-heading break-words">
             контакты <NeonText variant="red" size="3xl" glow className="inline-block">vnvnc</NeonText>
           </h1>
-          <p className="text-lg text-white/70 lowercase text-stretch-body">свяжитесь с нами для бронирования и вопросов</p>
+          <p className="text-base sm:text-lg text-white/70 lowercase text-stretch-body">свяжитесь с нами для бронирования и вопросов</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

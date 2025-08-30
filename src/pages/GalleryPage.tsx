@@ -8,6 +8,7 @@ import { colors } from '../utils/colors'
 import { useInfiniteYandexPhotos, useYandexDates } from '../hooks/useYandexPhotos'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
+import BackButton from '../components/BackButton'
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
@@ -217,6 +218,7 @@ const GalleryPage = () => {
   return (
     <div className="min-h-screen text-white pt-16 sm:pt-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <BackButton to="/" text="на главную" />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -224,14 +226,14 @@ const GalleryPage = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-10 sm:mb-16"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-6">
             <Sparkles className="text-neon-red" size={32} style={{ color: colors.neon.red }} />
-            <h1 className="text-4xl md:text-6xl font-display font-extrabold lowercase text-stretch-heading">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold lowercase text-stretch-heading break-words">
               галерея <span style={{ color: colors.neon.red }}>vnvnc</span>
             </h1>
             <Sparkles className="text-neon-red" size={32} style={{ color: colors.neon.red }} />
           </div>
-          <p className="text-base md:text-xl text-white/80 max-w-2xl mx-auto text-stretch-body">
+          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto text-stretch-body">
             Погрузитесь в атмосферу самых запоминающихся вечеров
           </p>
         </motion.div>

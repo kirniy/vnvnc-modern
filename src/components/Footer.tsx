@@ -78,7 +78,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className=""
           >
-            <NeonText variant="red" size="xl" className="mb-6">социальные сети</NeonText>
+            <NeonText variant="red" size="xl" className="mb-8">социальные сети</NeonText>
             <div className="grid grid-cols-4 gap-3 max-w-[240px]">
               <a 
                 href="https://vk.com/vnvnc_spb" 

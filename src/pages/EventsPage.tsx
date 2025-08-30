@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
+import BackButton from '../components/BackButton'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -76,14 +77,15 @@ const EventsPage = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-16 relative z-10">
+        <BackButton to="/" text="на главную" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-display font-extrabold text-white mb-4 lowercase text-stretch-heading">мероприятия</h1>
-          <p className="text-lg text-white/70 lowercase text-stretch-body tracking-wide block">все события в vnvnc</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-white mb-6 lowercase text-stretch-heading break-words">мероприятия</h1>
+          <p className="text-base sm:text-lg text-white/70 lowercase text-stretch-body tracking-wide block">все события в vnvnc</p>
         </motion.div>
 
         {/* Tab Navigation */}

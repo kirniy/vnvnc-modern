@@ -3,6 +3,7 @@ import { Shield, AlertTriangle, Heart, Sparkles } from 'lucide-react'
 import { colors } from '../utils/colors'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
+import BackButton from '../components/BackButton'
 // Убрали DitherBackground
 
 const RulesPage = () => {
@@ -46,6 +47,7 @@ const RulesPage = () => {
   return (
     <div className="min-h-screen pt-20 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <BackButton to="/" text="на главную" />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +56,7 @@ const RulesPage = () => {
           className="text-center mb-12"
         >
           <div className="inline-block px-8 py-2 mb-4">
-            <h1 className="text-4xl md:text-6xl font-display font-extrabold text-white lowercase text-stretch-heading">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold text-white lowercase text-stretch-heading break-words">
               правила <NeonText variant="red" size="5xl" glow>vnvnc</NeonText>
             </h1>
           </div>
