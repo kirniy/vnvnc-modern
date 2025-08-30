@@ -14,8 +14,9 @@ export default function handler(request) {
   const date = searchParams.get('date');
   
   const eventTitle = eventDates[date] || 'VNVNC Concert Hall';
+  // Better description without duplicating the title
   const description = date 
-    ? `${eventTitle} в VNVNC Concert Hall, Конюшенная 2В`
+    ? 'Конюшенная 2В, Санкт-Петербург • Билеты на сайте • 18+'
     : 'VNVNC Concert Hall, Конюшенная 2В - культовый клуб в центре Санкт-Петербурга';
 
   const html = `<!DOCTYPE html>
@@ -29,7 +30,7 @@ export default function handler(request) {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="event">
     <meta property="og:url" content="https://vnvnc.ru/e/${date}">
-    <meta property="og:title" content="${eventTitle} | VNVNC">
+    <meta property="og:title" content="${eventTitle}">
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="https://vnvnc.ru/og-image.jpg">
     <meta property="og:image:width" content="1200">
@@ -39,7 +40,7 @@ export default function handler(request) {
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${eventTitle} | VNVNC">
+    <meta name="twitter:title" content="${eventTitle}">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg">
     
