@@ -34,6 +34,11 @@ const AgeGate = () => {
 
   if (!isVisible) return null
 
+  // Return null if document.body doesn't exist yet
+  if (typeof document === 'undefined' || !document.body) {
+    return null
+  }
+
   return createPortal(
     <AnimatePresence mode="wait">
       {isVisible && (

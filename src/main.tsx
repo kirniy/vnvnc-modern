@@ -1,9 +1,9 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import App from './App.tsx'
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -21,7 +21,9 @@ const queryClient = new QueryClient({
 })
 
 // Register service worker for PWA and caching
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.__SW_REGISTERED__) {
+  window.__SW_REGISTERED__ = true; // Mark as registered to prevent double registration
+  
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
@@ -38,8 +40,15 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Add type declaration for the global flag
+declare global {
+  interface Window {
+    __SW_REGISTERED__?: boolean;
+  }
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  <ErrorBoundary>
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <Router>
@@ -47,5 +56,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </Router>
       </QueryClientProvider>
     </HelmetProvider>
-  </React.StrictMode>,
+  </ErrorBoundary>,
 )

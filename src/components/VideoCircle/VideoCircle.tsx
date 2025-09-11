@@ -24,12 +24,14 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [hasShuffled, setHasShuffled] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   
-  // Check if mobile on mount and resize
+  // Check if mounted and if mobile on mount and resize
   useEffect(() => {
+    setIsMounted(true)
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
@@ -83,7 +85,12 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
     // Show the loading animation while we load the new video
     // But make it feel responsive by starting immediately
     
-    // Create a new video element to preload
+    // Create a new video element to preload (safe because we check DOM in render)
+    if (!document || typeof document === 'undefined') {
+      setIsTransitioning(false)
+      setIsRandomizing(false)
+      return
+    }
     const preloadVideo = document.createElement('video')
     preloadVideo.src = newVideoData.url
     preloadVideo.muted = currentMuteState
@@ -289,6 +296,11 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       }
     }
   }, [hideTimeout])
+
+  // Don't render until mounted to avoid SSR/hydration issues with framer-motion
+  if (!isMounted) {
+    return null
+  }
 
   // Show loading state while videos are being fetched
   if (videosLoading || !currentVideo) {

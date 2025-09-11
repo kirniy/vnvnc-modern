@@ -3,10 +3,28 @@ import { Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
 import VideoCircle from './VideoCircle'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Don't render motion components until mounted to avoid DOM access issues
+  if (!isMounted) {
+    return (
+      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
+        <div className="text-center text-white">
+          <div className="animate-pulse">
+            Loading...
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-black pt-safe pb-safe">
@@ -133,12 +151,12 @@ const ModernHero = () => {
               className="absolute w-1 h-1 rounded-full"
               style={{ backgroundColor: `${colors.neon.red}30` }}
               initial={{
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
+                x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : 0,
+                y: typeof window !== 'undefined' ? Math.random() * window.innerHeight : 0,
               }}
               animate={{
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
+                x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : 0,
+                y: typeof window !== 'undefined' ? Math.random() * window.innerHeight : 0,
               }}
               transition={{
                 duration: Math.random() * 10 + 10,

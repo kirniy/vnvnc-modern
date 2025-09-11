@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>VNVNC API Test Results</h1>
+    <div id="results"></div>
+    
+    <script>
+        const API_BASE = 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net';
+        const results = document.getElementById('results');
+        
+        async function testAPIs() {
+            const tests = [
+                {
+                    name: 'TicketsCloud Events',
+                    url: `${API_BASE}/api/v1/resources/events?key=c862e40ed178486285938dda33038e30&org=5907&limit=1`
+                },
+                {
+                    name: 'Yandex Disk Photos',
+                    url: `${API_BASE}/api/yandex-disk/photos?limit=1`
+                },
+                {
+                    name: 'Yandex Disk Dates',
+                    url: `${API_BASE}/api/yandex-disk/dates`
+                },
+                {
+                    name: 'Forms CORS',
+                    url: `${API_BASE}/booking`,
+                    method: 'OPTIONS'
+                }
+            ];
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.url, {
+                        method: test.method || 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    const status = response.status;
+                    const statusText = status >= 200 && status < 300 ? '✅ SUCCESS' : '❌ FAILED';
+                    
+                    results.innerHTML += `
+                        <div style="margin: 10px; padding: 10px; border: 1px solid #ccc;">
+                            <strong>${test.name}</strong><br>
+                            Status: ${status} ${statusText}<br>
+                            URL: ${test.url}
+                        </div>
+                    `;
+                    
+                    if (status >= 200 && status < 300 && test.method !== 'OPTIONS') {
+                        const data = await response.json();
+                        console.log(`${test.name} response:`, data);
+                    }
+                } catch (error) {
+                    results.innerHTML += `
+                        <div style="margin: 10px; padding: 10px; border: 1px solid red;">
+                            <strong>${test.name}</strong><br>
+                            ❌ ERROR: ${error.message}<br>
+                            URL: ${test.url}
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        testAPIs();
+    </script>
+</body>
+</html>

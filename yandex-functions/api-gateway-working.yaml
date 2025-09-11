@@ -1,0 +1,59 @@
+openapi: 3.0.0
+info:
+  title: VNVNC API Gateway
+  version: 1.0.0
+
+paths:
+  /api/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: ticketsCloudProxy
+      
+  /api/yandex-disk/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4epi3grr6a3nb6maug3
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: yandexDiskProxy
+      
+  /booking:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        service_account_id: aje9aok7e67g6igumr3e
+      operationId: bookingHandler
+      
+  /rental:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        service_account_id: aje9aok7e67g6igumr3e
+      operationId: rentalHandler
+      
+  /contact:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        service_account_id: aje9aok7e67g6igumr3e
+      operationId: contactHandler

@@ -1,6 +1,6 @@
 // API service that uses Cloudflare Worker for secure backend operations
 
-const WORKER_URL = 'https://vnvnc-cors-proxy.kirlich-ps3.workers.dev';
+const WORKER_URL = 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net';
 
 export interface BookingData {
   name: string;

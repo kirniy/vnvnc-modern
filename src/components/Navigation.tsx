@@ -36,14 +36,18 @@ const Navigation = () => {
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
+    if (document.body) {
+      if (isOpen) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = 'unset'
+      }
     }
     
     return () => {
-      document.body.style.overflow = 'unset'
+      if (document.body) {
+        document.body.style.overflow = 'unset'
+      }
     }
   }, [isOpen])
 

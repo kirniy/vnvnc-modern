@@ -40,7 +40,9 @@ const MagneticCursor = () => {
     }
     
     // Hide default cursor
-    document.body.style.cursor = 'none'
+    if (document.body) {
+      document.body.style.cursor = 'none'
+    }
     
     const handleMouseMove = (e: MouseEvent) => {
       x.set(e.clientX)
@@ -118,16 +120,20 @@ const MagneticCursor = () => {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mousedown', handleMouseDown)
     window.addEventListener('mouseup', handleMouseUp)
-    document.body.addEventListener('mouseleave', handleMouseLeave)
-    document.body.addEventListener('mouseenter', handleMouseEnter)
+    if (document.body) {
+      document.body.addEventListener('mouseleave', handleMouseLeave)
+      document.body.addEventListener('mouseenter', handleMouseEnter)
+    }
     
     return () => {
-      document.body.style.cursor = 'auto'
+      if (document.body) {
+        document.body.style.cursor = 'auto'
+        document.body.removeEventListener('mouseleave', handleMouseLeave)
+        document.body.removeEventListener('mouseenter', handleMouseEnter)
+      }
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mousedown', handleMouseDown)
       window.removeEventListener('mouseup', handleMouseUp)
-      document.body.removeEventListener('mouseleave', handleMouseLeave)
-      document.body.removeEventListener('mouseenter', handleMouseEnter)
     }
   }, [x, y, trailX, trailY, scale, rotation, isHovering])
   

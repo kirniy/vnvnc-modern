@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 export const useBodyScrollLock = (isLocked: boolean) => {
   useEffect(() => {
-    if (isLocked) {
+    if (isLocked && document.body) {
       // Store the current overflow value
       const originalOverflow = document.body.style.overflow
       
@@ -15,8 +15,10 @@ export const useBodyScrollLock = (isLocked: boolean) => {
       
       return () => {
         // Restore original overflow
-        document.body.style.overflow = originalOverflow
-        document.body.style.paddingRight = ''
+        if (document.body) {
+          document.body.style.overflow = originalOverflow
+          document.body.style.paddingRight = ''
+        }
       }
     }
   }, [isLocked])

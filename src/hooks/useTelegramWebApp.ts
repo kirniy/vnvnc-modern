@@ -79,11 +79,22 @@ export const useTelegramWebApp = () => {
       tg.expand()
 
       // Set dark theme colors to match VNVNC aesthetic (if supported)
-      if (tg.setHeaderColor) {
-        tg.setHeaderColor(colors.neon.red)  // VNVNC red color (#ff1a1a)
+      // Note: setHeaderColor and setBackgroundColor are not supported in v6.0
+      // Check version and try-catch for safety
+      try {
+        if (tg.setHeaderColor && tg.version && parseFloat(tg.version) >= 6.1) {
+          tg.setHeaderColor(colors.neon.red)  // VNVNC red color (#ff1a1a)
+        }
+      } catch (e) {
+        // Silently ignore if not supported
       }
-      if (tg.setBackgroundColor) {
-        tg.setBackgroundColor('#000000')
+      
+      try {
+        if (tg.setBackgroundColor && tg.version && parseFloat(tg.version) >= 6.1) {
+          tg.setBackgroundColor('#000000')
+        }
+      } catch (e) {
+        // Silently ignore if not supported
       }
 
       // Add haptic feedback to clicks

@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: VNVNC API Gateway
+  version: 1.0.0
+
+paths:
+  # TicketsCloud API proxy - catches all /api/* paths
+  /api/{proxy+}:
+    x-yc-apigateway-any-method:
+      summary: TicketsCloud API Proxy
+      operationId: ticketsCloudProxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Proxy response
+  
+  # Yandex Disk API endpoints
+  /api/yandex-disk/{proxy+}:
+    x-yc-apigateway-any-method:
+      summary: Yandex Disk API Proxy
+      operationId: yandexDiskProxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4epi3grr6a3nb6maug3
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Proxy response
+  
+  # Forms endpoints
+  /booking:
+    x-yc-apigateway-any-method:
+      summary: Booking Form Handler
+      operationId: bookingHandler
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Form response
+  
+  /rental:
+    x-yc-apigateway-any-method:
+      summary: Rental Form Handler
+      operationId: rentalHandler
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Form response
+  
+  /contact:
+    x-yc-apigateway-any-method:
+      summary: Contact Form Handler
+      operationId: contactHandler
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Form response

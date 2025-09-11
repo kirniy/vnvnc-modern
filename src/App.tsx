@@ -44,11 +44,13 @@ function App() {
 
   useEffect(() => {
     // Add class to body when in Telegram
-    if (isInTelegram) {
+    if (isInTelegram && document.body) {
       document.body.classList.add('telegram-webapp')
     }
     return () => {
-      document.body.classList.remove('telegram-webapp')
+      if (document.body) {
+        document.body.classList.remove('telegram-webapp')
+      }
     }
   }, [isInTelegram])
 

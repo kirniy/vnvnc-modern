@@ -212,7 +212,7 @@ const GalleryPage = () => {
 
   // API base for download links
   const API_BASE_URL = import.meta.env.PROD
-    ? 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev'
+    ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
     : 'http://localhost:8787'
 
   return (

@@ -175,7 +175,7 @@ class TicketsCloudService {
     // Create new request and store as pending
     const requestPromise = (async () => {
       try {
-        const workerUrl = `https://vnvnc-cors-proxy.kirlich-ps3.workers.dev/api${endpoint}?key=${this.apiKey}`
+        const workerUrl = `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net/api${endpoint}?key=${this.apiKey}`
         console.log('Making API request:', endpoint)
 
         const response = await fetch(workerUrl, {
@@ -320,8 +320,8 @@ class TicketsCloudService {
       // Use default TTL for event lists (1 minute during high traffic)
       const response = await this.makeRequest(endpoint, this.DEFAULT_TTL)
       
-      // v1 API returns object with numbered keys (0, 1, 2, etc.)
-      const events = Object.values(response).filter(event => event && typeof event === 'object') as ApiEvent[]
+      // v1 API returns an array of events
+      const events = Array.isArray(response) ? response : Object.values(response).filter(event => event && typeof event === 'object') as ApiEvent[]
       const formattedEvents = events.map(this.formatApiEvent.bind(this))
       return formattedEvents.sort((a, b) => (a.eventTimestamp ?? Infinity) - (b.eventTimestamp ?? Infinity))
     } catch (error) {
@@ -359,8 +359,8 @@ class TicketsCloudService {
       const endpoint = `/v1/resources/events${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       const response = await this.makeRequest(endpoint)
       
-      // v1 API returns object with numbered keys (0, 1, 2, etc.)
-      const events = Object.values(response).filter(event => event && typeof event === 'object') as ApiEvent[]
+      // v1 API returns an array of events
+      const events = Array.isArray(response) ? response : Object.values(response).filter(event => event && typeof event === 'object') as ApiEvent[]
       const formattedEvents = events.map(this.formatApiEvent)
       return formattedEvents.sort((a, b) => (a.eventTimestamp ?? Infinity) - (b.eventTimestamp ?? Infinity))
     } catch (error) {

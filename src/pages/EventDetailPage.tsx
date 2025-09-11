@@ -64,14 +64,16 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
       setTimeout(() => setShowShareTooltip(false), 2000)
     } catch (err) {
       // Fallback for browsers that don't support clipboard API
-      const textArea = document.createElement('textarea')
-      textArea.value = shortUrl
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
-      setShowShareTooltip(true)
-      setTimeout(() => setShowShareTooltip(false), 2000)
+      if (document.body) {
+        const textArea = document.createElement('textarea')
+        textArea.value = shortUrl
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+        setShowShareTooltip(true)
+        setTimeout(() => setShowShareTooltip(false), 2000)
+      }
     }
   }
   
