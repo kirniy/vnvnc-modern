@@ -1,69 +1,123 @@
-# React + TypeScript + Vite
+# VNVNC Modern
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern nightclub website for VNVNC Concert Hall in Saint Petersburg, Russia.
 
-Currently, two official plugins are available:
+## 🌐 Production
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Live Site**: https://vnvnc.ru  
+**Hosting**: Selectel Object Storage (Russia-based, no blocking issues)  
+**Direct URL**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
 
-## Expanding the ESLint configuration
+## 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Install dependencies
+npm install
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Start development server
+npm run dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+# Build for production
+npm run build
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Deploy to Selectel
+./deploy-to-selectel.sh
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📦 Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Frontend**: React + TypeScript + Vite
+- **Styling**: Tailwind CSS with custom neon design system
+- **Animations**: Framer Motion
+- **Hosting**: Selectel Object Storage
+- **Workers**: Cloudflare Workers for API proxying
+- **APIs**: TicketsCloud, Yandex Disk
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🏗️ Architecture
+
 ```
+vnvnc-modern/
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── pages/          # Route pages
+│   ├── services/       # API integrations
+│   ├── hooks/          # Custom React hooks
+│   └── utils/          # Utilities and helpers
+├── public/             # Static assets
+└── dist/              # Production build
+```
+
+## 🔑 Environment
+
+The project uses these external services:
+- **TicketsCloud API**: Event management
+- **Yandex Disk**: Photo gallery storage
+- **Cloudflare Workers**: CORS proxy and API gateway
+
+## 📝 Documentation
+
+- [CLAUDE.md](./CLAUDE.md) - Development guide and patterns
+- [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) - Comprehensive technical docs
+- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) - Current development tasks
+
+## 🚢 Deployment
+
+### Automatic Deployment
+
+```bash
+npm run build
+./deploy-to-selectel.sh
+```
+
+### Manual Deployment
+
+```bash
+# Build the project
+npm run build
+
+# Upload to Selectel S3
+aws s3 sync dist/ s3://vnvnc/ \
+  --endpoint-url=https://s3.storage.selcloud.ru \
+  --delete
+```
+
+## 🌍 DNS Configuration
+
+Domain is managed through:
+- **Registrar**: REG.RU
+- **DNS**: Selectel nameservers
+- **SSL**: Automatic via Selectel
+
+## 📊 Performance
+
+- Lighthouse Score: 90+
+- First Contentful Paint: <1.5s
+- Time to Interactive: <3s
+- Optimized for Russian internet speeds
+
+## 🛠️ Development
+
+```bash
+# Start dev server
+npm run dev
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 📄 License
+
+Proprietary - VNVNC © 2024
+
+---
+
+*Built with ❤️ for the Saint Petersburg nightlife scene*

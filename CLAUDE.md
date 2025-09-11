@@ -32,7 +32,8 @@ npm run lint         # Check code quality
 - **Yandex Gallery Worker**: `https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev`
 
 ### Production URLs
-- **Main Site**: Deployed via Firebase Hosting
+- **Main Site**: https://vnvnc.ru (Hosted on Selectel Object Storage)
+- **Direct Selectel URL**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
 - **Workers**: Deployed via Cloudflare Workers
 
 ## Development Patterns
@@ -212,10 +213,22 @@ Before deploying:
 
 ## Deployment Process
 
-### Firebase Deployment
+### Selectel Deployment
 ```bash
+# Build the project
 npm run build
-firebase deploy
+
+# Deploy to Selectel using the deployment script
+./deploy-to-selectel.sh
+```
+
+### Manual Selectel Deployment (if needed)
+```bash
+# Build the project
+npm run build
+
+# Upload to Selectel S3 bucket
+aws s3 sync dist/ s3://vnvnc/ --endpoint-url=https://s3.storage.selcloud.ru --delete
 ```
 
 ### Cloudflare Workers
@@ -380,7 +393,8 @@ localStorage.setItem('debug', 'true')
 
 **Project**: VNVNC Modern
 **Tech Stack**: React + TypeScript + Vite + Tailwind
-**Deployment**: Firebase + Cloudflare Workers
+**Deployment**: Selectel Object Storage + Cloudflare Workers
+**Hosting Provider**: Selectel (Russia-based, no blocking issues)
 **APIs**: TicketsCloud, Yandex Disk
 
 ---

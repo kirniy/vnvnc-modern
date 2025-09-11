@@ -4,7 +4,7 @@
 
 VNVNC Modern is a high-performance React-based single-page application (SPA) for VNVNC Concert Hall, a nightclub and event venue in Saint Petersburg, Russia. The website features a modern, visually striking design with neon aesthetics, optimized performance, and seamless integration with external services.
 
-**Live Site**: Production deployment via Firebase/Cloudflare
+**Live Site**: https://vnvnc.ru (Hosted on Selectel Object Storage - Russia-based hosting)
 **Location**: Конюшенная площадь 2В, Санкт-Петербург
 
 > **📋 Active Development**: See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for current development progress and tasks.
