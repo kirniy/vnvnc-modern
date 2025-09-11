@@ -54,11 +54,11 @@ yc serverless function version create \
   --source-path tickets-cloud.zip
 
 echo "📤 Deploying Yandex Disk function code..."
-zip yandex-disk.zip yandex-disk-function.js
+zip yandex-disk.zip gateway-disk.cjs package.json
 yc serverless function version create \
   --function-name vnvnc-yandex-disk \
   --runtime nodejs18 \
-  --entrypoint yandex-disk-function.handler \
+  --entrypoint gateway-disk.handler \
   --memory 256m \
   --execution-timeout 30s \
   --source-path yandex-disk.zip

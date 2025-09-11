@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'
@@ -17,7 +17,8 @@ import { useTelegramWebApp } from './hooks/useTelegramWebApp'
 const HomePage = lazy(() => import('./pages/HomePage'))
 const EventsPage = lazy(() => import('./pages/EventsPage'))
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'))
-const GalleryPage = lazy(() => import('./pages/GalleryPage'))
+// TEMPORARILY DISABLED - Easy to restore by uncommenting
+// const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const RulesPage = lazy(() => import('./pages/RulesPage'))
@@ -39,6 +40,7 @@ const LoadingWithHiddenFooter = () => {
 }
 
 function App() {
+  // Force cache bust v3 - Gallery disabled 2025-09-12-03:25
   // Initialize Telegram WebApp features
   const { isInTelegram } = useTelegramWebApp()
 
@@ -70,7 +72,9 @@ function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/e/:slug" element={<ShortUrlRedirect />} />
-            <Route path="/gallery" element={<GalleryPage />} />
+            {/* TEMPORARILY DISABLED - Redirect to home. Easy to restore by uncommenting */}
+            <Route path="/gallery" element={<Navigate to="/" replace />} />
+            {/* <Route path="/gallery" element={<GalleryPage />} /> */}
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/rules" element={<RulesPage />} />

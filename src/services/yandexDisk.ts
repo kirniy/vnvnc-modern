@@ -3,9 +3,11 @@
 
 import axios from 'axios';
 
-// Use the Cloudflare Worker URL
-// For now, always use production worker since local isn't running
+// Use Yandex Cloud Function endpoint
+// This replaces the banned Cloudflare Workers in Russia
 const API_BASE_URL = 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net';
+// Old Cloudflare endpoint (banned in Russia)
+// const OLD_CLOUDFLARE_URL = 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev';
 
 export interface YandexPhoto {
   id: string;
@@ -41,7 +43,7 @@ class YandexDiskService {
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes cache
 
   /**
-   * Fetch photos from Yandex Disk via our Cloudflare Worker
+   * Fetch photos from Yandex Disk - try direct API or use local fallback
    */
   async fetchPhotos(filters: PhotoFilters = {}): Promise<PhotosResponse> {
     const cacheKey = JSON.stringify(filters);
@@ -52,34 +54,166 @@ class YandexDiskService {
       return cached.data;
     }
 
+    // Try to fetch from Yandex Cloud API first
     try {
-      const response = await axios.get<PhotosResponse>(`${API_BASE_URL}/api/yandex-disk/photos`, {
-        params: {
-          category: filters.category || 'all',
-          limit: filters.limit || 12,
-          offset: filters.offset || 0,
-          date: filters.date
-        }
-      });
-
-      // Cache the response
-      this.cache.set(cacheKey, {
-        data: response.data,
-        timestamp: Date.now()
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching photos from Yandex Disk:', error);
-      
-      // Return empty response on error
-      return {
-        photos: [],
-        total: 0,
-        limit: filters.limit || 50,
+      const params: any = {
+        limit: filters.limit || 12,
         offset: filters.offset || 0
       };
+      
+      if (filters.category && filters.category !== 'all') {
+        params.category = filters.category;
+      }
+      
+      if (filters.date) {
+        params.date = filters.date;
+      }
+
+      const response = await axios.get<PhotosResponse>(
+        `${API_BASE_URL}/api/yandex-disk/photos`,
+        { params }
+      );
+
+      if (response.data && response.data.photos) {
+        console.log(`Fetched ${response.data.photos.length} photos from Yandex Cloud`);
+        
+        // Cache the response
+        this.cache.set(cacheKey, {
+          data: response.data,
+          timestamp: Date.now()
+        });
+        
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error fetching from Yandex Cloud, using local fallback:', error);
     }
+
+    // Use local photos as fallback if API fails
+    console.log('Using local gallery photos (Yandex API fallback)');
+    
+    // Local photos from /public/photos folder
+    const localPhotos: YandexPhoto[] = [
+      {
+        id: 'photo1',
+        src: '/photos/IMG_5014_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5014_resized.jpg',
+        fullSrc: '/photos/IMG_5014_resized.jpg',
+        title: 'VNVNC Moment 1',
+        category: 'events',
+        name: 'IMG_5014_resized.jpg',
+        path: '/photos/IMG_5014_resized.jpg',
+        date: '2024-12-01'
+      },
+      {
+        id: 'photo2',
+        src: '/photos/IMG_5036_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5036_resized.jpg',
+        fullSrc: '/photos/IMG_5036_resized.jpg',
+        title: 'VNVNC Moment 2',
+        category: 'events',
+        name: 'IMG_5036_resized.jpg',
+        path: '/photos/IMG_5036_resized.jpg',
+        date: '2024-12-01'
+      },
+      {
+        id: 'photo3',
+        src: '/photos/IMG_5094_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5094_resized.jpg',
+        fullSrc: '/photos/IMG_5094_resized.jpg',
+        title: 'VNVNC Moment 3',
+        category: 'events',
+        name: 'IMG_5094_resized.jpg',
+        path: '/photos/IMG_5094_resized.jpg',
+        date: '2024-12-02'
+      },
+      {
+        id: 'photo4',
+        src: '/photos/IMG_5126_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5126_resized.jpg',
+        fullSrc: '/photos/IMG_5126_resized.jpg',
+        title: 'VNVNC Moment 4',
+        category: 'events',
+        name: 'IMG_5126_resized.jpg',
+        path: '/photos/IMG_5126_resized.jpg',
+        date: '2024-12-02'
+      },
+      {
+        id: 'photo5',
+        src: '/photos/IMG_5730_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5730_resized.jpg',
+        fullSrc: '/photos/IMG_5730_resized.jpg',
+        title: 'VNVNC Moment 5',
+        category: 'events',
+        name: 'IMG_5730_resized.jpg',
+        path: '/photos/IMG_5730_resized.jpg',
+        date: '2024-12-03'
+      },
+      {
+        id: 'photo6',
+        src: '/photos/IMG_5765_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5765_resized.jpg',
+        fullSrc: '/photos/IMG_5765_resized.jpg',
+        title: 'VNVNC Moment 6',
+        category: 'events',
+        name: 'IMG_5765_resized.jpg',
+        path: '/photos/IMG_5765_resized.jpg',
+        date: '2024-12-03'
+      },
+      {
+        id: 'photo7',
+        src: '/photos/IMG_5818_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5818_resized.jpg',
+        fullSrc: '/photos/IMG_5818_resized.jpg',
+        title: 'VNVNC Moment 7',
+        category: 'events',
+        name: 'IMG_5818_resized.jpg',
+        path: '/photos/IMG_5818_resized.jpg',
+        date: '2024-12-04'
+      },
+      {
+        id: 'photo8',
+        src: '/photos/IMG_5903_resized.jpg',
+        thumbnailSrc: '/photos/IMG_5903_resized.jpg',
+        fullSrc: '/photos/IMG_5903_resized.jpg',
+        title: 'VNVNC Moment 8',
+        category: 'events',
+        name: 'IMG_5903_resized.jpg',
+        path: '/photos/IMG_5903_resized.jpg',
+        date: '2024-12-04'
+      }
+    ];
+    
+    // Apply filters
+    let filteredPhotos = localPhotos;
+    
+    if (filters.category && filters.category !== 'all') {
+      filteredPhotos = filteredPhotos.filter(p => p.category === filters.category);
+    }
+    
+    if (filters.date) {
+      filteredPhotos = filteredPhotos.filter(p => p.date === filters.date);
+    }
+    
+    // Apply pagination
+    const limit = filters.limit || 12;
+    const offset = filters.offset || 0;
+    const paginatedPhotos = filteredPhotos.slice(offset, offset + limit);
+    
+    const response: PhotosResponse = {
+      photos: paginatedPhotos,
+      total: filteredPhotos.length,
+      limit,
+      offset
+    };
+    
+    // Cache the response
+    this.cache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now()
+    });
+    
+    return response;
   }
 
   /**

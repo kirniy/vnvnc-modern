@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
   },
 })
 
-// Register service worker for PWA and caching
+// Register service worker for PWA and caching - Gallery disabled 2025-09-12
 if ('serviceWorker' in navigator && !window.__SW_REGISTERED__) {
   window.__SW_REGISTERED__ = true; // Mark as registered to prevent double registration
   

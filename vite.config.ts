@@ -17,12 +17,14 @@ export default defineConfig({
           // Three.js is heavy, split it out
           'three': ['three', '@react-three/fiber', '@react-three/postprocessing', 'postprocessing'],
         },
-        // Better chunk naming
+        // Better chunk naming with timestamp for cache busting
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk'
           return `assets/js/${facadeModuleId}-[hash].js`
         },
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+        // Force new entry file name with timestamp
+        entryFileNames: `assets/[name]-${Date.now()}.js`,
       },
     },
     // Optimize for production

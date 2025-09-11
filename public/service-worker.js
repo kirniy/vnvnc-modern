@@ -1,4 +1,4 @@
-// VNVNC Service Worker - Optimized for high traffic ticket sales
+// VNVNC Service Worker - Fixed promise chain issues
 const CACHE_VERSION = 'vnvnc-v1.0.0';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
@@ -172,7 +172,7 @@ async function staleWhileRevalidateStrategy(request, cacheName, ttl) {
   return fetchPromise;
 }
 
-// Limit cache size
+// Limit cache size - FIXED: This function now returns nothing (void)
 async function limitCacheSize(cacheName, maxSize) {
   const cache = await caches.open(cacheName);
   const requests = await cache.keys();
@@ -197,11 +197,12 @@ self.addEventListener('fetch', (event) => {
   // API calls to TicketsCloud
   if (url.pathname.includes('/api') || url.host.includes('ticketscloud') || url.host.includes('vnvnc-cors-proxy')) {
     event.respondWith(
-      networkFirstStrategy(request, API_CACHE, CACHE_TTL.api).then(response => {
-        // Limit API cache size
-        limitCacheSize(API_CACHE, CACHE_LIMITS.api);
+      (async () => {
+        const response = await networkFirstStrategy(request, API_CACHE, CACHE_TTL.api);
+        // Limit API cache size asynchronously - don't wait for it
+        limitCacheSize(API_CACHE, CACHE_LIMITS.api).catch(() => {});
         return response;
-      })
+      })()
     );
     return;
   }
@@ -209,10 +210,12 @@ self.addEventListener('fetch', (event) => {
   // Video files - use stale-while-revalidate
   if (request.url.includes('.mp4') || request.url.includes('.webm')) {
     event.respondWith(
-      staleWhileRevalidateStrategy(request, VIDEO_CACHE, CACHE_TTL.videos).then(response => {
-        limitCacheSize(VIDEO_CACHE, CACHE_LIMITS.videos);
+      (async () => {
+        const response = await staleWhileRevalidateStrategy(request, VIDEO_CACHE, CACHE_TTL.videos);
+        // Limit video cache size asynchronously - don't wait for it
+        limitCacheSize(VIDEO_CACHE, CACHE_LIMITS.videos).catch(() => {});
         return response;
-      })
+      })()
     );
     return;
   }
@@ -220,10 +223,12 @@ self.addEventListener('fetch', (event) => {
   // Images - cache first
   if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/)) {
     event.respondWith(
-      cacheFirstStrategy(request, IMAGE_CACHE, CACHE_TTL.images).then(response => {
-        limitCacheSize(IMAGE_CACHE, CACHE_LIMITS.images);
+      (async () => {
+        const response = await cacheFirstStrategy(request, IMAGE_CACHE, CACHE_TTL.images);
+        // Limit image cache size asynchronously - don't wait for it
+        limitCacheSize(IMAGE_CACHE, CACHE_LIMITS.images).catch(() => {});
         return response;
-      })
+      })()
     );
     return;
   }

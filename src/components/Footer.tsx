@@ -63,7 +63,8 @@ const Footer = () => {
             <NeonText variant="red" size="xl" className="mb-6">быстрые ссылки</NeonText>
             <div className="space-y-2.5">
               <a href="/events" className="block transition-colors hover:opacity-80">афиша</a>
-              <a href="/gallery" className="block transition-colors hover:opacity-80">галерея</a>
+              {/* TEMPORARILY DISABLED - Easy to restore by uncommenting */}
+              {/* <a href="/gallery" className="block transition-colors hover:opacity-80">галерея</a> */}
               <a href="/rules" className="block transition-colors hover:opacity-80">правила</a>
               <a href="/reservations" className="block transition-colors hover:opacity-80">бронирование</a>
               <a href="/rental" className="block transition-colors hover:opacity-80">аренда клуба</a>

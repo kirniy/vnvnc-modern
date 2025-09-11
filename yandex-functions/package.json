@@ -1,0 +1,13 @@
+{
+  "name": "vnvnc-yandex-functions",
+  "version": "1.0.0",
+  "description": "Yandex Cloud Functions for VNVNC",
+  "main": "gateway-disk.cjs",
+  "scripts": {
+    "test": "node test-gateway-disk.cjs"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "18.x"
+  }
+}
