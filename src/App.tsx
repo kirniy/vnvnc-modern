@@ -5,9 +5,11 @@ import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
 import LoadingSpinner from './components/LoadingSpinner'
-import AgeGate from './components/AgeGate'
+// TEMPORARILY DISABLED - Age gate causing DOM errors
+// import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
-import MinimalCursor from './components/ui/MinimalCursor'
+// TEMPORARILY DISABLED - MinimalCursor causing DOM errors
+// import MinimalCursor from './components/ui/MinimalCursor'
 import ScrollToTop from './components/ScrollToTop'
 // import GlitchScanLines from './components/ui/GlitchScanLines' - removed per user request
 import { useTelegramWebApp } from './hooks/useTelegramWebApp'
@@ -17,8 +19,7 @@ import { useTelegramWebApp } from './hooks/useTelegramWebApp'
 const HomePage = lazy(() => import('./pages/HomePage'))
 const EventsPage = lazy(() => import('./pages/EventsPage'))
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'))
-// TEMPORARILY DISABLED - Easy to restore by uncommenting
-// const GalleryPage = lazy(() => import('./pages/GalleryPage'))
+const GalleryPage = lazy(() => import('./pages/GalleryPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const RulesPage = lazy(() => import('./pages/RulesPage'))
@@ -40,29 +41,33 @@ const LoadingWithHiddenFooter = () => {
 }
 
 function App() {
-  // Force cache bust v3 - Gallery disabled 2025-09-12-03:25
+  // Gallery re-enabled with fixed Yandex Cloud Function
   // Initialize Telegram WebApp features
   const { isInTelegram } = useTelegramWebApp()
 
   useEffect(() => {
-    // Add class to body when in Telegram
-    if (isInTelegram && document.body) {
-      document.body.classList.add('telegram-webapp')
-    }
-    return () => {
-      if (document.body) {
-        document.body.classList.remove('telegram-webapp')
+    // Add class to body when in Telegram - with safety checks
+    if (typeof document !== 'undefined' && document.body) {
+      if (isInTelegram) {
+        document.body.classList.add('telegram-webapp')
+      }
+      return () => {
+        if (document.body) {
+          document.body.classList.remove('telegram-webapp')
+        }
       }
     }
   }, [isInTelegram])
 
   return (
     <>
-      <AgeGate />
+      {/* TEMPORARILY DISABLED - Age gate causing DOM errors */}
+      {/* <AgeGate /> */}
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
       {/* <BackgroundShader /> - DISABLED - causing SVG errors */}
-      <MinimalCursor />
+      {/* TEMPORARILY DISABLED - MinimalCursor might be causing DOM errors */}
+      {/* <MinimalCursor /> */}
       <ScrollToTop />
       
       <main className="relative">
@@ -72,9 +77,7 @@ function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/e/:slug" element={<ShortUrlRedirect />} />
-            {/* TEMPORARILY DISABLED - Redirect to home. Easy to restore by uncommenting */}
-            <Route path="/gallery" element={<Navigate to="/" replace />} />
-            {/* <Route path="/gallery" element={<GalleryPage />} /> */}
+            <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/rules" element={<RulesPage />} />

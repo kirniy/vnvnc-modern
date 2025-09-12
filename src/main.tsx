@@ -20,41 +20,54 @@ const queryClient = new QueryClient({
   },
 })
 
-// Register service worker for PWA and caching - Gallery disabled 2025-09-12
-if ('serviceWorker' in navigator && !window.__SW_REGISTERED__) {
-  window.__SW_REGISTERED__ = true; // Mark as registered to prevent double registration
-  
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('Service Worker registered:', registration.scope);
-        
-        // Check for updates every 5 minutes
-        setInterval(() => {
-          registration.update();
-        }, 5 * 60 * 1000);
-      })
-      .catch(error => {
-        console.log('Service Worker registration failed:', error);
-      });
-  });
+// Register service worker for PWA and caching - Fixed registration 2025-09-12
+if ('serviceWorker' in navigator && typeof window !== 'undefined') {
+  // Use a more unique flag to prevent double registration
+  if (!window.__VNVNC_SW_REGISTERED__) {
+    window.__VNVNC_SW_REGISTERED__ = true;
+    
+    // Wait for window load before registering
+    if (document.readyState === 'complete') {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered:', registration.scope);
+        })
+        .catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+    } else {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registered:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed:', error);
+          });
+      }, { once: true });
+    }
+  }
 }
 
 // Add type declaration for the global flag
 declare global {
   interface Window {
-    __SW_REGISTERED__?: boolean;
+    __VNVNC_SW_REGISTERED__?: boolean;
   }
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary>
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <App />
-        </Router>
-      </QueryClientProvider>
-    </HelmetProvider>
-  </ErrorBoundary>,
-)
+// Ensure DOM is ready before rendering
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <App />
+          </Router>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>,
+  )
+}

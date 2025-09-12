@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yandex Gallery API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: white;
+    }
+    h1 {
+      color: #ff0040;
+      border-bottom: 2px solid #ff0040;
+      padding-bottom: 10px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: #2a2a2a;
+      border-radius: 8px;
+    }
+    button {
+      background: #ff0040;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #ff0060;
+    }
+    .status {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background: #0a4f0a;
+      color: #00ff00;
+    }
+    .error {
+      background: #4f0a0a;
+      color: #ff0000;
+    }
+    .loading {
+      background: #4f4f0a;
+      color: #ffff00;
+    }
+    pre {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .gallery img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .info {
+      background: #333;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Yandex Gallery API Test</h1>
+  
+  <div class="info">
+    <strong>API Endpoint:</strong> <span id="endpoint">https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net</span>
+  </div>
+
+  <div class="test-section">
+    <h2>1. Test Health Check</h2>
+    <button onclick="testHealth()">Test Health</button>
+    <div id="health-status"></div>
+    <pre id="health-result"></pre>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Test Dates Endpoint</h2>
+    <button onclick="testDates()">Get Available Dates</button>
+    <div id="dates-status"></div>
+    <pre id="dates-result"></pre>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Test Photos Endpoint</h2>
+    <button onclick="testPhotos()">Get Photos (All)</button>
+    <button onclick="testPhotosWithDate()">Get Photos (Latest Date)</button>
+    <div id="photos-status"></div>
+    <pre id="photos-result"></pre>
+    <div id="gallery" class="gallery"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Test Image Proxy</h2>
+    <p>Click on any photo above to test if the proxy endpoint works</p>
+    <div id="proxy-status"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net';
+    
+    function setStatus(elementId, message, type = 'loading') {
+      const element = document.getElementById(elementId);
+      element.className = `status ${type}`;
+      element.textContent = message;
+    }
+    
+    function setResult(elementId, data) {
+      const element = document.getElementById(elementId);
+      element.textContent = JSON.stringify(data, null, 2);
+    }
+    
+    async function testHealth() {
+      setStatus('health-status', 'Testing health endpoint...', 'loading');
+      try {
+        const response = await fetch(`${API_BASE}/api/yandex-disk/health`);
+        const data = await response.json();
+        setStatus('health-status', `✅ Health check passed! Status: ${data.status}`, 'success');
+        setResult('health-result', data);
+      } catch (error) {
+        setStatus('health-status', `❌ Health check failed: ${error.message}`, 'error');
+        setResult('health-result', { error: error.message });
+      }
+    }
+    
+    async function testDates() {
+      setStatus('dates-status', 'Fetching available dates...', 'loading');
+      try {
+        const response = await fetch(`${API_BASE}/api/yandex-disk/dates`);
+        const data = await response.json();
+        if (data.dates && data.dates.length > 0) {
+          setStatus('dates-status', `✅ Found ${data.dates.length} date folders`, 'success');
+          window.latestDate = data.dates[0];
+        } else {
+          setStatus('dates-status', '⚠️ No date folders found', 'error');
+        }
+        setResult('dates-result', data);
+      } catch (error) {
+        setStatus('dates-status', `❌ Failed to fetch dates: ${error.message}`, 'error');
+        setResult('dates-result', { error: error.message });
+      }
+    }
+    
+    async function testPhotos() {
+      setStatus('photos-status', 'Fetching photos...', 'loading');
+      document.getElementById('gallery').innerHTML = '';
+      try {
+        const response = await fetch(`${API_BASE}/api/yandex-disk/photos?limit=12`);
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+          setStatus('photos-status', `✅ Found ${data.photos.length} photos (total: ${data.total})`, 'success');
+          displayPhotos(data.photos);
+        } else {
+          setStatus('photos-status', '⚠️ No photos found', 'error');
+        }
+        setResult('photos-result', data);
+      } catch (error) {
+        setStatus('photos-status', `❌ Failed to fetch photos: ${error.message}`, 'error');
+        setResult('photos-result', { error: error.message });
+      }
+    }
+    
+    async function testPhotosWithDate() {
+      if (!window.latestDate) {
+        // First get dates
+        await testDates();
+      }
+      if (!window.latestDate) {
+        setStatus('photos-status', '❌ No dates available to test', 'error');
+        return;
+      }
+      
+      setStatus('photos-status', `Fetching photos for date: ${window.latestDate}...`, 'loading');
+      document.getElementById('gallery').innerHTML = '';
+      try {
+        const response = await fetch(`${API_BASE}/api/yandex-disk/photos?date=${window.latestDate}&limit=12`);
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+          setStatus('photos-status', `✅ Found ${data.photos.length} photos for ${window.latestDate}`, 'success');
+          displayPhotos(data.photos);
+        } else {
+          setStatus('photos-status', `⚠️ No photos found for ${window.latestDate}`, 'error');
+        }
+        setResult('photos-result', data);
+      } catch (error) {
+        setStatus('photos-status', `❌ Failed to fetch photos: ${error.message}`, 'error');
+        setResult('photos-result', { error: error.message });
+      }
+    }
+    
+    function displayPhotos(photos) {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      
+      photos.forEach(photo => {
+        const img = document.createElement('img');
+        img.src = photo.thumbnailSrc || photo.src;
+        img.alt = photo.title;
+        img.title = `${photo.title} (${photo.date})`;
+        img.onclick = () => testImageLoad(photo);
+        gallery.appendChild(img);
+      });
+    }
+    
+    async function testImageLoad(photo) {
+      setStatus('proxy-status', `Testing image proxy for: ${photo.title}...`, 'loading');
+      
+      const img = new Image();
+      img.onload = () => {
+        setStatus('proxy-status', `✅ Image proxy works! Loaded: ${photo.title}`, 'success');
+      };
+      img.onerror = () => {
+        setStatus('proxy-status', `❌ Image proxy failed for: ${photo.title}`, 'error');
+        console.error('Failed to load:', photo.src);
+      };
+      img.src = photo.src;
+    }
+    
+    // Run initial tests
+    window.onload = async () => {
+      console.log('Starting API tests...');
+      await testHealth();
+      await testDates();
+    };
+  </script>
+</body>
+</html>

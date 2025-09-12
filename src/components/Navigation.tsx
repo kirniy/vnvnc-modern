@@ -8,12 +8,10 @@ import { colors } from '../utils/colors'
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
-  // v2 - Gallery disabled 2025-09-12
   const navItems = [
     { name: 'главная', path: '/' },
     { name: 'афиша', path: '/events' },
-    // TEMPORARILY DISABLED - Easy to restore by uncommenting
-    // { name: 'галерея', path: '/gallery' },
+    { name: 'галерея', path: '/gallery' },
     { name: 'правила', path: '/rules' },
     { name: 'бронирование', path: '/reservations' },
     { name: 'аренда', path: '/rental' },

@@ -22,14 +22,15 @@ function extractDateFromFolderName(name) {
   return dateMatch ? dateMatch[1] : null;
 }
 
-// Replace preview size in Yandex preview URL
-function replacePreviewSize(previewUrl, size) {
-  if (!previewUrl) return previewUrl;
-  if (previewUrl.includes('size=')) {
-    return previewUrl.replace(/size=[^&]*/, `size=${size}`);
+// Make sized variants from a direct preview URL (keeps other params intact)
+function withSize(directPreviewUrl, size) {
+  if (!directPreviewUrl) return directPreviewUrl;
+  const has = directPreviewUrl.includes('size=');
+  if (has) {
+    return directPreviewUrl.replace(/size=[^&]*/i, `size=${size}`);
   }
-  const separator = previewUrl.includes('?') ? '&' : '?';
-  return `${previewUrl}${separator}size=${size}`;
+  const sep = directPreviewUrl.includes('?') ? '&' : '?';
+  return `${directPreviewUrl}${sep}size=${size}`;
 }
 
 // Wrap Yandex preview URL with our proxy
@@ -65,6 +66,100 @@ async function makeHttpsRequest(url, options = {}) {
     req.on('error', reject);
     req.end();
   });
+}
+
+// List only date-named folders at root with pagination
+async function listDateFolders(publicKey) {
+  let offset = 0;
+  const items = [];
+  
+  while (true) {
+    const apiUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(publicKey)}&limit=200&offset=${offset}`;
+    const response = await makeHttpsRequest(apiUrl);
+    
+    if (response.status !== 200) break;
+    
+    const data = JSON.parse(response.body.toString());
+    const pageItems = data._embedded?.items || [];
+    items.push(...pageItems);
+    
+    if (pageItems.length < 200) break;
+    offset += 200;
+    if (offset > 2000) break; // safety limit
+  }
+  
+  const folders = items.filter((it) => it.type === 'dir' && /^\d{4}-\d{2}-\d{2}/.test(it.name));
+  // Sort newest first by name
+  folders.sort((a, b) => b.name.localeCompare(a.name));
+  
+  return folders.map((f) => ({
+    date: extractDateFromFolderName(f.name),
+    name: f.name,
+    path: f.path
+  }));
+}
+
+// Fetch all images recursively from a folder path with pagination and depth control
+async function fetchAllImagesForFolder(publicKey, startPath, inferredDate, maxDepth = 6, baseUrl = '') {
+  const results = [];
+  const queue = [{ path: startPath, depth: 0 }];
+  
+  while (queue.length) {
+    const { path, depth } = queue.shift();
+    if (depth > maxDepth) continue;
+    
+    let offset = 0;
+    const limit = 200;
+    
+    // Paginate within current folder
+    while (true) {
+      let apiUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(publicKey)}`;
+      if (path && path !== '/') {
+        apiUrl += `&path=${encodeURIComponent(path)}`;
+      }
+      apiUrl += `&limit=${limit}&offset=${offset}&preview_size=XL`;
+      
+      const response = await makeHttpsRequest(apiUrl);
+      if (response.status !== 200) break;
+      
+      const data = JSON.parse(response.body.toString());
+      const items = data._embedded?.items || [];
+      
+      for (const item of items) {
+        if (item.type === 'dir') {
+          queue.push({ path: item.path, depth: depth + 1 });
+        } else if (item.type === 'file' && item.mime_type && item.mime_type.startsWith('image/')) {
+          if (item.preview) {
+            const direct = item.preview;
+            const thumb = proxify(withSize(direct, 'M'), baseUrl);
+            const src = proxify(withSize(direct, 'XL'), baseUrl);
+            const fullSrc = proxify(withSize(direct, 'XXXL'), baseUrl);
+            
+            results.push({
+              id: `yd-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              src,
+              thumbnailSrc: thumb,
+              fullSrc,
+              originalUrl: direct,
+              filename: item.name,
+              title: item.name.replace(/\.[^/.]+$/, ''),
+              date: inferredDate || extractDateFromFolderName(item.path?.split('/')?.[1] || ''),
+              size: item.size,
+              name: item.name,
+              path: item.path,
+              mimeType: item.mime_type
+            });
+          }
+        }
+      }
+      
+      if (items.length < limit) break;
+      offset += limit;
+      if (offset > 5000) break; // safety limit
+    }
+  }
+  
+  return results;
 }
 
 module.exports.handler = async function (event, context) {
@@ -209,7 +304,10 @@ module.exports.handler = async function (event, context) {
         };
       }
 
-      const response = await makeHttpsRequest(url);
+      // Decode fully-encoded URL coming from client
+      const decodedUrl = decodeURIComponent(url);
+
+      const response = await makeHttpsRequest(decodedUrl);
       
       // Response body is already a Buffer, convert to base64 for Yandex Cloud Function
       const base64Body = response.body.toString('base64');
@@ -236,14 +334,42 @@ module.exports.handler = async function (event, context) {
         };
       }
 
+      // Get one-time download href from Yandex
       const apiUrl = `${YANDEX_API_BASE}/download?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=${encodeURIComponent(path)}`;
-      const response = await makeHttpsRequest(apiUrl);
-      const data = JSON.parse(response.body.toString());
+      const hrefResp = await makeHttpsRequest(apiUrl);
+      if (hrefResp.status < 200 || hrefResp.status >= 300) {
+        return {
+          statusCode: hrefResp.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Failed to get download URL' })
+        };
+      }
+      const data = JSON.parse(hrefResp.body.toString());
+      const fileUrl = data.href;
 
+      if (!fileUrl) {
+        return {
+          statusCode: 404,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'No download URL returned' })
+        };
+      }
+
+      // Fetch the file and return it directly (binary)
+      const fileResp = await makeHttpsRequest(fileUrl);
+      const base64Body = fileResp.body.toString('base64');
+      const filename = path.split('/').pop() || 'download';
+      
       return {
         statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({ downloadUrl: data.href })
+        headers: {
+          ...corsHeaders,
+          'Content-Type': fileResp.headers['content-type'] || 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Cache-Control': 'no-cache'
+        },
+        body: base64Body,
+        isBase64Encoded: true
       };
 
     } else {
