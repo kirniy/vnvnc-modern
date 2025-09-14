@@ -11,6 +11,7 @@ import TelegramButton from './components/TelegramButton'
 // TEMPORARILY DISABLED - MinimalCursor causing DOM errors
 // import MinimalCursor from './components/ui/MinimalCursor'
 import ScrollToTop from './components/ScrollToTop'
+import AnalyticsTracker from './components/AnalyticsTracker'
 // import GlitchScanLines from './components/ui/GlitchScanLines' - removed per user request
 import { useTelegramWebApp } from './hooks/useTelegramWebApp'
 // import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
@@ -69,6 +70,7 @@ function App() {
       {/* TEMPORARILY DISABLED - MinimalCursor might be causing DOM errors */}
       {/* <MinimalCursor /> */}
       <ScrollToTop />
+      <AnalyticsTracker />
       
       <main className="relative">
         <Suspense fallback={<LoadingWithHiddenFooter />}>

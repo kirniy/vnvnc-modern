@@ -3,7 +3,9 @@ import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, ShoppingCart, Camera } from 'lucide-react'
 import { colors } from '../utils/colors'
+import { trackTicketClick } from './AnalyticsTracker'
 import { getShortDayOfWeek } from '../utils/dateHelpers'
+import { shouldTreatAsFree } from '../config/eventsConfig'
 // import Sticker from './ui/Sticker'
 
 interface Event {
@@ -62,6 +64,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
   }
   
   const isArchived = new Date(event.rawDate) < cutoffTime
+  const isFree = shouldTreatAsFree(event.id, event.rawDate, event.title)
 
   return (
     <motion.div
@@ -151,14 +154,12 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           
           {/* Price and Action */}
           <div className="flex items-center justify-between">
-            {event.hasPrice && event.price ? (
+            {(!isFree && event.hasPrice && event.price) ? (
               <div className="text-base sm:text-lg font-bold text-white">
                 {event.price}
               </div>
             ) : (
-              <div className="text-xs sm:text-sm text-white/50">
-                FC/DC
-              </div>
+              <div className="text-xs sm:text-sm text-white/50">{isFree ? 'бесплатно' : 'FC/DC'}</div>
             )}
             
             {/* Action Button */}
@@ -169,11 +170,20 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                 className="px-4 py-2 radius font-display font-extrabold text-sm flex items-center gap-2 border-2 border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(getShortUrl());
+                  if (isFree) {
+                    trackTicketClick({ eventId: event.id, title: event.title, source: 'card_button_free' })
+                    const el = e.currentTarget
+                    const old = el.textContent
+                    el.textContent = 'вход свободный'
+                    setTimeout(() => { if (el) el.textContent = old || 'тикеты' }, 1200)
+                  } else {
+                    trackTicketClick({ eventId: event.id, title: event.title, source: 'card_button' })
+                    navigate(getShortUrl());
+                  }
                 }}
               >
                 <ShoppingCart size={16} />
-                тикеты
+                {isFree ? 'free' : 'тикеты'}
               </motion.button>
             ) : (
               <motion.button
