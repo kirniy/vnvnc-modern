@@ -27,29 +27,18 @@ export const useYandexVideos = (): UseYandexVideosResult => {
   const [videos, setVideos] = useState<YandexVideo[]>([]);
   const [currentVideo, setCurrentVideo] = useState<YandexVideo | null>(null);
   const [nextVideo, setNextVideo] = useState<YandexVideo | null>(null);
-  const [isLoading] = useState(false); // Always false since we start with background video
+  const [isLoading] = useState(false); // Kept for API compatibility
   const [error, setError] = useState<string | null>(null);
   const [preloadedVideoElement, setPreloadedVideoElement] = useState<HTMLVideoElement | null>(null);
   const [hasShuffled, setHasShuffled] = useState(false); // Track if user has shuffled
   const [recentVideoIds, setRecentVideoIds] = useState<string[]>([]); // Track recently played videos
   const [preloadedVideosCache] = useState<Map<string, HTMLVideoElement>>(new Map()); // Cache preloaded video elements
   const [isLoadingVideos, setIsLoadingVideos] = useState(false); // Track if we're already loading
-  const [pendingVideoSwitch, setPendingVideoSwitch] = useState(false); // Track if user wants to switch but videos aren't ready
+  const [pendingVideoSwitch, setPendingVideoSwitch] = useState(true); // Auto-switch to random when videos first load
 
-  // Initialize with background video immediately
+  // Initialize by loading videos immediately and set a truly random first one
   useEffect(() => {
-    // Set the compressed 1x1 video with sound for the circle
-    const backgroundVideo: YandexVideo = {
-      id: 'background-hero',
-      url: '/herovideo-compressed-1x1.mp4', // Compressed 1x1 version with sound for circle
-      title: 'VNVNC',
-      name: 'herovideo-compressed-1x1.mp4',
-      path: '/herovideo-compressed-1x1.mp4',
-      duration: 10
-    };
-    setCurrentVideo(backgroundVideo);
-    
-    // Load Yandex videos immediately in background
+    // Load videos first; we'll set initial random once we have a list
     loadVideosInBackground();
   }, []);
 
@@ -65,7 +54,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     }
   }, [currentVideo, videos]);
 
-  // Watch for videos to be loaded and switch if user clicked early
+  // When videos load first time, pick a truly random initial video and sync background
   useEffect(() => {
     if (pendingVideoSwitch && videos.length > 0 && !isLoadingVideos) {
       console.log('Videos loaded! Switching to random video now...');
@@ -75,7 +64,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
       // Pick a random video from the loaded ones
       const availableVideos = videos.filter(v => v.id !== currentVideo?.id);
       if (availableVideos.length > 0) {
-        const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 6)); // Pick from first 6 for better chance of preloaded
+        const randomIndex = Math.floor(Math.random() * availableVideos.length);
         const randomVideo = availableVideos[randomIndex];
         
         if (randomVideo) {

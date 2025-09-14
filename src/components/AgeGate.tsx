@@ -14,10 +14,7 @@ const AgeGate = () => {
   useEffect(() => {
     // Check if user has already verified age
     const ageVerified = localStorage.getItem('vnvnc_age_verified')
-    // Debug: Always show in development
-    const isDev = window.location.hostname === 'localhost'
-    
-    if (!ageVerified || isDev) {
+    if (!ageVerified) {
       setIsVisible(true)
     }
   }, [])
@@ -108,9 +105,9 @@ const AgeGate = () => {
                 </p>
               </motion.div>
 
-              {/* Buttons */}
+              {/* Buttons: order with YES on the right, bigger touch targets */}
               <motion.div 
-                className="flex gap-4 mt-10"
+                className="flex gap-3 mt-10"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -119,7 +116,7 @@ const AgeGate = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleExit}
-                  className="flex-1 px-6 py-3 radius backdrop-blur-sm border-2 border-white/20 text-white font-medium transition-all duration-300"
+                  className="flex-1 px-7 py-4 radius backdrop-blur-sm border-2 border-white/20 text-white font-medium transition-all duration-300 text-base md:text-lg"
                   style={{ 
                     backgroundColor: colors.glass.white
                   }}
@@ -134,12 +131,12 @@ const AgeGate = () => {
                 >
                   Нет
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleConfirm}
-                  className="flex-1 px-6 py-3 radius font-bold text-white transition-all duration-300 relative overflow-hidden group border-2 border-transparent"
+                  className="flex-1 px-7 py-4 radius font-extrabold text-white transition-all duration-300 relative overflow-hidden group border-2 border-transparent text-base md:text-lg"
                   style={{ 
                     backgroundColor: colors.neon.red,
                     boxShadow: `0 8px 30px ${colors.neon.red}66`

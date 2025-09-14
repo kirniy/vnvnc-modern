@@ -5,8 +5,7 @@ import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
 import LoadingSpinner from './components/LoadingSpinner'
-// TEMPORARILY DISABLED - Age gate causing DOM errors
-// import AgeGate from './components/AgeGate'
+import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
 // TEMPORARILY DISABLED - MinimalCursor causing DOM errors
 // import MinimalCursor from './components/ui/MinimalCursor'
@@ -62,8 +61,7 @@ function App() {
 
   return (
     <>
-      {/* TEMPORARILY DISABLED - Age gate causing DOM errors */}
-      {/* <AgeGate /> */}
+      <AgeGate />
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
       {/* <BackgroundShader /> - DISABLED - causing SVG errors */}

@@ -127,7 +127,7 @@ const ContactPage = () => {
                   <Clock style={{ color: colors.neon.red }} size={24} className="mt-1" />
                   <div>
                     <h3 className="font-semibold text-white">Время работы</h3>
-                    <p className="text-white/80">Пятница - Суббота: 23:00 - 06:00</p>
+                    <p className="text-white/80">Пятница - Суббота: 23:00 - 07:00</p>
                   </div>
                 </div>
               </div>

@@ -44,8 +44,14 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
   useEffect(() => {
     if (initialVideo && !currentVideo) {
       setCurrentVideo(initialVideo)
+      // Also sync background immediately with the very first random video
+      if (backgroundVideoRef?.current) {
+        backgroundVideoRef.current.src = initialVideo.url
+        backgroundVideoRef.current.load()
+        backgroundVideoRef.current.play().catch(() => {})
+      }
     }
-  }, [initialVideo, currentVideo])
+  }, [initialVideo, currentVideo, backgroundVideoRef])
 
   // Handle randomizer click with smooth transition
   const handleRandomize = async () => {
@@ -262,12 +268,11 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
     }
   }, [currentVideo, backgroundVideoRef])
 
-  // Auto-play on video change - but DON'T update background during transitions
+  // Auto-play on video change and always sync background (including first selection)
   useEffect(() => {
     if (videoRef.current && currentVideo && !isTransitioning && !isRandomizing) {
-      // Don't update background if it's the initial hero video - they're meant to be different
-      // Only sync background after the first portal click
-      if (backgroundVideoRef?.current && hasShuffled) {
+      // Always sync background video to match the circle video
+      if (backgroundVideoRef?.current) {
         backgroundVideoRef.current.src = currentVideo.url
         backgroundVideoRef.current.load()
         backgroundVideoRef.current.play()
@@ -279,7 +284,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
         .then(() => setIsPlaying(true))
         .catch(err => console.log('Autoplay failed:', err))
     }
-  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning, isRandomizing, hasShuffled])
+  }, [currentVideo, isMuted, backgroundVideoRef, isTransitioning, isRandomizing])
 
   // Log when next video is preloaded
   useEffect(() => {

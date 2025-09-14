@@ -7,6 +7,10 @@ echo "🚀 Deploying to Selectel..."
 echo "📦 Building..."
 npm run build
 
+# Generate videocircles manifest for all MP4s
+echo "📝 Generating videocircles manifest..."
+node ./scripts/generate-video-manifest.js
+
 # Upload JS/CSS files with long cache FIRST (so HTML references won't 404)
 echo "☁️ Uploading JS/CSS files (cached) first..."
 aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
@@ -30,6 +34,16 @@ aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
     --exclude "*.css" \
     --cache-control "public, max-age=86400" \
     --metadata-directive REPLACE
+
+# Upload manifest.json with no-cache to ensure clients can see new files list
+echo "☁️ Uploading videocircles manifest with no-cache..."
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 cp ./dist/videocircles/manifest.json s3://vnvnc/videocircles/manifest.json \
+    --profile selectel \
+    --acl public-read \
+    --content-type application/json \
+    --cache-control "no-cache, no-store, must-revalidate" \
+    --metadata-directive REPLACE || true
 
 # Upload HTML files with no-cache headers LAST
 echo "☁️ Uploading HTML files (no-cache) last..."

@@ -48,7 +48,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center space-x-3">
                 <Clock size={16} style={{ color: colors.neon.red }} className="flex-shrink-0" />
-                <span>Пт-Вс: 23:00-06:00</span>
+                <span>Пт-Вс: 23:00-07:00</span>
               </div>
             </div>
           </motion.div>

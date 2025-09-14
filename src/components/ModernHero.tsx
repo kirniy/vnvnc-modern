@@ -36,10 +36,9 @@ const ModernHero = () => {
           loop
           muted
           playsInline
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
-        >
-          <source src="/herovideo.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
