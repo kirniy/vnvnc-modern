@@ -1,5 +1,5 @@
 // Yandex Cloud Function for form submissions (booking, contact, rental)
-// Handles Telegram and Email notifications
+// Telegram-only notifications (email is disabled)
 
 const https = require('https');
 
@@ -34,7 +34,7 @@ async function sendTelegramMessage(telegramBotToken, chatId, text) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': data.length
+        'Content-Length': Buffer.byteLength(data)
       }
     };
 
@@ -61,56 +61,8 @@ async function sendTelegramMessage(telegramBotToken, chatId, text) {
   });
 }
 
-// Send email using Brevo
-async function sendEmail(brevoApiKey, to, subject, htmlContent) {
-  const data = JSON.stringify({
-    sender: {
-      name: 'VNVNC Website',
-      email: 'admin@angar.online'
-    },
-    to: [{
-      email: to,
-      name: 'Admin'
-    }],
-    subject: subject,
-    htmlContent: htmlContent
-  });
-
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.brevo.com',
-      path: '/v3/smtp/email',
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'api-key': brevoApiKey,
-        'Content-Length': data.length
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let responseData = '';
-      res.on('data', chunk => responseData += chunk);
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(responseData);
-          if (res.statusCode === 201) {
-            resolve({ success: true, messageId: result.messageId });
-          } else {
-            reject(new Error(result.message || 'Failed to send email'));
-          }
-        } catch (e) {
-          reject(e);
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(data);
-    req.end();
-  });
-}
+// Email sending is disabled. Keep placeholder to avoid breaking imports (unused).
+async function sendEmail() { return { disabled: true }; }
 
 // Handle booking submission
 async function handleBooking(data, telegramBotToken, brevoApiKey) {
@@ -150,20 +102,31 @@ ${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
     .replace(/<\/b>/g, '</strong>')
     .replace(/\n/g, '<br>');
 
-  // Send messages
-  const results = await Promise.allSettled([
-    sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage),
-    sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage),
-    sendEmail(brevoApiKey, ADMIN_EMAIL, emailSubject, emailContent)
+  // Send messages (Telegram only) with bounded time
+  const [tg1, tg2] = await Promise.all([
+    withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
   ]);
 
-  // Check if at least one message was sent
-  const successfulSends = results.filter(r => r.status === 'fulfilled').length;
-  if (successfulSends === 0) {
-    throw new Error('Failed to send any notifications');
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  if (!telegramOk) {
+    throw new Error('Failed to send Telegram notifications');
   }
 
-  return { success: true, message: 'Booking submitted successfully' };
+  return { success: true, message: 'Booking submitted successfully', channels: { telegram: true } };
+}
+
+// Utility: timeout wrapper that settles with { timeout: true } instead of throwing
+function withTimeout(promise, ms) {
+  let timeoutId;
+  const timeoutPromise = new Promise(resolve => {
+    timeoutId = setTimeout(() => resolve({ __timeout: true }), ms);
+  });
+  return Promise.race([
+    promise.then(res => { clearTimeout(timeoutId); return res; })
+           .catch(err => { clearTimeout(timeoutId); return { __error: err }; }),
+    timeoutPromise
+  ]);
 }
 
 // Handle rental form submission
@@ -186,24 +149,20 @@ async function handleRental(data, telegramBotToken, brevoApiKey) {
 #аренда
   `.trim();
 
-  // Create email content
-  const emailSubject = `Новая заявка на аренду VNVNC - ${name}`;
-  const emailContent = telegramMessage
-    .replace(/<b>/g, '<strong>')
-    .replace(/<\/b>/g, '</strong>')
-    .replace(/\n/g, '<br>');
-
-  // Send messages with timeout
-  await Promise.race([
-    Promise.allSettled([
-      sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage),
-      sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage),
-      sendEmail(brevoApiKey, ADMIN_EMAIL, emailSubject, emailContent)
-    ]),
-    new Promise(resolve => setTimeout(resolve, 3000))
+  // Telegram only
+  const [tg1, tg2] = await Promise.all([
+    withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
   ]);
 
-  return { success: true, message: 'Rental form submitted successfully' };
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  if (!telegramOk) {
+    const err = new Error('Failed to send Telegram notifications');
+    err.details = { tg1, tg2 };
+    throw err;
+  }
+
+  return { success: true, message: 'Rental form submitted successfully', channels: { telegram: true } };
 }
 
 // Handle contact form submission
@@ -228,23 +187,13 @@ async function handleContact(data, telegramBotToken, brevoApiKey) {
 ⚠️ Пожалуйста, перешлите в @vnvnc_help
   `.trim();
 
-  // Create email content
-  const emailSubject = `Новое сообщение с сайта VNVNC - ${name}`;
-  const emailContent = telegramMessage
-    .replace(/<b>/g, '<strong>')
-    .replace(/<\/b>/g, '</strong>')
-    .replace(/\n/g, '<br>');
+  // Telegram only with bounded time
+  const tg = await withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000);
+  if (tg && (tg.__error || tg.__timeout)) {
+    throw new Error('Failed to send Telegram notification');
+  }
 
-  // Send messages with timeout
-  await Promise.race([
-    Promise.allSettled([
-      sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage),
-      sendEmail(brevoApiKey, ADMIN_EMAIL, emailSubject, emailContent)
-    ]),
-    new Promise(resolve => setTimeout(resolve, 3000))
-  ]);
-
-  return { success: true, message: 'Contact form submitted successfully' };
+  return { success: true, message: 'Contact form submitted successfully', channels: { telegram: true } };
 }
 
 // Main handler for Yandex Cloud Functions
@@ -263,13 +212,12 @@ module.exports.handler = async function (event, context) {
   // Get secrets from environment or context
   // In Yandex Cloud, these should be set as function environment variables
   const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || context.token?.access_token;
-  const brevoApiKey = process.env.BREVO_API_KEY;
 
-  if (!telegramBotToken || !brevoApiKey) {
+  if (!telegramBotToken) {
     return {
       statusCode: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Missing API keys configuration' })
+      body: JSON.stringify({ error: 'Missing TELEGRAM_BOT_TOKEN configuration' })
     };
   }
 
@@ -289,11 +237,11 @@ module.exports.handler = async function (event, context) {
 
     // Route requests
     if ((path === '/booking' || path === '/api/booking') && httpMethod === 'POST') {
-      result = await handleBooking(data, telegramBotToken, brevoApiKey);
+      result = await handleBooking(data, telegramBotToken);
     } else if ((path === '/contact' || path === '/api/contact') && httpMethod === 'POST') {
-      result = await handleContact(data, telegramBotToken, brevoApiKey);
+      result = await handleContact(data, telegramBotToken);
     } else if ((path === '/rental' || path === '/api/rental') && httpMethod === 'POST') {
-      result = await handleRental(data, telegramBotToken, brevoApiKey);
+      result = await handleRental(data, telegramBotToken);
     } else {
       return {
         statusCode: 404,
