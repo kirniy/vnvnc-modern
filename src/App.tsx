@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'

@@ -27,14 +27,17 @@ npm run lint         # Check code quality
 ## Critical Information
 
 ### API Keys & Services
-- **TicketsCloud API Key**: `c862e40ed178486285938dda33038e30` (in ticketsCloud.ts)
-- **CORS Proxy Worker**: `https://vnvnc-cors-proxy.kirlich-ps3.workers.dev`
-- **Yandex Gallery Worker**: `https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev`
+- **TicketsCloud API Key**: `c862e40ed178486285938dda33038e30` (in `src/services/ticketsCloud.ts`)
+- **API Gateway (RU, Yandex Cloud)**: `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net`
+  - `/api/v1/resources/events` proxy for TicketsCloud (CORS-safe)
+  - `/api/yandex-disk/*` endpoints for gallery
 
 ### Production URLs
-- **Main Site**: https://vnvnc.ru (Hosted on Selectel Object Storage)
-- **Direct Selectel URL**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
-- **Workers**: Deployed via Cloudflare Workers
+- **Main Site**: https://vnvnc.ru (via Yandex Cloud CDN)
+- **CDN Provider CNAME**: bf1cb789559b3dc5.a.yccdn.cloud.yandex.net
+- **CDN Resource ID**: bc8rilebboch3mrd3uds
+- **Origin (Selectel S3)**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
+- **Certificate (YC Certificate Manager)**: fpq6ebsc38egmpblgvq6 (Let's Encrypt R12)
 
 ## Development Patterns
 
@@ -190,6 +193,12 @@ Photos are loaded from Yandex Disk with fallback:
 ### Issue: CORS with TicketsCloud API
 **Solution**: Use Cloudflare Worker proxy at `vnvnc-cors-proxy.kirlich-ps3.workers.dev`
 
+### Issue: Selectel S3 doesn't support root domains
+**Solution**: Yandex Cloud CDN fronts Selectel S3 and terminates SSL for `vnvnc.ru` and `www.vnvnc.ru` (Certificate Manager, LE R12). Host Header fixed to bucket hostname.
+
+### Issue: Cloudflare is blocked in Russia
+**Solution**: Yandex Cloud CDN provides similar functionality with Russian infrastructure
+
 ### Issue: Large video files on mobile
 **Solution**: Separate mobile video (`herovideo-mobile.mp4`) with reduced quality
 
@@ -213,6 +222,19 @@ Before deploying:
 
 ## Deployment Process
 
+### Deployment Architecture
+
+#### Current Setup (Yandex CDN + Selectel S3)
+```
+[User] → [vnvnc.ru DNS] → [Yandex Cloud CDN] → [Selectel S3 Origin]
+```
+
+- **DNS**: `vnvnc.ru` ALIAS and `www.vnvnc.ru` CNAME to provider CNAME
+- **CDN**: Yandex Cloud CDN (ID: bc8rilebboch3mrd3uds)
+- **Origin**: Selectel S3 bucket (e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru)
+- **Origin protocol**: HTTPS, Host Header fixed to bucket hostname
+- **SSL**: Yandex Certificate Manager (ID: fpq6ebsc38egmpblgvq6)
+
 ### Selectel Deployment
 ```bash
 # Build the project
@@ -228,8 +250,25 @@ npm run build
 npm run build
 
 # Upload to Selectel S3 bucket
-aws s3 sync dist/ s3://vnvnc/ --endpoint-url=https://s3.storage.selcloud.ru --delete
+aws s3 sync dist/ s3://vnvnc/ --endpoint-url=https://s3.ru-7.storage.selcloud.ru --delete
 ```
+
+**Note**: After deploying to Selectel, purge CDN cache to propagate HTML changes.
+
+```bash
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+```
+
+### Operations Runbook
+- Purge CDN cache after deploy: see command above
+- Rotate/attach certificate: import fullchain + key to YC CM → update CDN resource `--cert-manager-ssl-cert-id`
+- Add/verify hostnames: `yc cdn resource update <id> --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru`
+- Set origin+Host header: `yc cdn resource update <id> --origin-protocol https --host-header <bucket-hostname>`
+
+### Services & Balances
+- **Yandex Cloud**: CDN + Certificate Manager + API Gateway (keep a positive balance; monitor monthly traffic)
+- **Selectel Object Storage**: storage + egress (ensure funds for storage and outbound traffic)
+- **Domain (REG.RU)**: maintain domain renewal
 
 ### Cloudflare Workers
 ```bash
@@ -393,8 +432,12 @@ localStorage.setItem('debug', 'true')
 
 **Project**: VNVNC Modern
 **Tech Stack**: React + TypeScript + Vite + Tailwind
-**Deployment**: Selectel Object Storage + Cloudflare Workers
-**Hosting Provider**: Selectel (Russia-based, no blocking issues)
+**Deployment**: Selectel Object Storage + Yandex Cloud CDN + YC API Gateway
+**Hosting Architecture**:
+- **CDN**: Yandex Cloud CDN (handles SSL and root domain)
+- **Storage**: Selectel Object Storage S3 (origin)
+- **DNS**: Selectel DNS Management
+- **SSL Certificate**: Yandex Certificate Manager (LE R12, SAN: vnvnc.ru, www.vnvnc.ru)
 **APIs**: TicketsCloud, Yandex Disk
 
 ---

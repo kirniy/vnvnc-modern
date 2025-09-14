@@ -1,0 +1,32 @@
+cname: vnvnc.gcdn.co
+active: true
+origin_group_id: 0
+origin_protocol: "https"
+secondary_hostnames:
+  - "vnvnc.ru"
+  - "www.vnvnc.ru"
+options:
+  edge_cache_settings:
+    enabled: true
+    default_value: 3600
+  cache:
+    cache_http_headers:
+      enabled: true
+      value:
+        - "Set-Cookie"
+        - "Cache-Control"
+    cache_http_methods:
+      enabled: true
+      value:
+        - "GET"
+        - "HEAD"
+        - "OPTIONS"
+  cors:
+    - "*"
+  custom_host_header:
+    enabled: true
+    value: "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru"
+origins:
+  - origin: "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru"
+    source: "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru"
+    enabled: true

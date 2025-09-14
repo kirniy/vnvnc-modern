@@ -5,8 +5,8 @@ Modern nightclub website for VNVNC Concert Hall in Saint Petersburg, Russia.
 ## 🌐 Production
 
 **Live Site**: https://vnvnc.ru  
-**Hosting**: Selectel Object Storage (Russia-based, no blocking issues)  
-**Direct URL**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
+**Hosting**: Selectel Object Storage (origin) via Yandex Cloud CDN  
+**Direct Origin**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
 
 ## 🚀 Quick Start
 
@@ -51,8 +51,8 @@ vnvnc-modern/
 
 The project uses these external services:
 - **TicketsCloud API**: Event management
-- **Yandex Disk**: Photo gallery storage
-- **Cloudflare Workers**: CORS proxy and API gateway
+- **Yandex Disk**: Photo gallery storage (via YC API Gateway)
+- **Yandex Cloud**: CDN + Certificate Manager + API Gateway
 
 ## 📝 Documentation
 
@@ -77,16 +77,23 @@ npm run build
 
 # Upload to Selectel S3
 aws s3 sync dist/ s3://vnvnc/ \
-  --endpoint-url=https://s3.storage.selcloud.ru \
+  --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
   --delete
 ```
 
-## 🌍 DNS Configuration
+## 🌍 DNS & CDN Configuration
 
-Domain is managed through:
+Domain/CDN is managed through:
 - **Registrar**: REG.RU
-- **DNS**: Selectel nameservers
-- **SSL**: Automatic via Selectel
+- **DNS**: Selectel nameservers → `vnvnc.ru` ALIAS and `www.vnvnc.ru` CNAME to `bf1cb789559b3dc5.a.yccdn.cloud.yandex.net`
+- **CDN**: YC CDN resource `bc8rilebboch3mrd3uds` with secondary hostnames `vnvnc.ru`, `www.vnvnc.ru`
+- **Origin**: `e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru`, protocol HTTPS, Host Header fixed to bucket hostname
+- **SSL**: YC Certificate Manager certificate `fpq6ebsc38egmpblgvq6` (LE R12, SAN: vnvnc.ru, www.vnvnc.ru)
+
+After deploy, purge CDN cache (especially HTML):
+```bash
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+```
 
 ## 📊 Performance
 
