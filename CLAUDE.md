@@ -11,6 +11,54 @@
 
 📋 **See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for detailed tasks and progress tracking**
 
+## 🌐 OTHER PROJECT: angar.online
+
+### Project Overview
+- **What**: Nightclub/event venue website (ANGAR - electronic music club in SPb)
+- **Platform**: Hosted on Gamma.app (website builder)
+- **Challenge**: Make it accessible in Russia (Cloudflare/AWS blocked)
+- **Solution**: Using BunnyCDN as reverse proxy
+
+### Current Setup (September 2025)
+- **Domain**: angar.online (registered at Namecheap)
+- **Content Management**: Gamma.app (edit and publish through their interface)
+- **CDN/Proxy**: BunnyCDN ($1-3/month)
+- **DNS**: Cloudflare DNS (paused mode - DNS only, no proxy)
+
+### BunnyCDN Configuration
+- **Pull Zone Name**: angar
+- **CDN URL**: angar.b-cdn.net
+- **Origin URL**: https://3.137.108.170 (AWS IP where Gamma hosts)
+- **Host Header**: angar.online (manually set)
+- **Forward Host Header**: OFF
+- **Cache**: 4hr browser, 12hr edge (auto-updates)
+- **Account**: Need to maintain $10+ balance
+
+### DNS Records (in Cloudflare)
+```
+A     angar.online    147.185.221.22    DNS only
+A     angar.online    147.185.221.23    DNS only
+CNAME www            angar.b-cdn.net    DNS only
+```
+
+### How It Works
+1. User visits angar.online → DNS points to BunnyCDN IPs
+2. BunnyCDN fetches from AWS/Gamma (3.137.108.170)
+3. BunnyCDN serves content to users (works in Russia!)
+4. Gamma publishes updates to AWS as usual
+
+### Maintenance
+- **Update content**: Edit in Gamma.app as normal
+- **Force update**: BunnyCDN dashboard → Purge → Purge All
+- **Check balance**: Keep $10+ in BunnyCDN account
+- **SSL issues**: Hostnames → Enable SSL (if needed)
+
+### Access Points
+- **Gamma editor**: gamma.app (login required)
+- **BunnyCDN dashboard**: dash.bunny.net
+- **DNS management**: Cloudflare dashboard (paused mode)
+- **Test URL**: https://angar.b-cdn.net (always works)
+
 ## Project Context
 
 You're working on VNVNC Modern, a React-based nightclub website with a distinctive neon aesthetic. The site is for a concert hall in Saint Petersburg, Russia, featuring events, photo galleries, and reservations.

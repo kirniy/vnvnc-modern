@@ -26,7 +26,7 @@ const AgeGate = () => {
   }
 
   const handleExit = () => {
-    window.location.href = 'https://www.google.com'
+    window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ'
   }
 
   if (!isVisible) return null
