@@ -60,47 +60,136 @@
     </script>
     <!-- /Top.Mail.Ru counter -->
 
-    <!-- Structured Data for Local Business -->
+    <!-- Structured Data for Enhanced Search Results -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "NightClub",
-      "name": "VNVNC",
-      "alternateName": ["Виновница", "Винка"],
-      "description": "Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно",
-      "url": "https://vnvnc.ru",
-      "telephone": "",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Конюшенная площадь, 2В",
-        "addressLocality": "Санкт-Петербург",
-        "addressCountry": "RU",
-        "postalCode": "191186"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 59.9398,
-        "longitude": 30.3234
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Friday", "Saturday", "Sunday"],
-        "opens": "23:00",
-        "closes": "07:00"
-      },
-      "priceRange": "$$",
-      "servesCuisine": "Bar",
-      "acceptsReservations": "true",
-      "image": "https://vnvnc.ru/og-image.jpg",
-      "sameAs": [
-        "https://www.instagram.com/vnvnc_spb",
-        "https://t.me/vnvnc_spb"
-      ],
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.5",
-        "reviewCount": "250"
-      }
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://vnvnc.ru/#website",
+          "url": "https://vnvnc.ru",
+          "name": "VNVNC",
+          "description": "Официальный портал клуба VNVNC в Санкт-Петербурге",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://vnvnc.ru/events?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          },
+          "publisher": {
+            "@id": "https://vnvnc.ru/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://vnvnc.ru/#organization",
+          "name": "VNVNC Concert Hall",
+          "url": "https://vnvnc.ru",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://vnvnc.ru/logo.png",
+            "width": 512,
+            "height": 512
+          }
+        },
+        {
+          "@type": "NightClub",
+          "@id": "https://vnvnc.ru/#nightclub",
+          "name": "VNVNC",
+          "alternateName": ["Виновница", "Винка"],
+          "description": "Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно",
+          "url": "https://vnvnc.ru",
+          "telephone": "",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Конюшенная площадь, 2В",
+            "addressLocality": "Санкт-Петербург",
+            "addressCountry": "RU",
+            "postalCode": "191186"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 59.9398,
+            "longitude": 30.3234
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Friday", "Saturday", "Sunday"],
+            "opens": "23:00",
+            "closes": "07:00"
+          },
+          "priceRange": "$$",
+          "servesCuisine": "Bar",
+          "acceptsReservations": "true",
+          "image": "https://vnvnc.ru/og-image.jpg",
+          "sameAs": [
+            "https://www.instagram.com/vnvnc_spb",
+            "https://t.me/vnvnc_spb"
+          ],
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "reviewCount": "250"
+          },
+          "event": [
+            {
+              "@type": "MusicEvent",
+              "name": "DJ Sets",
+              "description": "Еженедельные выступления топовых диджеев",
+              "url": "https://vnvnc.ru/events",
+              "startDate": "2025-01-01T23:00:00+03:00",
+              "location": {
+                "@id": "https://vnvnc.ru/#nightclub"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://vnvnc.ru/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Главная",
+              "item": "https://vnvnc.ru"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Афиша",
+              "item": "https://vnvnc.ru/events"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Фото",
+              "item": "https://vnvnc.ru/gallery"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Бронь столов",
+              "item": "https://vnvnc.ru/reservations"
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Правила",
+              "item": "https://vnvnc.ru/rules"
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Контакты",
+              "item": "https://vnvnc.ru/contacts"
+            }
+          ]
+        }
+      ]
     }
     </script>
 
