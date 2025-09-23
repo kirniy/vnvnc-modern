@@ -169,6 +169,16 @@ const GalleryPage = () => {
   // Use all dates fetched from the API (already sorted newest first)
   const uniqueDates = allDates;
 
+  // Shuffle function using Fisher-Yates algorithm
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   // Filter and sort images based on date
   const filteredImages = useMemo(() => {
     let images = allPhotos;
@@ -178,15 +188,33 @@ const GalleryPage = () => {
       images = images.filter(img => img.date === selectedDate);
     }
 
-    // Sort by date (newest first) - photos should already be sorted from backend, but ensure it here
-    images = [...images].sort((a, b) => {
-      if (a.date && b.date) {
-        return b.date.localeCompare(a.date);
+    // Group photos by date
+    const photosByDate = new Map<string, any[]>();
+
+    images.forEach(img => {
+      const date = img.date || 'unknown';
+      if (!photosByDate.has(date)) {
+        photosByDate.set(date, []);
       }
-      return 0;
+      photosByDate.get(date)!.push(img);
     });
 
-    return images;
+    // Sort dates (newest first)
+    const sortedDates = Array.from(photosByDate.keys()).sort((a, b) => {
+      if (a === 'unknown') return 1;
+      if (b === 'unknown') return -1;
+      return b.localeCompare(a);
+    });
+
+    // Shuffle photos within each date and flatten
+    const result: any[] = [];
+    sortedDates.forEach(date => {
+      const photosForDate = photosByDate.get(date)!;
+      const shuffledPhotos = shuffleArray(photosForDate);
+      result.push(...shuffledPhotos);
+    });
+
+    return result;
   }, [allPhotos, selectedDate]);
 
   const openLightbox = (index: number) => {

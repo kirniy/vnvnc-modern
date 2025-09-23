@@ -12,6 +12,7 @@ import { trackTicketClick } from '../components/AnalyticsTracker'
 import { colors } from '../utils/colors'
 import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
+import { PageBackground } from '../components/PageBackground'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -113,6 +114,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   return (
     <div className="min-h-screen relative">
+      <PageBackground />
       <Helmet>
         <title>{event.title} | VNVNC Concert Hall</title>
         <meta name="description" content={`${event.title} - ${event.date}. ${cleanDescription}`} />

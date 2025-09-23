@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Yandexbot
+Allow: /
+Crawl-delay: 0
+
+Sitemap: https://vnvnc.ru/sitemap.xml
