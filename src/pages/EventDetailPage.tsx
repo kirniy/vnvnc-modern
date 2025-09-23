@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2 } from 'lucide-react'
+import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2, Camera } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -13,6 +13,7 @@ import { colors } from '../utils/colors'
 import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
 import { PageBackground } from '../components/PageBackground'
+import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -24,6 +25,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   const eventId = eventIdOverride || id  // Use override if provided, otherwise use URL param
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [showShareTooltip, setShowShareTooltip] = useState(false)
+  const navigate = useNavigate()
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -108,6 +110,22 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   // Simple archive check - just check if event date is in the past
   const isArchived = event.rawDate && new Date(event.rawDate) < new Date()
+
+  // Format event date to YYYY-MM-DD for photo availability check (copied from EventCardNew)
+  const getEventDateForPhotos = () => {
+    if (event.rawDate) {
+      const eventDate = new Date(event.rawDate)
+      const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+      const year = moscowDate.getFullYear()
+      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0')
+      const day = moscowDate.getDate().toString().padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    return undefined
+  }
+
+  const eventPhotoDate = getEventDateForPhotos()
+  const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
 
   // Clean up description for meta tags
   const cleanDescription = event.description
@@ -414,7 +432,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
               {/* CTA справа: outline без анимаций */}
               <div className="flex items-start md:justify-end">
-                {!isArchived && (
+                {!isArchived ? (
                   <motion.a
                     href="#"
                     whileHover={{ scale: 1.04 }}
@@ -441,6 +459,33 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     <ShoppingCart size={22} />
                     {isFree ? 'free' : 'тикеты'}
                   </motion.a>
+                ) : (
+                  hasPhotos && (
+                    <motion.button
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="px-8 py-4 radius font-display font-medium tracking-wide text-lg border border-white/20 backdrop-blur-sm transition-all duration-300 flex items-center gap-3"
+                      style={{
+                        backgroundColor: colors.glass.white,
+                        color: 'white'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = colors.glass.whiteHover
+                        e.currentTarget.style.borderColor = colors.neon.red + '66'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = colors.glass.white
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+                      }}
+                      onClick={() => {
+                        // Navigate to gallery with date parameter
+                        navigate(`/gallery?date=${eventPhotoDate}`)
+                      }}
+                    >
+                      <Camera size={22} />
+                      Фотоотчет
+                    </motion.button>
+                  )
                 )}
               </div>
             </div>
