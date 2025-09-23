@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import UnicornScene from "unicornstudio-react";
 
 export const useWindowSize = () => {
@@ -28,132 +28,11 @@ export const useWindowSize = () => {
   return windowSize;
 };
 
-// Hook for device orientation (accelerometer)
-const useDeviceOrientation = () => {
-  const [permissionGranted, setPermissionGranted] = useState(false);
-  const [showButton, setShowButton] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const animationFrameRef = useRef<number>(0);
-
-  useEffect(() => {
-    // Check if we're on mobile/tablet
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (!isMobile) return;
-
-    // Check if permission is needed (iOS 13+)
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      setShowButton(true);
-    } else {
-      // Non-iOS devices or older versions - start immediately
-      setPermissionGranted(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!permissionGranted) return;
-
-    let lastX = 0;
-    let lastY = 0;
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Cancel previous animation frame
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-
-      animationFrameRef.current = requestAnimationFrame(() => {
-        // For iOS: gamma is left-right tilt (-90 to 90), beta is front-back (-90 to 90)
-        // For Android: gamma is left-right (-90 to 90), beta is front-back (-180 to 180)
-        const gamma = event.gamma || 0;
-        const beta = event.beta || 0;
-
-        // Normalize values
-        const x = Math.max(-1, Math.min(1, gamma / 45)); // More sensitive range
-        const y = Math.max(-1, Math.min(1, beta / 45));
-
-        // Apply smoothing
-        const smoothing = 0.3;
-        const smoothX = lastX * (1 - smoothing) + x * smoothing;
-        const smoothY = lastY * (1 - smoothing) + y * smoothing;
-
-        lastX = smoothX;
-        lastY = smoothY;
-
-        // Convert to screen coordinates
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-
-        // Higher sensitivity for better response
-        const sensitivity = 1.2;
-        const mouseX = centerX + (smoothX * centerX * sensitivity);
-        const mouseY = centerY + (smoothY * centerY * sensitivity);
-
-        // Dispatch synthetic mouse event
-        if (containerRef.current) {
-          const syntheticEvent = new MouseEvent('mousemove', {
-            clientX: mouseX,
-            clientY: mouseY,
-            bubbles: true,
-            cancelable: true,
-            view: window
-          });
-
-          // Dispatch to the UnicornScene container
-          const unicornContainer = containerRef.current.querySelector('div');
-          if (unicornContainer) {
-            unicornContainer.dispatchEvent(syntheticEvent);
-          }
-          containerRef.current.dispatchEvent(syntheticEvent);
-
-          // Also dispatch to document for broader compatibility
-          document.dispatchEvent(syntheticEvent);
-        }
-      });
-    };
-
-    window.addEventListener('deviceorientation', handleOrientation);
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [permissionGranted]);
-
-  const requestPermission = async () => {
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      try {
-        const permission = await (DeviceOrientationEvent as any).requestPermission();
-        if (permission === 'granted') {
-          setPermissionGranted(true);
-          setShowButton(false);
-        }
-      } catch (error) {
-        console.log('Device orientation permission denied');
-      }
-    }
-  };
-
-  return { containerRef, showButton, requestPermission };
-};
-
 export const Component = () => {
   const { width, height } = useWindowSize();
-  const { containerRef, showButton, requestPermission } = useDeviceOrientation();
 
   return (
-    <div ref={containerRef} className={cn("flex flex-col items-center relative")}>
-      {showButton && (
-        <button
-          onClick={requestPermission}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-red-600 hover:bg-red-700 border border-red-500 rounded-full text-white text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105"
-          style={{ pointerEvents: 'auto' }}
-        >
-          🎮 Активировать гироскоп
-        </button>
-      )}
+    <div className={cn("flex flex-col items-center")}>
       <UnicornScene
         production={true}
         projectId="cbmTT38A0CcuYxeiyj5H"

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Sparkles, Maximize2, RefreshCw, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import Lightbox from 'yet-another-react-lightbox'
 import Download from 'yet-another-react-lightbox/plugins/download'
@@ -10,6 +10,8 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
+import { LiquidButton } from '../components/ui/liquid-glass-button'
+import VideoGalleryGrid from '../components/VideoGalleryGrid'
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
@@ -121,6 +123,7 @@ const GalleryPage = () => {
   const [photoIndex, setPhotoIndex] = useState(0)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [useFallback, setUseFallback] = useState(false)
+  const [showVideos, setShowVideos] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // Fetch all available dates from Yandex Disk
@@ -266,8 +269,48 @@ const GalleryPage = () => {
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto text-stretch-body">
             Погрузитесь в атмосферу самых запоминающихся вечеров
           </p>
+
+          {/* Toggle Selector for Photo/Video */}
+          <div className="flex justify-center mt-6 gap-3">
+            <LiquidButton
+              onClick={() => setShowVideos(false)}
+              className={`${!showVideos ? 'opacity-100 scale-105' : 'opacity-60'}`}
+              size="xl"
+            >
+              ФОТО
+            </LiquidButton>
+            <LiquidButton
+              onClick={() => setShowVideos(true)}
+              className={`${showVideos ? 'opacity-100 scale-105' : 'opacity-60'}`}
+              size="xl"
+            >
+              ВИДЕО
+            </LiquidButton>
+          </div>
         </motion.div>
 
+        {/* Content Based on Mode */}
+        <AnimatePresence mode="wait">
+          {showVideos ? (
+            // Video Gallery Mode
+            <motion.div
+              key="video-gallery"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <VideoGalleryGrid />
+            </motion.div>
+          ) : (
+            // Photo Gallery Mode
+            <motion.div
+              key="photo-gallery"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
         {/* Compact Date Selector */}
         {uniqueDates.length > 0 && (
           <motion.div
@@ -454,6 +497,9 @@ const GalleryPage = () => {
             <span>больше фото в insta</span>
           </a>
         </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Lightbox */}

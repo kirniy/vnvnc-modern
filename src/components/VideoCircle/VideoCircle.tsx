@@ -629,7 +629,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       >
         <div className="flex items-center justify-center gap-4">
           <span className="block w-8 h-px bg-white/20" />
-          <span>Моменты из архива VNVNC</span>
+          <span className="text-white/80">Моменты из архива VNVNC</span>
           <span className="block w-8 h-px bg-white/20" />
         </div>
       </motion.div>

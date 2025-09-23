@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
@@ -9,6 +9,7 @@ import { useRef, useState, useEffect } from 'react'
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
   const [isMounted, setIsMounted] = useState(false)
+  const [isVideoCircleExpanded, setIsVideoCircleExpanded] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
@@ -40,7 +41,7 @@ const ModernHero = () => {
           preload="metadata"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       {/* Убираем старый паттерн точек */}
@@ -79,7 +80,18 @@ const ModernHero = () => {
             className="relative space-y-2 sm:space-y-3 mb-8 sm:mb-12 mt-4 sm:mt-0"
           >
             {/* Lamp effect as decoration above text */}
-            <LampLight />
+            <AnimatePresence>
+              {!isVideoCircleExpanded && (
+                <motion.div
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <LampLight />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-white font-display font-extrabold tracking-tight">
               Эпицентр ночной жизни
@@ -94,9 +106,10 @@ const ModernHero = () => {
           </motion.div>
 
           {/* Video Circles Feature - ensure it's above particles */}
-          <VideoCircle 
-            className="my-12 sm:my-16 relative z-10" 
+          <VideoCircle
+            className="my-12 sm:my-16 relative z-10"
             backgroundVideoRef={backgroundVideoRef}
+            onExpandChange={setIsVideoCircleExpanded}
           />
 
            <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center mt-2">

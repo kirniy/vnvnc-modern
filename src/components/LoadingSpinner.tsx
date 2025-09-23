@@ -11,23 +11,23 @@ type LoadingSpinnerProps = {
 const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val))
 
 const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: LoadingSpinnerProps) => {
-  const [ringSize, setRingSize] = useState<number>(inline ? 120 : 200)
-  const [glowSize, setGlowSize] = useState<number>(inline ? 160 : 260)
-  const [fontSize, setFontSize] = useState<string>(inline ? 'text-4xl' : 'text-5xl md:text-6xl')
+  const [ringSize, setRingSize] = useState<number>(inline ? 100 : 160)
+  const [glowSize, setGlowSize] = useState<number>(inline ? 140 : 220)
+  const [fontSize, setFontSize] = useState<string>(inline ? 'text-3xl' : 'text-4xl md:text-5xl')
 
   useEffect(() => {
     if (inline) return
     const compute = () => {
       const vw = window.innerWidth || 375
       // ring tuned for mobile; keep smaller to avoid cutoffs
-      const size = clamp(Math.round(vw * 0.36), 140, 220)
+      const size = clamp(Math.round(vw * 0.28), 120, 180)
       setRingSize(size)
-      setGlowSize(Math.round(size * 1.25))
+      setGlowSize(Math.round(size * 1.35))
       // Adjust font size based on viewport
       if (vw < 640) {
-        setFontSize('text-5xl')
+        setFontSize('text-4xl')
       } else {
-        setFontSize('text-6xl')
+        setFontSize('text-5xl')
       }
     }
     compute()
@@ -35,7 +35,7 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
     return () => window.removeEventListener('resize', compute)
   }, [inline])
   return (
-    <div className={inline ? 'relative flex flex-col items-center justify-center' : 'fixed inset-0 z-[9998] flex flex-col items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe'}
+    <div className={inline ? 'relative flex items-center justify-center' : 'fixed inset-0 z-[9998] flex items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe'}
       style={!inline ? { backgroundColor: `rgba(0,0,0,${scrimOpacity})` } : undefined}
     >
       {/* Background gradient effect */}
@@ -51,7 +51,7 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
         </div>
       )}
       
-      <div className="relative">
+      <div className="relative flex items-center justify-center" style={{ width: `${ringSize}px`, height: `${ringSize}px` }}>
         {/* Outer glow ring */}
         <motion.div
           className="absolute inset-0"
@@ -63,8 +63,29 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
             transform: 'translate(-50%, -50%)'
           }}
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.1, 0.3]
+            scale: [1, 1.15, 1],
+            opacity: [0.4, 0.15, 0.4]
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <div
+            className="w-full h-full rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${colors.neon.red}11 0%, ${colors.neon.red}44 50%, transparent 100%)`,
+              filter: 'blur(30px)'
+            }}
+          />
+        </motion.div>
+        
+        {/* Main logo container */}
+        <motion.div
+          className="absolute inset-0 z-10 flex items-center justify-center"
+          animate={{
+            scale: [1, 1.02, 1],
           }}
           transition={{
             duration: 3,
@@ -72,31 +93,24 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
             ease: "easeInOut"
           }}
         >
-          <div 
-            className="w-full h-full rounded-full"
+          <motion.span
+            className={`font-display font-extrabold ${fontSize} lowercase tracking-wider select-none`}
             style={{
-              background: `radial-gradient(circle, transparent 40%, ${colors.neon.red}22 70%, transparent 100%)`,
-              filter: 'blur(20px)'
+              color: colors.neon.red,
+              textShadow: `0 0 20px ${colors.neon.red}88, 0 0 40px ${colors.neon.red}44, 0 0 80px ${colors.neon.red}22`,
+              letterSpacing: '0.08em'
             }}
-          />
-        </motion.div>
-        
-        {/* Main logo container */}
-        <motion.div
-          className="relative z-10 flex items-center justify-center"
-          animate={{
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <span className={`font-display font-extrabold ${fontSize} lowercase`}
-                style={{ color: colors.neon.red }}>
+            animate={{
+              opacity: [0.9, 1, 0.9]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
             vnvnc
-          </span>
+          </motion.span>
         </motion.div>
         
         {/* Circular loading ring */}
@@ -118,8 +132,8 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
               r="48"
               fill="none"
               stroke={colors.neon.red}
-              strokeWidth="0.5"
-              opacity="0.1"
+              strokeWidth="1"
+              opacity="0.08"
             />
             
             {/* Animated progress circle */}
@@ -129,27 +143,33 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
               r="48"
               fill="none"
               stroke={colors.neon.red}
-              strokeWidth="1.5"
+              strokeWidth="2.5"
               strokeLinecap="round"
-              strokeDasharray="100 201"
+              strokeDasharray="90 211"
               animate={{
                 rotate: 360,
-                strokeDasharray: ["100 201", "150 151", "100 201"]
+                strokeDasharray: ["90 211", "150 151", "90 211"],
+                opacity: [1, 0.8, 1]
               }}
               transition={{
                 rotate: {
-                  duration: 3,
+                  duration: 2.5,
                   repeat: Infinity,
                   ease: "linear"
                 },
                 strokeDasharray: {
-                  duration: 2,
+                  duration: 1.8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                },
+                opacity: {
+                  duration: 1.8,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }
               }}
               style={{
-                filter: `drop-shadow(0 0 20px ${colors.neon.red})`,
+                filter: `drop-shadow(0 0 15px ${colors.neon.red}) drop-shadow(0 0 30px ${colors.neon.red}66)`,
                 transformOrigin: 'center'
               }}
             />
@@ -161,15 +181,15 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
               r="48"
               fill="none"
               stroke={colors.neon.red}
-              strokeWidth="0.5"
+              strokeWidth="1"
               strokeLinecap="round"
-              strokeDasharray="20 280"
-              opacity="0.5"
+              strokeDasharray="40 260"
+              opacity="0.4"
               animate={{
                 rotate: -360,
               }}
               transition={{
-                duration: 6,
+                duration: 4,
                 repeat: Infinity,
                 ease: "linear"
               }}
@@ -180,24 +200,59 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
           </svg>
         </motion.div>
         
+        {/* Inner orbit dots */}
+        {[0, 120, 240].map((rotation, index) => (
+          <motion.div
+            key={`inner-${rotation}`}
+            className="absolute"
+            style={{
+              width: '2px',
+              height: '2px',
+              backgroundColor: colors.neon.red,
+              borderRadius: '50%',
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-${Math.round(ringSize * 0.25)}px)`,
+              boxShadow: `0 0 8px ${colors.neon.red}`
+            }}
+            animate={{
+              rotate: 360,
+              opacity: [0.3, 0.8, 0.3]
+            }}
+            transition={{
+              rotate: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
+              },
+              opacity: {
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: index * 0.5
+              }
+            }}
+          />
+        ))}
+
         {/* Corner accent dots */}
         {[0, 90, 180, 270].map((rotation, index) => (
           <motion.div
             key={rotation}
             className="absolute"
             style={{
-              width: inline ? '3px' : '4px',
-              height: inline ? '3px' : '4px',
+              width: inline ? '2px' : '3px',
+              height: inline ? '2px' : '3px',
               backgroundColor: colors.neon.red,
               borderRadius: '50%',
               left: '50%',
               top: '50%',
-              transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-${Math.round(ringSize * 0.56)}px)`,
-              boxShadow: `0 0 10px ${colors.neon.red}`
+              transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-${Math.round(ringSize * 0.55)}px)`,
+              boxShadow: `0 0 12px ${colors.neon.red}, 0 0 20px ${colors.neon.red}66`
             }}
             animate={{
-              opacity: [0.3, 1, 0.3],
-              scale: [0.8, 1.2, 0.8]
+              opacity: [0.5, 1, 0.5],
+              scale: [1, 1.5, 1]
             }}
             transition={{
               duration: 2,
