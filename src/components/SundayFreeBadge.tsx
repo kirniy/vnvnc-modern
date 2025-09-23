@@ -1,4 +1,4 @@
-import React, { MouseEvent, useEffect, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 
 export const SundayFreeBadge = () => {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -75,7 +75,7 @@ export const SundayFreeBadge = () => {
     }).join(", ");
   };
 
-  const onMouseEnter = (e: MouseEvent<HTMLDivElement>) => {
+  const onMouseEnter = (e: MouseEvent<HTMLAnchorElement>) => {
     if (leaveTimeout1.current) clearTimeout(leaveTimeout1.current);
     if (leaveTimeout2.current) clearTimeout(leaveTimeout2.current);
     if (leaveTimeout3.current) clearTimeout(leaveTimeout3.current);
@@ -101,7 +101,7 @@ export const SundayFreeBadge = () => {
     setTimeout(() => setIsTimeoutFinished(true), 200);
   };
 
-  const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+  const onMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
     const { left, right, top, bottom } = getDimensions();
     const xCenter = (left + right) / 2;
     const yCenter = (top + bottom) / 2;
@@ -113,7 +113,7 @@ export const SundayFreeBadge = () => {
     }
   };
 
-  const onMouseLeave = (e: MouseEvent<HTMLDivElement>) => {
+  const onMouseLeave = (e: MouseEvent<HTMLAnchorElement>) => {
     const oppositeMatrix = getOppositeMatrix(matrix, e.clientY);
 
     if (enterTimeout.current) clearTimeout(enterTimeout.current);
