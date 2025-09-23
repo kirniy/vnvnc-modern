@@ -3,6 +3,7 @@ import { Calendar, Ticket, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { colors } from '../utils/colors'
 import VideoCircle from './VideoCircle'
+import { LampLight } from './LampLight'
 import { useRef, useState, useEffect } from 'react'
 
 const ModernHero = () => {
@@ -47,7 +48,7 @@ const ModernHero = () => {
 
       {/* Animated gradient overlay */}
         <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 z-[6]"
         animate={{
           background: [
             `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
@@ -75,8 +76,11 @@ const ModernHero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-2 sm:space-y-3 mb-8 sm:mb-12 mt-4 sm:mt-0"
+            className="relative space-y-2 sm:space-y-3 mb-8 sm:mb-12 mt-4 sm:mt-0"
           >
+            {/* Lamp effect as decoration above text */}
+            <LampLight />
+
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-white font-display font-extrabold tracking-tight">
               Эпицентр ночной жизни
             </h1>
