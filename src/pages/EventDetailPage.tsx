@@ -12,8 +12,8 @@ import { trackTicketClick } from '../components/AnalyticsTracker'
 import { colors } from '../utils/colors'
 import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
-import { PageBackground } from '../components/PageBackground'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
+import { PageBackground } from '../components/PageBackground'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -99,7 +99,8 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen pt-20 relative">
+      <PageBackground />
         <div className="relative">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
           <div className="absolute inset-0 animate-ping rounded-full h-32 w-32 border-red-600 opacity-20"></div>
@@ -110,7 +111,8 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   if (!event) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen pt-20 relative">
+      <PageBackground />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Мероприятие не найдено</h1>
           <Link to="/events" className="text-red-500 hover:text-red-400">
@@ -132,7 +134,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     .substring(0, 160); // Limit to 160 characters for meta description
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen pt-20 relative">
       <PageBackground />
       <Helmet>
         <title>{event.title} | VNVNC Concert Hall</title>

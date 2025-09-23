@@ -6,8 +6,8 @@ import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
-import { SundayFreeBadge } from '../components/SundayFreeBadge'
 import { PageBackground } from '../components/PageBackground'
+import { SundayFreeBadge } from '../components/SundayFreeBadge'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -55,7 +55,7 @@ const EventsPage = () => {
   const months = useMemo(() => ['all','01','02','03','04','05','06','07','08','09','10','11','12'], [])
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen pt-20 relative">
       <PageBackground />
       <Helmet>
         <title>Афиша | VNVNC Concert Hall</title>

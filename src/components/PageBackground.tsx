@@ -16,13 +16,31 @@ export const PageBackground = ({ variant = 'random' }: PageBackgroundProps = {})
 
   return (
     <div
-      className="fixed inset-0 z-0 overflow-hidden"
+      className="fixed overflow-hidden"
       style={{
         filter: 'brightness(0.9)',
         transform: transform,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 0,
       }}
     >
       <AnimatedBackground />
+      {/* 10% dark overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          pointerEvents: 'none'
+        }}
+      />
     </div>
   )
 }

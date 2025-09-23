@@ -254,7 +254,7 @@ const GalleryPage = () => {
     : 'http://localhost:8787'
 
   return (
-    <div className="min-h-screen text-white pt-16 sm:pt-20 relative">
+    <div className="min-h-screen pt-20 relative">
       <PageBackground />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />

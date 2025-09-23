@@ -69,7 +69,7 @@ function App() {
       {/* <MinimalCursor /> */}
       <ScrollToTop />
       <AnalyticsTracker />
-      
+
       <main className="relative">
         <Suspense fallback={<LoadingWithHiddenFooter />}>
           <Routes>
