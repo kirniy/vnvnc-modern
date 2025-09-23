@@ -32,26 +32,33 @@
 - **Host Header**: angar.online (manually set)
 - **Forward Host Header**: OFF
 - **Cache**: 4hr browser, 12hr edge (auto-updates)
+- **SSL**: BunnyCDN Free SSL (Let's Encrypt)
 - **Account**: Need to maintain $10+ balance
 
-### DNS Records (in Cloudflare)
+### DNS Records (in Cloudflare) - DNS-only mode
 ```
-A     angar.online    147.185.221.22    DNS only
-A     angar.online    147.185.221.23    DNS only
-CNAME www            angar.b-cdn.net    DNS only
+CNAME angar.online    angar.b-cdn.net    DNS only (gray cloud)
+CNAME www            angar.b-cdn.net    DNS only (gray cloud)
 ```
+**Important**: Use CNAME for root domain (Cloudflare supports CNAME flattening). Never use A records - BunnyCDN doesn't provide static IPs.
 
 ### How It Works
-1. User visits angar.online → DNS points to BunnyCDN IPs
-2. BunnyCDN fetches from AWS/Gamma (3.137.108.170)
+1. User visits angar.online → DNS resolves to BunnyCDN network
+2. BunnyCDN fetches from origin (3.137.108.170) with Host: angar.online header
 3. BunnyCDN serves content to users (works in Russia!)
-4. Gamma publishes updates to AWS as usual
+4. Gamma publishes updates as usual (no changes needed)
+
+### SSL Certificate Setup
+- **DO NOT** use Cloudflare Origin Certificate (only works when proxied)
+- **USE** BunnyCDN's Free SSL certificate (Let's Encrypt)
+- In BunnyCDN → Hostnames → Enable Free SSL for custom domain
+- Force SSL enabled for HTTPS redirect
 
 ### Maintenance
 - **Update content**: Edit in Gamma.app as normal
 - **Force update**: BunnyCDN dashboard → Purge → Purge All
 - **Check balance**: Keep $10+ in BunnyCDN account
-- **SSL issues**: Hostnames → Enable SSL (if needed)
+- **SSL renewal**: Automatic via BunnyCDN (Let's Encrypt)
 
 ### Access Points
 - **Gamma editor**: gamma.app (login required)

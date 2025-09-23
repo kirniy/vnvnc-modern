@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
+import { SundayFreeBadge } from '../components/SundayFreeBadge'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -82,10 +83,13 @@ const EventsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-white mb-6 lowercase text-stretch-heading break-words">мероприятия</h1>
-          <p className="text-base sm:text-lg text-white/70 lowercase text-stretch-body tracking-wide block">все события в vnvnc</p>
+          {/* Sunday Free Entry Badge */}
+          <div className="flex justify-center">
+            <SundayFreeBadge />
+          </div>
         </motion.div>
 
         {/* Tab Navigation */}
