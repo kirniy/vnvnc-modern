@@ -5,12 +5,11 @@ import { colors } from '../utils/colors'
 type LoadingSpinnerProps = {
   inline?: boolean
   message?: string
-  scrimOpacity?: number // 0..1, only for fullscreen
 }
 
 const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val))
 
-const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: LoadingSpinnerProps) => {
+const LoadingSpinner = ({ inline = false, message }: LoadingSpinnerProps) => {
   const [ringSize, setRingSize] = useState<number>(inline ? 100 : 160)
   const [glowSize, setGlowSize] = useState<number>(inline ? 140 : 220)
   const [fontSize, setFontSize] = useState<string>(inline ? 'text-3xl' : 'text-4xl md:text-5xl')
@@ -35,21 +34,8 @@ const LoadingSpinner = ({ inline = false, message, scrimOpacity = 0.85 }: Loadin
     return () => window.removeEventListener('resize', compute)
   }, [inline])
   return (
-    <div className={inline ? 'relative flex items-center justify-center' : 'fixed inset-0 z-[9998] flex items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe'}
-      style={!inline ? { backgroundColor: `rgba(0,0,0,${scrimOpacity})` } : undefined}
+    <div className={inline ? 'relative flex items-center justify-center' : 'fixed inset-0 z-[9998] flex items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe pointer-events-none'}
     >
-      {/* Background gradient effect */}
-      {!inline && (
-        <div className="absolute inset-0">
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(circle at center, ${colors.neon.red}08 0%, transparent 50%)`,
-              animation: 'pulse 4s ease-in-out infinite'
-            }}
-          />
-        </div>
-      )}
       
       <div className="relative flex items-center justify-center" style={{ width: `${ringSize}px`, height: `${ringSize}px` }}>
         {/* Outer glow ring */}
