@@ -43,7 +43,7 @@
     body {
       -webkit-text-size-adjust: 100%;
     }
-    
+
     /* Ensure Unbounded loads properly on mobile */
     .font-display {
       font-family: 'Unbounded', 'Bebas Neue', 'Impact', sans-serif !important;
@@ -276,6 +276,78 @@
   /* Gradient Background */
   .bg-gradient-radial {
     background: radial-gradient(circle at center, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%);
+  }
+
+  /* Video Player Fullscreen Fixes */
+  .video-player-container:fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  .video-player-container:fullscreen .video-player-element {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    object-fit: contain !important;
+  }
+
+  /* Webkit specific fullscreen */
+  .video-player-container:-webkit-full-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  .video-player-container:-webkit-full-screen .video-player-element {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    object-fit: contain !important;
+  }
+
+  /* Mozilla specific fullscreen */
+  .video-player-container:-moz-full-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  .video-player-container:-moz-full-screen .video-player-element {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    object-fit: contain !important;
+  }
+
+  /* MS specific fullscreen */
+  .video-player-container:-ms-fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  .video-player-container:-ms-fullscreen .video-player-element {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    object-fit: contain !important;
   }
 }
 

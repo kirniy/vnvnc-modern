@@ -6,7 +6,7 @@ import { colors } from '../../utils/colors'
 interface AccordionItem {
   id: string
   question: string
-  answer: string
+  answer: string | React.ReactNode
 }
 
 interface AccordionProps {
