@@ -33,7 +33,21 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
       return await ticketsCloudService.getEventDetails(eventId || '')
     },
   })
-  
+  // Format event date to YYYY-MM-DD for photo availability check (copied from EventCardNew)
+  const eventPhotoDate = (() => {
+    if (!event?.rawDate) return undefined
+
+    const eventDate = new Date(event.rawDate)
+    const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+    const year = moscowDate.getFullYear()
+    const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0')
+    const day = moscowDate.getDate().toString().padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+  })()
+
+  const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
+
   // Handle share functionality
   const handleShare = async () => {
     if (!event) return
@@ -110,22 +124,6 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   // Simple archive check - just check if event date is in the past
   const isArchived = event.rawDate && new Date(event.rawDate) < new Date()
-
-  // Format event date to YYYY-MM-DD for photo availability check (copied from EventCardNew)
-  const getEventDateForPhotos = () => {
-    if (event.rawDate) {
-      const eventDate = new Date(event.rawDate)
-      const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
-      const year = moscowDate.getFullYear()
-      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0')
-      const day = moscowDate.getDate().toString().padStart(2, '0')
-      return `${year}-${month}-${day}`
-    }
-    return undefined
-  }
-
-  const eventPhotoDate = getEventDateForPhotos()
-  const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
 
   // Clean up description for meta tags
   const cleanDescription = event.description

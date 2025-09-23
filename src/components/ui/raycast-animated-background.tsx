@@ -33,16 +33,18 @@ let sceneInitialized = false;
 export const Component = () => {
   const { width, height } = useWindowSize();
   const [shouldRender, setShouldRender] = useState(false);
+  const hasViewport = width > 0 && height > 0;
 
   useEffect(() => {
-    // Only initialize scene once
-    if (!sceneInitialized) {
+    // Only initialize scene once AND when we have a valid viewport
+    if (!sceneInitialized && hasViewport) {
       sceneInitialized = true;
       setShouldRender(true);
     }
-  }, []);
+  }, [hasViewport]);
 
-  if (!shouldRender) {
+  if (!shouldRender || !hasViewport) {
+    // Avoid instantiating UnicornScene until we have real viewport dimensions
     return <div className={cn("flex flex-col items-center")} style={{ width, height }} />;
   }
 
