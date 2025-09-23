@@ -148,9 +148,10 @@ export const Component = () => {
       {showButton && (
         <button
           onClick={requestPermission}
-          className="absolute top-4 right-4 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white text-sm hover:bg-white/20 transition-colors"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-red-600 hover:bg-red-700 border border-red-500 rounded-full text-white text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105"
+          style={{ pointerEvents: 'auto' }}
         >
-          Включить управление наклоном
+          🎮 Активировать гироскоп
         </button>
       )}
       <UnicornScene
