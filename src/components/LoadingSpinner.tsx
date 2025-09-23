@@ -18,15 +18,15 @@ const LoadingSpinner = ({ inline = false, message }: LoadingSpinnerProps) => {
     if (inline) return
     const compute = () => {
       const vw = window.innerWidth || 375
-      // ring tuned for mobile; keep smaller to avoid cutoffs
-      const size = clamp(Math.round(vw * 0.28), 120, 180)
+      // Better mobile scaling
+      const size = clamp(Math.round(vw * 0.25), 100, 160)
       setRingSize(size)
-      setGlowSize(Math.round(size * 1.35))
+      setGlowSize(Math.round(size * 1.4))
       // Adjust font size based on viewport
       if (vw < 640) {
-        setFontSize('text-4xl')
+        setFontSize('text-3xl')
       } else {
-        setFontSize('text-5xl')
+        setFontSize('text-4xl')
       }
     }
     compute()
@@ -34,10 +34,10 @@ const LoadingSpinner = ({ inline = false, message }: LoadingSpinnerProps) => {
     return () => window.removeEventListener('resize', compute)
   }, [inline])
   return (
-    <div className={inline ? 'relative flex items-center justify-center' : 'fixed inset-0 z-[9998] flex items-center justify-center min-h-[100svh] overflow-hidden pt-safe pb-safe pointer-events-none'}
+    <div className={inline ? 'relative flex items-center justify-center' : 'fixed inset-0 z-[9998] flex items-center justify-center pointer-events-none'}
     >
       
-      <div className="relative flex items-center justify-center" style={{ width: `${ringSize}px`, height: `${ringSize}px` }}>
+      <div className="relative flex items-center justify-center pointer-events-none" style={{ width: `${ringSize}px`, height: `${ringSize}px` }}>
         {/* Outer glow ring */}
         <motion.div
           className="absolute inset-0"

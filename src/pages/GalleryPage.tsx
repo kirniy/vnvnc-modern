@@ -120,6 +120,7 @@ const getShortMonthName = (month: string): string => {
 }
 
 const GalleryPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -130,12 +131,28 @@ const GalleryPage = () => {
   // Fetch all available dates from Yandex Disk
   const { data: allDates = [] } = useYandexDates()
 
-  // Auto-select latest date on first load
+  // Handle URL parameters for date navigation
   useEffect(() => {
-    if (!useFallback && allDates.length > 0 && selectedDate === null) {
+    const dateParam = searchParams.get('date')
+    if (dateParam && allDates.includes(dateParam)) {
+      setSelectedDate(dateParam)
+    } else if (!useFallback && allDates.length > 0 && selectedDate === null && !dateParam) {
+      // Auto-select latest date only if no date param provided
       setSelectedDate(allDates[0])
     }
-  }, [allDates, selectedDate, useFallback])
+  }, [searchParams, allDates, selectedDate, useFallback])
+
+  // Update URL when date selection changes
+  useEffect(() => {
+    const currentDateParam = searchParams.get('date')
+    if (selectedDate && currentDateParam !== selectedDate) {
+      searchParams.set('date', selectedDate)
+      setSearchParams(searchParams, { replace: true })
+    } else if (!selectedDate && currentDateParam) {
+      searchParams.delete('date')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [selectedDate, searchParams, setSearchParams])
 
   // Fetch photos from Yandex Disk with infinite scrolling
   const {
@@ -394,7 +411,7 @@ const GalleryPage = () => {
         {/* Loading State */}
         {isLoading && !useFallback && (
           <div className="fixed inset-0 z-[95] flex items-center justify-center">
-            <LoadingSpinner message="Loading" scrimOpacity={0.75} />
+            <LoadingSpinner />
           </div>
         )}
 

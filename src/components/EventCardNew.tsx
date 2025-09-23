@@ -6,7 +6,7 @@ import { colors } from '../utils/colors'
 import { trackTicketClick } from './AnalyticsTracker'
 import { getShortDayOfWeek } from '../utils/dateHelpers'
 import { shouldTreatAsFree } from '../config/eventsConfig'
-// import Sticker from './ui/Sticker'
+import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 
 interface Event {
   id: string
@@ -34,6 +34,22 @@ interface EventCardProps {
 
 const EventCardNew = ({ event, index }: EventCardProps) => {
   const navigate = useNavigate();
+
+  // Format event date to YYYY-MM-DD for photo availability check
+  const getEventDateForPhotos = () => {
+    if (event.rawDate) {
+      const eventDate = new Date(event.rawDate);
+      const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+      const year = moscowDate.getFullYear();
+      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0');
+      const day = moscowDate.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return undefined;
+  };
+
+  const eventPhotoDate = getEventDateForPhotos();
+  const { hasPhotos } = useHasPhotosForDate(eventPhotoDate);
   
   // Generate short date-based URL for the event
   const getShortUrl = () => {
@@ -186,31 +202,33 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                 {isFree ? 'free' : 'тикеты'}
               </motion.button>
             ) : (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 radius font-medium text-sm flex items-center gap-2 transition-all duration-300 backdrop-blur-sm border border-white/20"
-                style={{ 
-                  backgroundColor: colors.glass.white,
-                  color: 'white'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.glass.whiteHover;
-                  e.currentTarget.style.borderColor = colors.neon.red + '66';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.glass.white;
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // For now, open a generic link. In the future, we'll implement dynamic linking
-                  window.open('https://t.me/vnvnc_spb', '_blank');
-                }}
-              >
-                <Camera size={16} />
-                Фотоотчет
-              </motion.button>
+              hasPhotos && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 py-2 radius font-medium text-sm flex items-center gap-2 transition-all duration-300 backdrop-blur-sm border border-white/20"
+                  style={{
+                    backgroundColor: colors.glass.white,
+                    color: 'white'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.glass.whiteHover;
+                    e.currentTarget.style.borderColor = colors.neon.red + '66';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.glass.white;
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Navigate to gallery with date parameter
+                    navigate(`/gallery?date=${eventPhotoDate}`);
+                  }}
+                >
+                  <Camera size={16} />
+                  Фотоотчет
+                </motion.button>
+              )
             )}
           </div>
         </div>
