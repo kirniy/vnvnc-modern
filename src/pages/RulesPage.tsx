@@ -4,6 +4,7 @@ import { colors } from '../utils/colors'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
 import BackButton from '../components/BackButton'
+import { PageBackground } from '../components/PageBackground'
 // Убрали DitherBackground
 
 const RulesPage = () => {
@@ -46,6 +47,7 @@ const RulesPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
+      <PageBackground />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}

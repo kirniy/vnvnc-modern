@@ -9,6 +9,7 @@ import { useInfiniteYandexPhotos, useYandexDates } from '../hooks/useYandexPhoto
 import LoadingSpinner from '../components/LoadingSpinner'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import BackButton from '../components/BackButton'
+import { PageBackground } from '../components/PageBackground'
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
@@ -217,6 +218,7 @@ const GalleryPage = () => {
 
   return (
     <div className="min-h-screen text-white pt-16 sm:pt-20 relative">
+      <PageBackground />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}

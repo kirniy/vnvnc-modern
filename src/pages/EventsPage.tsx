@@ -7,6 +7,7 @@ import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
 import { SundayFreeBadge } from '../components/SundayFreeBadge'
+import { PageBackground } from '../components/PageBackground'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -55,6 +56,7 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen relative">
+      <PageBackground />
       <Helmet>
         <title>Афиша | VNVNC Concert Hall</title>
         <meta name="description" content="Афиша концертов и вечеринок в VNVNC. Актуальные и предстоящие события, билеты онлайн. Конюшенная 2В, Санкт-Петербург." />

@@ -8,6 +8,7 @@ import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import NewsTicker from '../components/ui/NewsTicker'
 import { colors } from '../utils/colors'
+import { PageBackground } from '../components/PageBackground'
 // Убрали DitherBackground — по фидбеку
 
 const HomePage = () => {

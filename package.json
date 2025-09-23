@@ -31,6 +31,7 @@
     "react-router-dom": "^7.6.3",
     "tailwind-merge": "^3.3.1",
     "three": "^0.178.0",
+    "unicornstudio-react": "^1.4.31",
     "yet-another-react-lightbox": "^3.25.0"
   },
   "devDependencies": {
