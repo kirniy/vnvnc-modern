@@ -28,8 +28,23 @@ export const useWindowSize = () => {
   return windowSize;
 };
 
+let sceneInitialized = false;
+
 export const Component = () => {
   const { width, height } = useWindowSize();
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    // Only initialize scene once
+    if (!sceneInitialized) {
+      sceneInitialized = true;
+      setShouldRender(true);
+    }
+  }, []);
+
+  if (!shouldRender) {
+    return <div className={cn("flex flex-col items-center")} style={{ width, height }} />;
+  }
 
   return (
     <div className={cn("flex flex-col items-center")}>

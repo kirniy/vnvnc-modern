@@ -131,7 +131,7 @@ const GalleryPage = () => {
   // Fetch all available dates from Yandex Disk
   const { data: allDates = [] } = useYandexDates()
 
-  // Handle URL parameters for date navigation
+  // Initialize date from URL parameter on mount
   useEffect(() => {
     const dateParam = searchParams.get('date')
     if (dateParam && allDates.includes(dateParam)) {
@@ -140,19 +140,7 @@ const GalleryPage = () => {
       // Auto-select latest date only if no date param provided
       setSelectedDate(allDates[0])
     }
-  }, [searchParams, allDates, selectedDate, useFallback])
-
-  // Update URL when date selection changes
-  useEffect(() => {
-    const currentDateParam = searchParams.get('date')
-    if (selectedDate && currentDateParam !== selectedDate) {
-      searchParams.set('date', selectedDate)
-      setSearchParams(searchParams, { replace: true })
-    } else if (!selectedDate && currentDateParam) {
-      searchParams.delete('date')
-      setSearchParams(searchParams, { replace: true })
-    }
-  }, [selectedDate, searchParams, setSearchParams])
+  }, [allDates, useFallback]) // Removed searchParams and selectedDate dependencies to prevent loops
 
   // Fetch photos from Yandex Disk with infinite scrolling
   const {
@@ -363,7 +351,13 @@ const GalleryPage = () => {
                   return (
                     <button
                       key={date}
-                      onClick={() => setSelectedDate(date)}
+                      onClick={() => {
+                        setSelectedDate(date)
+                        // Update URL without triggering re-renders
+                        const newParams = new URLSearchParams(searchParams)
+                        newParams.set('date', date)
+                        setSearchParams(newParams, { replace: true })
+                      }}
                       className={`inline-flex items-center gap-2 h-10 leading-none px-4 radius text-sm font-medium transition-colors duration-200 flex-shrink-0 snap-start ${
                         isSelected
                           ? ''
