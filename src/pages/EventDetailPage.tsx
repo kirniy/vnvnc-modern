@@ -106,6 +106,9 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   }
   const isFree = shouldTreatAsFree(event.id as any, event.rawDate as any, event.title)
 
+  // Simple archive check - just check if event date is in the past
+  const isArchived = event.rawDate && new Date(event.rawDate) < new Date()
+
   // Clean up description for meta tags
   const cleanDescription = event.description
     .replace(/<[^>]*>/g, '') // Remove HTML tags
@@ -245,39 +248,41 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
               {/* Description */}
               <div className="order-2 md:order-1 space-y-6">
                 <p className="text-white/80 leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
-                
+
                 {/* CTA: outline brat-style, без тяжёлых эффектов */}
-                <motion.a 
-                  href="#"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
-                  data-tc-event={!isFree ? (event.id as any) : undefined}
-                  data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
-                  data-tc-lang={!isFree ? 'ru' : undefined}
-                  data-tc-mini={!isFree ? '1' : undefined}
-                  data-tc-style={!isFree ? '1' : undefined}
-                  onClick={(e)=>{
-                    if (isFree) {
-                      e.preventDefault()
-                      trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button_free' })
-                      const el = e.currentTarget as HTMLAnchorElement
-                      const old = el.textContent
-                      el.textContent = 'вход свободный'
-                      setTimeout(()=>{ if (el) el.textContent = old || 'тикеты' },1200)
-                    } else {
-                      trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button' })
-                    }
-                  }}
-                >
-                  <ShoppingCart size={22} />
-                  {isFree ? 'free' : 'тикеты'}
-                  {event.price && (
-                    <span className="ml-2 px-3 py-1 rounded-md text-sm border border-white/20">
-                      {event.price}
-                    </span>
-                  )}
-                </motion.a>
+                {!isArchived && (
+                  <motion.a
+                    href="#"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
+                    data-tc-event={!isFree ? (event.id as any) : undefined}
+                    data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
+                    data-tc-lang={!isFree ? 'ru' : undefined}
+                    data-tc-mini={!isFree ? '1' : undefined}
+                    data-tc-style={!isFree ? '1' : undefined}
+                    onClick={(e)=>{
+                      if (isFree) {
+                        e.preventDefault()
+                        trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button_free' })
+                        const el = e.currentTarget as HTMLAnchorElement
+                        const old = el.textContent
+                        el.textContent = 'вход свободный'
+                        setTimeout(()=>{ if (el) el.textContent = old || 'тикеты' },1200)
+                      } else {
+                        trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button' })
+                      }
+                    }}
+                  >
+                    <ShoppingCart size={22} />
+                    {isFree ? 'free' : 'тикеты'}
+                    {event.price && (
+                      <span className="ml-2 px-3 py-1 rounded-md text-sm border border-white/20">
+                        {event.price}
+                      </span>
+                    )}
+                  </motion.a>
+                )}
               </div>
               
               {/* Poster - scaled to match description height */}
@@ -406,35 +411,37 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                   </div>
                 )}
               </div>
-              
+
               {/* CTA справа: outline без анимаций */}
               <div className="flex items-start md:justify-end">
-                <motion.a 
-                  href="#"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="ticketscloud-widget px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
-                  data-tc-event={!isFree ? (event.id as any) : undefined}
-                  data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
-                  data-tc-lang={!isFree ? 'ru' : undefined}
-                  data-tc-mini={!isFree ? '1' : undefined}
-                  data-tc-style={!isFree ? '1' : undefined}
-                  onClick={(e)=>{
-                    if (isFree) {
-                      e.preventDefault()
-                      trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button_free' })
-                      const el = e.currentTarget as HTMLAnchorElement
-                      const old = el.textContent
-                      el.textContent = 'вход свободный'
-                      setTimeout(()=>{ if (el) el.textContent = old || 'тикеты' },1200)
-                    } else {
-                      trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button' })
-                    }
-                  }}
-                >
-                  <ShoppingCart size={22} />
-                  {isFree ? 'free' : 'тикеты'}
-                </motion.a>
+                {!isArchived && (
+                  <motion.a
+                    href="#"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="ticketscloud-widget px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
+                    data-tc-event={!isFree ? (event.id as any) : undefined}
+                    data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
+                    data-tc-lang={!isFree ? 'ru' : undefined}
+                    data-tc-mini={!isFree ? '1' : undefined}
+                    data-tc-style={!isFree ? '1' : undefined}
+                    onClick={(e)=>{
+                      if (isFree) {
+                        e.preventDefault()
+                        trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button_free' })
+                        const el = e.currentTarget as HTMLAnchorElement
+                        const old = el.textContent
+                        el.textContent = 'вход свободный'
+                        setTimeout(()=>{ if (el) el.textContent = old || 'тикеты' },1200)
+                      } else {
+                        trackTicketClick({ eventId: event.id as any, title: event.title, source: 'detail_button' })
+                      }
+                    }}
+                  >
+                    <ShoppingCart size={22} />
+                    {isFree ? 'free' : 'тикеты'}
+                  </motion.a>
+                )}
               </div>
             </div>
           </motion.div>
