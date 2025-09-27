@@ -124,8 +124,26 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   }
   const isFree = shouldTreatAsFree(event.id as any, event.rawDate as any, event.title)
 
-  // Simple archive check - just check if event date is in the past
-  const isArchived = event.rawDate && new Date(event.rawDate) < new Date()
+  // Calculate if this is an archived event based on date
+  // Events are archived the morning after they happen (6 AM cutoff)
+  const now = new Date()
+
+  // Get the event date and add 1 day + 6 hours to get the archive cutoff
+  // (e.g., Sep 27 event archives on Sep 28 at 6 AM)
+  let isArchived = false
+  if (event.rawDate) {
+    const eventDate = new Date(event.rawDate)
+    const archiveCutoff = new Date(eventDate)
+
+    // Set to next day at 6 AM Moscow time
+    archiveCutoff.setDate(archiveCutoff.getDate() + 1)
+    archiveCutoff.setHours(6, 0, 0, 0)
+
+    // Convert current time to Moscow timezone for comparison
+    const nowMoscow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+
+    isArchived = nowMoscow > archiveCutoff
+  }
 
   // Clean up description for meta tags
   const cleanDescription = event.description
