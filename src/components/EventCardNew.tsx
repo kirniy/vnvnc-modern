@@ -88,7 +88,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.2) }}
-      whileHover={{ y: -4, scale: 1.012 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.995 }}
       onClick={() => navigate(getShortUrl())}
       className="relative group cursor-pointer"
@@ -97,17 +97,16 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
            style={{ backgroundColor: colors.glass.dark }}>
         
         {/* 3:4 Portrait Image Container - Properly scaled on mobile */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-black z-[1]">
+        <div className="relative aspect-[3/4] overflow-hidden bg-black z-[1] transform-gpu will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
+             style={{ backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
           <img
             src={event.poster_small || event.image}  // Use small image if available
             alt={event.title}
             loading="lazy"  // Enable lazy loading for performance
             decoding="async"  // Async decoding for better performance
-            className="w-full h-full object-cover object-center will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+            className="w-full h-full object-cover object-center select-none pointer-events-none"
             style={{ 
-              backfaceVisibility: 'hidden', 
-              transform: 'translateZ(0)',
-              willChange: 'transform'  // Optimize for animations
+              backfaceVisibility: 'hidden'
             }}
           />
           
@@ -133,7 +132,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
             </>
           )}
           {/* Hard bottom blocker to prevent poster bleed */}
-          <div className="absolute bottom-0 left-0 right-0 h-5 sm:h-6 bg-black z-20 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-8 sm:h-8 bg-black z-20 pointer-events-none" />
           
           {/* Age Rating Sticker */}
           {event.age_rating && (
