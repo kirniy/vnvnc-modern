@@ -301,7 +301,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="backdrop-blur-lg rounded-3xl p-8 mb-8 border border-white/10"
-            style={{ backgroundColor: colors.glass.dark }}
+            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.22)' : colors.glass.dark }}
           >
             <h2 className="text-2xl font-bold text-white mb-6">О мероприятии</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -383,7 +383,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="backdrop-blur-lg rounded-3xl p-8 border border-white/10 relative overflow-hidden"
-            style={{ backgroundColor: colors.glass.dark }}
+            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.22)' : colors.glass.dark }}
           >
             {/* лёгкий фон без анимации */}
             <div className="absolute inset-0 opacity-20 pointer-events-none"
@@ -396,7 +396,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                 <div className="group">
                   <div className="flex items-start space-x-4">
                     <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
-                         style={{ backgroundColor: colors.glass.darker }}>
+                         style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.3)' : colors.glass.darker }}>
                       <Calendar className="text-red-500" size={24} />
                     </div>
                     <div>
@@ -420,7 +420,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                   <div className="group">
                     <div className="flex items-start space-x-4">
                       <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
-                           style={{ backgroundColor: colors.glass.darker }}>
+                           style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.3)' : colors.glass.darker }}>
                         <Clock className="text-red-500" size={24} />
                       </div>
                       <div>
@@ -434,7 +434,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                   <div className="group">
                     <div className="flex items-start space-x-4">
                       <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
-                           style={{ backgroundColor: colors.glass.darker }}>
+                           style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.3)' : colors.glass.darker }}>
                         <MapPin className="text-red-500" size={24} />
                       </div>
                       <div>
@@ -448,7 +448,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                   <div className="group">
                     <div className="flex items-start space-x-4">
                       <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
-                           style={{ backgroundColor: colors.glass.darker }}>
+                           style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.3)' : colors.glass.darker }}>
                         <span className="text-red-500 text-xl font-bold">{event.age_rating}+</span>
                       </div>
                       <div>
@@ -464,7 +464,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                   <div className="group mt-6">
                     <div className="flex items-start space-x-4">
                       <div className="p-3 rounded-xl backdrop-blur-md border border-white/10 group-hover:border-red-500/30 transition-colors"
-                           style={{ backgroundColor: colors.glass.darker }}>
+                           style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.3)' : colors.glass.darker }}>
                         <Clock className="text-red-500 animate-pulse" size={24} />
                       </div>
                       <div>
