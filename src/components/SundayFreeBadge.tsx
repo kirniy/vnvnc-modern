@@ -187,12 +187,26 @@ export const SundayFreeBadge = () => {
 
           {/* First line text */}
           <text fontFamily="Helvetica-Bold, Helvetica" fontSize="15" fontWeight="bold" fill="#666" x="65" y="30" letterSpacing="3">
-            БЕСПЛАТНЫЙ ВХОД
+            БЕСПЛАТНЫЙ ВХОД*
           </text>
 
           {/* Second line text */}
           <text fontFamily="Helvetica-Bold, Helvetica" fontSize="15" fontWeight="bold" fill="#666" x="65" y="48" letterSpacing="2">
             КАЖДОЕ ВОСКРЕСЕНЬЕ
+          </text>
+
+          {/* Disclaimer */}
+          <text
+            fontFamily="Helvetica, Arial, sans-serif"
+            fontSize="12"
+            fill="#777"
+            x="162.5"
+            y="61"
+            textAnchor="middle"
+            letterSpacing="1"
+            opacity="0.7"
+          >
+            *кроме праздников и специальных событий
           </text>
 
           {/* Logo SVG */}

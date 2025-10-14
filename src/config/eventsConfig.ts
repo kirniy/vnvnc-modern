@@ -6,13 +6,13 @@ export interface EventsConfig {
 }
 
 export const eventsConfig: EventsConfig = {
-  // По умолчанию все воскресные события считаются бесплатными
-  sundayFreeDefault: true,
+  // Воскресные события больше не считаются бесплатными по умолчанию
+  sundayFreeDefault: false,
   // Список событий, которые ДОЛЖНЫ считаться платными (даже по воскресеньям)
   forcePaidEventIds: [],
   // Список событий, которые ДОЛЖНЫ считаться бесплатными (вне зависимости от дня)
   forceFreeEventIds: [],
-  // Условие по названию события: если содержит «все свои» (любой регистр) — считаем бесплатным
+  // Условие по названию события: если содержит «все свои» (любой регистр) — событие может быть бесплатным (при условии воскресенья)
   titleFreeMatcher: (title?: string) => {
     if (!title) return false
     const normalized = title.toLowerCase()
@@ -33,10 +33,8 @@ export function shouldTreatAsFree(eventId?: string, rawDate?: string | Date, tit
   // Жесткие оверрайды
   if (eventId && eventsConfig.forceFreeEventIds.includes(eventId)) return true
   if (eventId && eventsConfig.forcePaidEventIds.includes(eventId)) return false
-  // По названию события
-  if (eventsConfig.titleFreeMatcher(title)) return true
+  // По названию события (нужно попасть на воскресенье)
+  if (eventsConfig.titleFreeMatcher(title) && isMoscowSunday(rawDate)) return true
   if (eventsConfig.sundayFreeDefault && isMoscowSunday(rawDate)) return true
   return false
 }
-
-

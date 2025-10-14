@@ -128,6 +128,21 @@ const GalleryPage = () => {
   const [showVideos, setShowVideos] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  // Stable randomization keys per image to keep order consistent across renders
+  const shuffleKeyByImageRef = useRef<Map<string, number>>(new Map())
+  const getImageStableKey = (img: any): string =>
+    (img?.id as string) || (img?.path as string) || (img?.src as string) || (img?.name as string)
+  const getShuffleKey = (img: any): number => {
+    const k = getImageStableKey(img)
+    if (!shuffleKeyByImageRef.current.has(k)) {
+      shuffleKeyByImageRef.current.set(k, Math.random())
+    }
+    return shuffleKeyByImageRef.current.get(k) as number
+  }
+
+  // Snapshot of images used for currently opened lightbox to prevent index drift
+  const [lightboxImages, setLightboxImages] = useState<any[]>([])
+
   // Fetch all available dates from Yandex Disk
   const { data: allDates = [] } = useYandexDates()
 
@@ -178,16 +193,6 @@ const GalleryPage = () => {
   // Use all dates fetched from the API (already sorted newest first)
   const uniqueDates = allDates;
 
-  // Shuffle function using Fisher-Yates algorithm
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
   // Filter and sort images based on date
   const filteredImages = useMemo(() => {
     let images = allPhotos;
@@ -215,11 +220,14 @@ const GalleryPage = () => {
       return b.localeCompare(a);
     });
 
-    // Shuffle photos within each date and flatten
+    // Stable-random order within each date and flatten
     const result: any[] = [];
     sortedDates.forEach(date => {
       const photosForDate = photosByDate.get(date)!;
-      const shuffledPhotos = shuffleArray(photosForDate);
+      const shuffledPhotos = photosForDate
+        .map(img => ({ img, key: getShuffleKey(img) }))
+        .sort((a, b) => a.key - b.key)
+        .map(({ img }) => img);
       result.push(...shuffledPhotos);
     });
 
@@ -228,6 +236,8 @@ const GalleryPage = () => {
 
   const openLightbox = (index: number) => {
     setPhotoIndex(index)
+    // Freeze the current list to avoid index mismatch if the list changes while lightbox is open
+    setLightboxImages(filteredImages)
     setLightboxOpen(true)
   }
 
@@ -429,7 +439,7 @@ const GalleryPage = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
           {filteredImages.map((image, index) => (
             <motion.div
-              key={image.id || index}
+              key={getImageStableKey(image)}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.2) }}  // Reduced delays
@@ -519,7 +529,7 @@ const GalleryPage = () => {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={photoIndex}
-        slides={filteredImages.map(img => {
+        slides={(lightboxImages.length > 0 ? lightboxImages : filteredImages).map(img => {
           const path = (img as any).path as string | undefined
           const downloadUrl = path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : undefined
           return {
