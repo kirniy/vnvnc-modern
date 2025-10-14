@@ -15,6 +15,7 @@ import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 import { PageBackground } from '../components/PageBackground'
+import HalloweenVideoBackground from '../components/HalloweenVideoBackground'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -155,7 +156,8 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
+      {!isHalloween && <PageBackground />}
+      {isHalloween && <HalloweenVideoBackground />}
       <Helmet>
         <title>{event.title} | VNVNC Concert Hall</title>
         <meta name="description" content={`${event.title} - ${event.date}. ${cleanDescription}`} />
