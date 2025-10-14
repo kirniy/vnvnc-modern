@@ -113,7 +113,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   if (isLoading) {
     return (
       <div className="min-h-screen pt-20 relative">
-        {/* Без анимированного фона во избежание сторонних логов */}
+      <PageBackground />
         <div className="relative">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
           <div className="absolute inset-0 animate-ping rounded-full h-32 w-32 border-red-600 opacity-20"></div>
@@ -125,7 +125,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   if (!event) {
     return (
       <div className="min-h-screen pt-20 relative">
-        {/* Без анимированного фона во избежание сторонних логов */}
+      <PageBackground />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Мероприятие не найдено</h1>
           <Link to="/events" className="text-red-500 hover:text-red-400">
@@ -163,20 +163,6 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     .replace(/<[^>]*>/g, '') // Remove HTML tags
     .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
     .substring(0, 160); // Limit to 160 characters for meta description
-
-  // Set body attribute to disable raycast background on Halloween pages
-  useEffect(() => {
-    if (isHalloween) {
-      document.body.setAttribute('data-no-raycast-bg', '1');
-    } else {
-      document.body.removeAttribute('data-no-raycast-bg');
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.removeAttribute('data-no-raycast-bg');
-    };
-  }, [isHalloween]);
 
   return (
     <div className="min-h-screen pt-20 relative">
