@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2, Camera } from 'lucide-react'
+import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2, Camera, TriangleAlert } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -300,8 +300,8 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="backdrop-blur-lg rounded-3xl p-8 mb-8 border border-white/10"
-            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.22)' : colors.glass.dark }}
+            className={`${!isHalloween ? 'backdrop-blur-lg' : ''} rounded-3xl p-8 mb-8 border border-white/10`}
+            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.12)' : colors.glass.dark }}
           >
             <h2 className="text-2xl font-bold text-white mb-6">О мероприятии</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -338,7 +338,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     {isHalloween && (
                       <span className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.25), rgba(255,204,0,0.25) 12px, transparent 12px, transparent 24px)' }} />
                     )}
-                    <ShoppingCart size={22} />
+                    {isHalloween ? <TriangleAlert size={22} /> : <ShoppingCart size={22} />}
                     {isFree ? 'free' : 'тикеты'}
                     {event.price && (
                       <span className="ml-2 px-3 py-1 rounded-md text-sm border border-white/20">
@@ -362,6 +362,21 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                       className="w-full h-auto rounded-2xl transition-all duration-500 group-hover:scale-105"
                       style={{ maxHeight: '500px', objectFit: 'contain', backgroundColor: colors.glass.darker }}
                     />
+                    {isHalloween && (
+                      <>
+                        <style>{`
+                          @keyframes hazardSlide { from { background-position: 0 0; } to { background-position: 64px 0; } }
+                        `}</style>
+                        <div
+                          className="absolute -left-10 -right-10 top-8 h-10 rotate-[-18deg] z-20 pointer-events-none"
+                          style={{
+                            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.9) 0 16px, rgba(0,0,0,0.95) 16px 32px)',
+                            animation: 'hazardSlide 6s linear infinite',
+                            opacity: 0.75,
+                          }}
+                        />
+                      </>
+                    )}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <div className="p-3 rounded-full backdrop-blur-md" style={{ backgroundColor: colors.glass.white }}>
                         <Maximize2 size={24} className="text-white" />
@@ -382,8 +397,8 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="backdrop-blur-lg rounded-3xl p-8 border border-white/10 relative overflow-hidden"
-            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.22)' : colors.glass.dark }}
+            className={`${!isHalloween ? 'backdrop-blur-lg' : ''} rounded-3xl p-8 border border-white/10 relative overflow-hidden`}
+            style={{ backgroundColor: isHalloween ? 'rgba(0,0,0,0.12)' : colors.glass.dark }}
           >
             {/* лёгкий фон без анимации */}
             <div className="absolute inset-0 opacity-20 pointer-events-none"
@@ -506,7 +521,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     {isHalloween && (
                       <span className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.25), rgba(255,204,0,0.25) 12px, transparent 12px, transparent 24px)' }} />
                     )}
-                    <ShoppingCart size={22} />
+                    {isHalloween ? <TriangleAlert size={22} /> : <ShoppingCart size={22} />}
                     {isFree ? 'free' : 'тикеты'}
                   </motion.a>
                 ) : (
