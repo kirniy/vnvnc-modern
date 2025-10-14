@@ -39,6 +39,12 @@ export const Component = () => {
     }
   }, [hasViewport, shouldRender]);
 
+  // Skip rendering on Halloween pages (to avoid UnicornScene logs and heavy canvas)
+  const skip = typeof document !== 'undefined' && document.body?.getAttribute('data-no-raycast-bg') === '1'
+  if (skip) {
+    return null
+  }
+
   if (!shouldRender || !hasViewport) {
     // Avoid instantiating UnicornScene until we have real viewport dimensions
     return <div className={cn("flex flex-col items-center")} style={{ width, height }} />;

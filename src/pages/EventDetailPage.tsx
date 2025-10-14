@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -50,6 +50,16 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
   const isHalloween = isInHalloween(event?.rawDate as any)
+
+  // Disable raycast background (UnicornScene) on Halloween pages to avoid console spam
+  useEffect(() => {
+    if (isHalloween) {
+      document.body.setAttribute('data-no-raycast-bg', '1')
+      return () => {
+        document.body.removeAttribute('data-no-raycast-bg')
+      }
+    }
+  }, [isHalloween])
 
   // Handle share functionality
   const handleShare = async () => {
@@ -196,30 +206,16 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             <style>{`
               @keyframes stripeMove { 0% { background-position: 0 0 } 100% { background-position: 40px 0 } }
             `}</style>
-            {/* thin animated caution frame */}
-            <div className="absolute top-0 left-0 right-0 h-2 opacity-90"
+            {/* single masked overlay for a crisp animated frame */}
+            <div className="absolute inset-0 pointer-events-none z-10"
                  style={{
+                   boxSizing: 'border-box',
+                   padding: '3px',
                    backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00 0 10px,#111 10px 20px)',
                    animation: 'stripeMove 18s linear infinite',
-                   boxShadow: '0 1px 0 rgba(0,0,0,0.35)'
-                 }} />
-            <div className="absolute bottom-0 left-0 right-0 h-2 opacity-90"
-                 style={{
-                   backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00 0 10px,#111 10px 20px)',
-                   animation: 'stripeMove 18s linear infinite',
-                   boxShadow: '0 -1px 0 rgba(0,0,0,0.35)'
-                 }} />
-            <div className="absolute left-0 top-0 bottom-0 w-2 opacity-90"
-                 style={{
-                   backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00 0 10px,#111 10px 20px)',
-                   animation: 'stripeMove 18s linear infinite',
-                   boxShadow: '1px 0 0 rgba(0,0,0,0.35)'
-                 }} />
-            <div className="absolute right-0 top-0 bottom-0 w-2 opacity-90"
-                 style={{
-                   backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00 0 10px,#111 10px 20px)',
-                   animation: 'stripeMove 18s linear infinite',
-                   boxShadow: '-1px 0 0 rgba(0,0,0,0.35)'
+                   WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                   WebkitMaskComposite: 'xor',
+                   maskComposite: 'exclude'
                  }} />
             {/* lab tag */}
             <div className="absolute top-6 right-6 z-10 px-3 py-1 radius text-xs font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
