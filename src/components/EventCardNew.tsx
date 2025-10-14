@@ -122,8 +122,8 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                    style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
               <div className="absolute bottom-0 left-0 right-0 h-3 z-20 opacity-85"
                    style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
-            <div className="absolute top-4 right-4 z-30 px-2 py-1 radius text-[10px] font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
-                caution: zone d41
+              <div className="absolute top-4 right-4 z-30 px-2 py-1 radius text-[10px] font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
+                ООО "УЖАС" 
               </div>
               {/* Easter egg: hidden micro QR sticker */}
               <div className="absolute left-3 bottom-3 w-6 h-6 opacity-70 rotate-12" title="lab access">
