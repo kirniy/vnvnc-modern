@@ -10,6 +10,7 @@ import { ticketsCloudService } from '../services/ticketsCloud'
 import { shouldTreatAsFree } from '../config/eventsConfig'
 import { trackTicketClick } from '../components/AnalyticsTracker'
 import { colors } from '../utils/colors'
+import { isInHalloween } from '../utils/dateHelpers'
 import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
@@ -47,6 +48,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   })()
 
   const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
+  const isHalloween = isInHalloween(event?.rawDate as any)
 
   // Handle share functionality
   const handleShare = async () => {
@@ -187,6 +189,19 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
+        {isHalloween && (
+          <>
+            {/* caution stripes frame */}
+            <div className="absolute top-0 left-0 right-0 h-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
+            <div className="absolute left-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
+            <div className="absolute right-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
+            {/* lab tag */}
+            <div className="absolute top-6 right-6 z-10 px-3 py-1 radius text-xs font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
+              area d41 • restricted
+            </div>
+          </>
+        )}
         
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
@@ -206,6 +221,13 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
               >
                 {event.title}
               </motion.h1>
+              {isHalloween && (
+                <div className="hidden md:block rotate-2">
+                  <span className="px-3 py-1 radius text-sm font-mono tracking-widest bg-black/70 border border-yellow-400/50 text-yellow-300 uppercase">
+                    caution
+                  </span>
+                </div>
+              )}
               {event.age_rating && (
                 <div className="hidden md:block">
                   <Sticker size="md" color="red" className="-rotate-3">{event.age_rating}+ </Sticker>
@@ -359,7 +381,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
           >
             {/* лёгкий фон без анимации */}
             <div className="absolute inset-0 opacity-20 pointer-events-none"
-                 style={{ background: `radial-gradient(1200px 600px at 100% 0%, ${colors.neon.red}22, transparent)` }} />
+                 style={{ background: isHalloween ? 'repeating-linear-gradient(45deg, rgba(255,204,0,0.08), rgba(255,204,0,0.08) 14px, transparent 14px, transparent 28px)' : `radial-gradient(1200px 600px at 100% 0%, ${colors.neon.red}22, transparent)` }} />
             
             <h3 className="text-2xl font-bold text-white mb-8 relative">Информация о мероприятии</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

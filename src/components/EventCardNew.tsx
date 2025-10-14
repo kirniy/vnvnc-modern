@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, ShoppingCart, Camera } from 'lucide-react'
 import { colors } from '../utils/colors'
 import { trackTicketClick } from './AnalyticsTracker'
-import { getShortDayOfWeek } from '../utils/dateHelpers'
+import { getShortDayOfWeek, isInHalloween } from '../utils/dateHelpers'
 import { shouldTreatAsFree } from '../config/eventsConfig'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 
@@ -81,6 +81,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
   
   const isArchived = new Date(event.rawDate) < cutoffTime
   const isFree = shouldTreatAsFree(event.id, event.rawDate, event.title)
+  const isHalloween = isInHalloween(event.rawDate)
 
   return (
     <motion.div
@@ -113,6 +114,23 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 z-10" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neon-red/0 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500" 
                style={{ background: `linear-gradient(45deg, transparent, ${colors.neon.red}33, transparent)` }} />
+
+          {/* Halloween caution stripes (temporary, non-invasive) */}
+          {isHalloween && (
+            <>
+              <div className="absolute top-0 left-0 right-0 h-3 z-20 opacity-85"
+                   style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
+              <div className="absolute bottom-0 left-0 right-0 h-3 z-20 opacity-85"
+                   style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
+            <div className="absolute top-4 right-4 z-30 px-2 py-1 radius text-[10px] font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
+                caution: zone d41
+              </div>
+              {/* Easter egg: hidden micro QR sticker */}
+              <div className="absolute left-3 bottom-3 w-6 h-6 opacity-70 rotate-12" title="lab access">
+                <div className="w-full h-full radius" style={{ background: 'conic-gradient(from 45deg, #ffcc00 0 25%, #111 0 50%, #ffcc00 0 75%, #111 0)' }} />
+              </div>
+            </>
+          )}
           {/* Hard bottom blocker to prevent poster bleed */}
           <div className="absolute bottom-0 left-0 right-0 h-5 sm:h-6 bg-black z-20 pointer-events-none" />
           
@@ -237,9 +255,12 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
         <div className="absolute inset-0 radius-lg pointer-events-none">
           {/* solid base */}
           <div className="absolute inset-0 bg-black/20" />
-          {/* glow border */}
+          {/* glow border (orange tone for Halloween) */}
           <div className="absolute inset-0 radius-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-               style={{ boxShadow: `0 0 24px ${colors.neon.red}55, inset 0 0 18px ${colors.neon.red}22`, border: `1px solid ${colors.neon.red}40` }} />
+               style={{ boxShadow: isHalloween ? `0 0 24px #ffcc0055, inset 0 0 18px #ffcc0022` : `0 0 24px ${colors.neon.red}55, inset 0 0 18px ${colors.neon.red}22`, border: isHalloween ? `1px solid #ffcc0040` : `1px solid ${colors.neon.red}40` }} />
+          {isHalloween && (
+            <div className="absolute inset-0 radius-lg" style={{ boxShadow: 'inset 0 0 0 2px rgba(255,204,0,0.25)' }} />
+          )}
         </div>
       </div>
     </motion.div>

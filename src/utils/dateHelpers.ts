@@ -79,3 +79,19 @@ export const getShortDayOfWeek = (dateString: string): string => {
   
   return shortDays[dayOfWeek]
 }
+
+// Returns true if the given date falls within the Halloween period of the current year
+// Period (inclusive): Oct 31 – Nov 3 in Europe/Moscow timezone
+export function isInHalloween(dateIso?: string | Date): boolean {
+  if (!dateIso) return false
+  const base = typeof dateIso === 'string' ? new Date(dateIso) : dateIso
+  // Convert to Moscow date components
+  const msk = new Date(base.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+  const year = msk.getFullYear()
+  const start = new Date(Date.UTC(year, 9, 31, 0, 0, 0)) // Oct is 9
+  const end = new Date(Date.UTC(year, 10, 3, 23, 59, 59)) // Nov is 10
+  // Convert start/end into Moscow time-equivalent moments for comparison by normalizing to local time
+  const mskStart = new Date(new Date(start).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+  const mskEnd = new Date(new Date(end).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+  return msk >= mskStart && msk <= mskEnd
+}
