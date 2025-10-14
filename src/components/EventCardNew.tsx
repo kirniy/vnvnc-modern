@@ -87,8 +87,9 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.2) }}  // Reduced delays
-      whileHover={{ y: -2, scale: 1.005 }}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.2) }}
+      whileHover={{ y: -4, scale: 1.012 }}
+      whileTap={{ scale: 0.995 }}
       onClick={() => navigate(getShortUrl())}
       className="relative group cursor-pointer"
     >
@@ -102,7 +103,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
             alt={event.title}
             loading="lazy"  // Enable lazy loading for performance
             decoding="async"  // Async decoding for better performance
-            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover object-center will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
             style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'translateZ(0)',
@@ -152,7 +153,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           )}
           
           {/* Content Overlay - Positioned at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black via-black/90 to-transparent z-30">
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black/95 via-black/80 to-transparent z-30 transition-opacity duration-300 ease-out group-hover:opacity-100">
             <h3 className="text-base sm:text-xl md:text-2xl font-display font-extrabold lowercase text-white mb-1 drop-shadow-lg text-stretch-heading">
               {event.title}
             </h3>
@@ -256,7 +257,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
           {/* solid base */}
           <div className="absolute inset-0 bg-black/20" />
           {/* glow border (orange tone for Halloween) */}
-          <div className="absolute inset-0 radius-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          <div className="absolute inset-0 radius-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                style={{ boxShadow: isHalloween ? `0 0 24px #ffcc0055, inset 0 0 18px #ffcc0022` : `0 0 24px ${colors.neon.red}55, inset 0 0 18px ${colors.neon.red}22`, border: isHalloween ? `1px solid #ffcc0040` : `1px solid ${colors.neon.red}40` }} />
           {isHalloween && (
             <div className="absolute inset-0 radius-lg" style={{ boxShadow: 'inset 0 0 0 2px rgba(255,204,0,0.25)' }} />
