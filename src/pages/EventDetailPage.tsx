@@ -198,7 +198,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             <div className="absolute right-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
             {/* lab tag */}
             <div className="absolute top-6 right-6 z-10 px-3 py-1 radius text-xs font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
-              area d41 • restricted
+              ООО "УЖАС" • ОСТОРОЖНО
             </div>
           </>
         )}
@@ -224,7 +224,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
               {isHalloween && (
                 <div className="hidden md:block rotate-2">
                   <span className="px-3 py-1 radius text-sm font-mono tracking-widest bg-black/70 border border-yellow-400/50 text-yellow-300 uppercase">
-                    caution
+                    ОСТОРОЖНО
                   </span>
                 </div>
               )}
@@ -313,12 +313,13 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     href="#"
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}
-                    className="ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black"
+                    className={`ticketscloud-widget inline-flex items-center gap-3 px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black ${isHalloween ? 'relative overflow-hidden group' : ''}`}
                     data-tc-event={!isFree ? (event.id as any) : undefined}
                     data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
                     data-tc-lang={!isFree ? 'ru' : undefined}
                     data-tc-mini={!isFree ? '1' : undefined}
                     data-tc-style={!isFree ? '1' : undefined}
+                    style={isHalloween ? { borderColor: '#ffcc00' } : undefined}
                     onClick={(e)=>{
                       if (isFree) {
                         e.preventDefault()
@@ -332,6 +333,9 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                       }
                     }}
                   >
+                    {isHalloween && (
+                      <span className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.25), rgba(255,204,0,0.25) 12px, transparent 12px, transparent 24px)' }} />
+                    )}
                     <ShoppingCart size={22} />
                     {isFree ? 'free' : 'тикеты'}
                     {event.price && (
@@ -477,12 +481,13 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     href="#"
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}
-                    className="ticketscloud-widget px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 border-white text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3"
+                    className={`ticketscloud-widget px-8 py-4 radius font-display font-extrabold tracking-wide text-lg border-2 text-white bg-transparent transition-colors duration-150 hover:bg-white hover:text-black flex items-center gap-3 ${isHalloween ? 'relative overflow-hidden group' : ''}`}
                     data-tc-event={!isFree ? (event.id as any) : undefined}
                     data-tc-token={!isFree ? import.meta.env.VITE_TC_WIDGET_TOKEN : undefined}
                     data-tc-lang={!isFree ? 'ru' : undefined}
                     data-tc-mini={!isFree ? '1' : undefined}
                     data-tc-style={!isFree ? '1' : undefined}
+                    style={isHalloween ? { borderColor: '#ffcc00' } : undefined}
                     onClick={(e)=>{
                       if (isFree) {
                         e.preventDefault()
@@ -496,6 +501,9 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                       }
                     }}
                   >
+                    {isHalloween && (
+                      <span className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.25), rgba(255,204,0,0.25) 12px, transparent 12px, transparent 24px)' }} />
+                    )}
                     <ShoppingCart size={22} />
                     {isFree ? 'free' : 'тикеты'}
                   </motion.a>
