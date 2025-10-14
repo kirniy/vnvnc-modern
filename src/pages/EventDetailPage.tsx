@@ -200,7 +200,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             <div className="absolute right-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
             {/* lab tag */}
             <div className="absolute top-6 right-6 z-10 px-3 py-1 radius text-xs font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
-              ООО "УЖАС" • ОСТОРОЖНО
+              ООО "УЖАС"
             </div>
           </>
         )}
@@ -356,12 +356,14 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     className="relative rounded-2xl overflow-hidden cursor-pointer group"
                     onClick={() => setLightboxOpen(true)}
                   >
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-full h-auto rounded-2xl transition-all duration-500 group-hover:scale-105"
-                      style={{ maxHeight: '500px', objectFit: 'contain', backgroundColor: colors.glass.darker }}
-                    />
+                    {/* Keep 3:4 strict aspect and cover to avoid side bars */}
+                    <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden" style={{ backgroundColor: colors.glass.darker }}>
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="absolute inset-0 w-full h-full object-cover rounded-2xl transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
                     {isHalloween && (
                       <>
                         <style>{`

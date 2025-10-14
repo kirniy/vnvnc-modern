@@ -97,7 +97,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
            style={{ backgroundColor: colors.glass.dark }}>
         
         {/* 3:4 Portrait Image Container - Properly scaled on mobile */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-black">
+        <div className="relative aspect-[3/4] overflow-hidden bg-black z-[1]">
           <img
             src={event.poster_small || event.image}  // Use small image if available
             alt={event.title}
@@ -123,7 +123,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                    style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
               <div className="absolute bottom-0 left-0 right-0 h-3 z-20 opacity-85"
                    style={{ backgroundImage: `repeating-linear-gradient(45deg, #ffcc00, #ffcc00 12px, #111 12px, #111 24px)` }} />
-              <div className="absolute top-4 right-4 z-30 px-2 py-1 radius text-[10px] font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
+              <div className="absolute top-6 right-4 z-30 px-2.5 py-1.5 radius text-[13px] font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
                 ООО "УЖАС" 
               </div>
               {/* Easter egg: hidden micro QR sticker */}
@@ -253,7 +253,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
         </div>
 
         {/* Hover Glow Effect with solid base to prevent bottom bleed-through */}
-        <div className="absolute inset-0 radius-lg pointer-events-none">
+        <div className="absolute inset-0 radius-lg pointer-events-none z-[2]">
           {/* solid base */}
           <div className="absolute inset-0 bg-black/20" />
           {/* glow border (orange tone for Halloween) */}

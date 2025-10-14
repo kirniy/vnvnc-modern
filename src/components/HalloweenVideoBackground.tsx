@@ -23,19 +23,32 @@ const HalloweenVideoBackground = ({ sources = DEFAULT_SOURCES, overlayOpacity = 
   const [activeIndex, setActiveIndex] = useState<0 | 1>(0)
   const [currentSourceIdx, setCurrentSourceIdx] = useState<number>(0)
 
+  // Shuffle helper to randomize playback order
+  const shuffled = (arr: string[]) => {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+
+  const playlistRef = useRef<string[]>(shuffled(sources))
+
   // Prepare initial sources
   useEffect(() => {
     const a = videoARef.current
     const b = videoBRef.current
     if (!a || !b || sources.length === 0) return
 
-    a.src = sources[0]
+    const list = (playlistRef.current = shuffled(sources))
+    a.src = list[0]
     a.load()
     a.play().catch(() => {})
 
     // Preload next
-    const nextIdx = (0 + 1) % sources.length
-    b.src = sources[nextIdx]
+    const nextIdx = (0 + 1) % list.length
+    b.src = list[nextIdx]
     b.load()
   }, [sources])
 
@@ -44,12 +57,13 @@ const HalloweenVideoBackground = ({ sources = DEFAULT_SOURCES, overlayOpacity = 
     const b = videoBRef.current
     if (!a || !b) return
 
-    const nextSourceIdx = (currentSourceIdx + 1) % sources.length
+    const list = playlistRef.current
+    const nextSourceIdx = (currentSourceIdx + 1) % list.length
     const inactive = activeIndex === 0 ? b : a
     const active = activeIndex === 0 ? a : b
 
     // Ensure next source is set
-    inactive.src = sources[nextSourceIdx]
+    inactive.src = list[nextSourceIdx]
     try { await inactive.play() } catch {}
 
     // Crossfade
@@ -61,9 +75,9 @@ const HalloweenVideoBackground = ({ sources = DEFAULT_SOURCES, overlayOpacity = 
     setCurrentSourceIdx(nextSourceIdx)
 
     // Preload the following source on the now-inactive element
-    const followingIdx = (nextSourceIdx + 1) % sources.length
+    const followingIdx = (nextSourceIdx + 1) % list.length
     const nowInactive = activeIndex === 0 ? a : b
-    nowInactive.src = sources[followingIdx]
+    nowInactive.src = list[followingIdx]
     nowInactive.load()
   }
 
