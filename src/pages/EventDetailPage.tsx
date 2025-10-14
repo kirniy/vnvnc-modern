@@ -193,11 +193,34 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
         {isHalloween && (
           <>
-            {/* caution stripes frame */}
-            <div className="absolute top-0 left-0 right-0 h-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
-            <div className="absolute bottom-0 left-0 right-0 h-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
-            <div className="absolute left-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
-            <div className="absolute right-0 top-0 bottom-0 w-4 opacity-90" style={{ backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00,#ffcc00 12px,#111 12px,#111 24px)' }} />
+            <style>{`
+              @keyframes stripeMove { 0% { background-position: 0 0 } 100% { background-position: 40px 0 } }
+            `}</style>
+            {/* thin animated caution frame */}
+            <div className="absolute top-0 left-0 right-0 h-2 opacity-90"
+                 style={{
+                   backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00 0 10px,#111 10px 20px)',
+                   animation: 'stripeMove 18s linear infinite',
+                   boxShadow: '0 1px 0 rgba(0,0,0,0.35)'
+                 }} />
+            <div className="absolute bottom-0 left-0 right-0 h-2 opacity-90"
+                 style={{
+                   backgroundImage: 'repeating-linear-gradient(45deg,#ffcc00 0 10px,#111 10px 20px)',
+                   animation: 'stripeMove 18s linear infinite',
+                   boxShadow: '0 -1px 0 rgba(0,0,0,0.35)'
+                 }} />
+            <div className="absolute left-0 top-0 bottom-0 w-2 opacity-90"
+                 style={{
+                   backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00 0 10px,#111 10px 20px)',
+                   animation: 'stripeMove 18s linear infinite',
+                   boxShadow: '1px 0 0 rgba(0,0,0,0.35)'
+                 }} />
+            <div className="absolute right-0 top-0 bottom-0 w-2 opacity-90"
+                 style={{
+                   backgroundImage: 'repeating-linear-gradient(135deg,#ffcc00 0 10px,#111 10px 20px)',
+                   animation: 'stripeMove 18s linear infinite',
+                   boxShadow: '-1px 0 0 rgba(0,0,0,0.35)'
+                 }} />
             {/* lab tag */}
             <div className="absolute top-6 right-6 z-10 px-3 py-1 radius text-xs font-mono tracking-widest bg-black/70 border border-yellow-400/60 text-yellow-300 uppercase">
               ООО "УЖАС"
@@ -367,14 +390,16 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
                     {isHalloween && (
                       <>
                         <style>{`
-                          @keyframes hazardSlide { from { background-position: 0 0; } to { background-position: 64px 0; } }
+                          @keyframes hazardSlide { from { background-position: 0 0; } to { background-position: 48px 0; } }
                         `}</style>
                         <div
-                          className="absolute -left-10 -right-10 top-8 h-10 rotate-[-18deg] z-20 pointer-events-none"
+                          className="absolute -left-12 -right-12 top-8 h-6 rotate-[-16deg] z-20 pointer-events-none"
                           style={{
-                            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.9) 0 16px, rgba(0,0,0,0.95) 16px 32px)',
-                            animation: 'hazardSlide 6s linear infinite',
-                            opacity: 0.75,
+                            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,204,0,0.9) 0 10px, rgba(0,0,0,0.95) 10px 20px)',
+                            animation: 'hazardSlide 10s linear infinite',
+                            opacity: 0.65,
+                            filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.45))',
+                            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)'
                           }}
                         />
                       </>
