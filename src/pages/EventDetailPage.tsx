@@ -164,6 +164,20 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
     .substring(0, 160); // Limit to 160 characters for meta description
 
+  // Set body attribute to disable raycast background on Halloween pages
+  useEffect(() => {
+    if (isHalloween) {
+      document.body.setAttribute('data-no-raycast-bg', '1');
+    } else {
+      document.body.removeAttribute('data-no-raycast-bg');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.removeAttribute('data-no-raycast-bg');
+    };
+  }, [isHalloween]);
+
   return (
     <div className="min-h-screen pt-20 relative">
       {!isHalloween && <PageBackground />}

@@ -1,13 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-let UnicornScene: any = null
-try {
-  // Lazy require to avoid initializing when not needed
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  UnicornScene = require('unicornstudio-react').default || require('unicornstudio-react')
-} catch (e) {
-  UnicornScene = null
-}
+import UnicornScene from "unicornstudio-react";
 
 export const useWindowSize = () => {
   const [windowSize, setWindowSize] = useState({
@@ -56,8 +49,6 @@ export const Component = () => {
     // Avoid instantiating UnicornScene until we have real viewport dimensions
     return <div className={cn("flex flex-col items-center")} style={{ width, height }} />;
   }
-
-  if (!UnicornScene) return null
 
   return (
     <div className={cn("flex flex-col items-center")}>
