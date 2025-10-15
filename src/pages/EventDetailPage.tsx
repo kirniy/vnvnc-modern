@@ -165,7 +165,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     .substring(0, 160); // Limit to 160 characters for meta description
 
   return (
-    <div className="min-h-screen pt-20 relative">
+    <div className="min-h-screen pt-20 relative" {...(isHalloween ? { 'data-no-raycast-bg': '1' } as any : {})}>
       {!isHalloween && <PageBackground />}
       {isHalloween && <HalloweenVideoBackground />}
       <Helmet>

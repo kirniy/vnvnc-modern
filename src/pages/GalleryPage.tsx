@@ -264,6 +264,27 @@ const GalleryPage = () => {
     ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
     : 'http://localhost:8787'
 
+  // Программная загрузка, чтобы избежать 0-byte при кросс-домене
+  const downloadViaFetch = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit' })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const blob = await res.blob()
+      const objUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(objUrl)
+    } catch (e) {
+      console.error('download failed', e)
+      // запасной вариант — открыть ссылку в новом окне
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
     <div className="min-h-screen pt-20 relative">
       <PageBackground />
@@ -560,22 +581,20 @@ const GalleryPage = () => {
             const fullresUrl = path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
             return (
               <div className="flex items-center gap-2 mr-2">
-                <a
-                  href={compressedUrl}
-                  download={filename}
+                <button
+                  onClick={() => downloadViaFetch(compressedUrl, filename)}
                   className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download compressed"
                 >
                   <DownloadIcon size={18} />
-                </a>
-                <a
-                  href={fullresUrl}
-                  download={filename}
+                </button>
+                <button
+                  onClick={() => downloadViaFetch(fullresUrl, filename)}
                   className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download fullres"
                 >
                   <FileDown size={18} />
-                </a>
+                </button>
                 <button onClick={() => setLightboxOpen(false)} aria-label="close" className="yarl__button">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </button>
