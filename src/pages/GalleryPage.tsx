@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Sparkles, Maximize2, RefreshCw, Calendar, ChevronLeft, ChevronRight, FileDown, Download as DownloadIcon } from 'lucide-react'
 // no default Download plugin; render our custom buttons outside Lightbox
 import { useSearchParams } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import Lightbox from 'yet-another-react-lightbox'
 // no default download plugin; we render two custom buttons in toolbar
 import 'yet-another-react-lightbox/styles.css'
@@ -553,43 +554,46 @@ const GalleryPage = () => {
         // не кастомизируем внутренние кнопки Lightbox, чтобы избежать несовместимости типов
       />
 
-      {/* Внешние кнопки скачивания (compressed + fullres) поверх Lightbox */}
-      {lightboxOpen && (
-        <div className="fixed top-4 right-4 z-[100] flex items-center gap-2">
-          <a
-            href={(() => {
-              const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
-              const slide = list[photoIndex] as any
-              return (slide?.fullSrc || slide?.src) as string
-            })()}
-            download={(() => {
-              const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
-              const slide = list[photoIndex] as any
-              return (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
-            })()}
-            className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
-            aria-label="download compressed"
-          >
-            <DownloadIcon size={18} />
-          </a>
-          <a
-            href={(() => {
-              const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
-              const slide = list[photoIndex] as any
-              const path = (slide?._path || slide?.path) as string | undefined
-              return path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : (slide?.originalUrl || slide?.fullSrc || slide?.src)
-            })()}
-            download={(() => {
-              const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
-              const slide = list[photoIndex] as any
-              return (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
-            })()}
-            className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
-            aria-label="download fullres"
-          >
-            <FileDown size={18} />
-          </a>
-        </div>
+      {/* Внешние кнопки скачивания через портал в <body>, чтобы перекрывать Lightbox */}
+      {lightboxOpen && typeof document !== 'undefined' && createPortal(
+        (
+          <div className="fixed top-4 right-4 flex items-center gap-2 pointer-events-auto" style={{ zIndex: 2147483647 }}>
+            <a
+              href={(() => {
+                const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
+                const slide = list[photoIndex] as any
+                return (slide?.fullSrc || slide?.src) as string
+              })()}
+              download={(() => {
+                const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
+                const slide = list[photoIndex] as any
+                return (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
+              })()}
+              className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
+              aria-label="download compressed"
+            >
+              <DownloadIcon size={18} />
+            </a>
+            <a
+              href={(() => {
+                const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
+                const slide = list[photoIndex] as any
+                const path = (slide?._path || slide?.path) as string | undefined
+                return path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : (slide?.originalUrl || slide?.fullSrc || slide?.src)
+              })()}
+              download={(() => {
+                const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
+                const slide = list[photoIndex] as any
+                return (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
+              })()}
+              className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
+              aria-label="download fullres"
+            >
+              <FileDown size={18} />
+            </a>
+          </div>
+        ),
+        document.body
       )}
     </div>
   )
