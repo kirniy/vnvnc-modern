@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
-import { enableRaycastSkip, disableRaycastSkip } from '../utils/raycastControl';
+import { useEffect } from 'react'
 
-export const useRaycastSkip = (active: boolean) => {
+export function useRaycastSkip(active: boolean) {
   useEffect(() => {
-    if (!active) return;
-    enableRaycastSkip();
-    return () => {
-      disableRaycastSkip();
-    };
-  }, [active]);
-};
+    if (typeof document === 'undefined') return
+    if (active) {
+      document.body.setAttribute('data-no-raycast-bg', '1')
+      return () => {
+        document.body.removeAttribute('data-no-raycast-bg')
+      }
+    }
+  }, [active])
+}
