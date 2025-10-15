@@ -258,10 +258,7 @@ const GalleryPage = () => {
     }
   }
 
-  // API base for download links
-  const API_BASE_URL = import.meta.env.PROD
-    ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
-    : 'http://localhost:8787'
+  // API base (не используется после перевода загрузки на прямой proxified src)
 
   return (
     <div className="min-h-screen pt-20 relative">
@@ -530,11 +527,14 @@ const GalleryPage = () => {
         close={() => setLightboxOpen(false)}
         index={photoIndex}
         slides={(lightboxImages.length > 0 ? lightboxImages : filteredImages).map(img => {
-          const path = (img as any).path as string | undefined
-          const downloadUrl = path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : undefined
+          const name = ((img as any).name || (img as any).filename || 'vnvnc-photo.jpg') as string
+          const bestSrc = (img as any).fullSrc || img.src
+          // Отдаём прямую (проксированную) картинку для загрузки, чтобы исключить редиректы Яндекса
+          const stableDownloadUrl = bestSrc
           return {
-            src: (img as any).fullSrc || img.src,
-            downloadUrl
+            src: bestSrc,
+            downloadUrl: stableDownloadUrl,
+            download: name,
           } as any
         })}
         plugins={[Download]}
