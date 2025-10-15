@@ -10,7 +10,7 @@ cd yandex-functions
 # Create deployment package
 echo "📦 Creating deployment package..."
 rm -f yandex-disk.zip
-zip -r yandex-disk.zip gateway-disk.cjs package.json
+zip -r yandex-disk.zip gateway-disk.cjs gateway-disk.js package.json
 
 echo "✅ Package created: yandex-disk.zip"
 echo ""

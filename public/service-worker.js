@@ -1,5 +1,5 @@
 // VNVNC Service Worker - Force COMPLETE cache refresh
-const CACHE_VERSION = 'vnvnc-v3.0.1-gallery-fix';
+const CACHE_VERSION = 'vnvnc-v3.0.2-gallery-direct-download';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;

@@ -33,6 +33,16 @@ function withSize(directPreviewUrl, size) {
   return `${directPreviewUrl}${sep}size=${size}`;
 }
 
+// Replace preview size param while keeping other query parameters intact
+function replacePreviewSize(previewUrl, size) {
+  if (!previewUrl) return previewUrl;
+  if (previewUrl.includes('size=')) {
+    return previewUrl.replace(/size=[^&]*/i, `size=${size}`);
+  }
+  const separator = previewUrl.includes('?') ? '&' : '?';
+  return `${previewUrl}${separator}size=${size}`;
+}
+
 // Wrap Yandex preview URL with our proxy
 function proxify(url, baseUrl) {
   if (!url) return url;
@@ -41,7 +51,8 @@ function proxify(url, baseUrl) {
 }
 
 // Make HTTPS request
-async function makeHttpsRequest(url, options = {}) {
+async function makeHttpsRequest(url, options = {}, redirectCount = 0) {
+  const MAX_REDIRECTS = 5;
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
     const requestOptions = {
@@ -53,6 +64,21 @@ async function makeHttpsRequest(url, options = {}) {
 
     const req = https.request(requestOptions, (res) => {
       const chunks = [];
+      // Handle redirects manually
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (redirectCount >= MAX_REDIRECTS) {
+          reject(new Error('Too many redirects'));
+          return;
+        }
+        const location = res.headers.location.startsWith('http')
+          ? res.headers.location
+          : `${urlObj.protocol}//${urlObj.hostname}${res.headers.location}`;
+        // Consume response before redirecting
+        res.resume();
+        resolve(makeHttpsRequest(location, options, redirectCount + 1));
+        return;
+      }
+
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => {
         resolve({

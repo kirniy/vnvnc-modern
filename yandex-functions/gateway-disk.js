@@ -33,6 +33,16 @@ function withSize(directPreviewUrl, size) {
   return `${directPreviewUrl}${sep}size=${size}`;
 }
 
+// Replace preview size param while keeping other query parameters intact
+function replacePreviewSize(previewUrl, size) {
+  if (!previewUrl) return previewUrl;
+  if (previewUrl.includes('size=')) {
+    return previewUrl.replace(/size=[^&]*/i, `size=${size}`);
+  }
+  const separator = previewUrl.includes('?') ? '&' : '?';
+  return `${previewUrl}${separator}size=${size}`;
+}
+
 // Wrap Yandex preview URL with our proxy
 function proxify(url, baseUrl) {
   if (!url) return url;
@@ -41,7 +51,8 @@ function proxify(url, baseUrl) {
 }
 
 // Make HTTPS request
-async function makeHttpsRequest(url, options = {}) {
+async function makeHttpsRequest(url, options = {}, redirectCount = 0) {
+  const MAX_REDIRECTS = 5;
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
     const requestOptions = {
@@ -53,6 +64,21 @@ async function makeHttpsRequest(url, options = {}) {
 
     const req = https.request(requestOptions, (res) => {
       const chunks = [];
+      // Handle redirects manually
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (redirectCount >= MAX_REDIRECTS) {
+          reject(new Error('Too many redirects'));
+          return;
+        }
+        const location = res.headers.location.startsWith('http')
+          ? res.headers.location
+          : `${urlObj.protocol}//${urlObj.hostname}${res.headers.location}`;
+        // Consume response before redirecting
+        res.resume();
+        resolve(makeHttpsRequest(location, options, redirectCount + 1));
+        return;
+      }
+
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => {
         resolve({
@@ -191,100 +217,75 @@ module.exports.handler = async function (event, context) {
     // Route based on path
     if (subPath === 'photos' || subPath === '/photos') {
       // Handle photos endpoint
+      const category = queryStringParameters.category || 'all';
       const limit = parseInt(queryStringParameters.limit) || 12;
       const offset = parseInt(queryStringParameters.offset) || 0;
-      const requestedDate = queryStringParameters.date;
+      const date = queryStringParameters.date;
+
+      let apiUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=/`;
+      apiUrl += `&limit=${Math.min(limit * 3, 100)}`; // Get more to filter
+      apiUrl += `&offset=${offset}`;
+      apiUrl += '&fields=_embedded.items.name,_embedded.items.type,_embedded.items.path,_embedded.items.preview,_embedded.items.file,_embedded.items.size,_embedded.items.created,_embedded.items.modified,_embedded.total';
+      apiUrl += '&preview_size=XXL&preview_crop=false';
+
+      const response = await makeHttpsRequest(apiUrl);
+      const data = JSON.parse(response.body.toString());
+
+      if (!data._embedded || !data._embedded.items) {
+        return {
+          statusCode: 200,
+          headers: corsHeaders,
+          body: JSON.stringify({ photos: [], total: 0, limit, offset })
+        };
+      }
+
+      // Filter and process folders
+      let folders = data._embedded.items.filter(item => item.type === 'dir');
       
-      console.log(`Fetching photos - Limit: ${limit}, Offset: ${offset}, Date: ${requestedDate || 'all'}`);
-      
-      // Fast path: if a specific date is requested, fetch recursively all subfolders/files for that date
-      if (requestedDate) {
-        try {
-          const dateFolders = await listDateFolders(PUBLIC_LINK);
-          const target = dateFolders.find((f) => f.date === requestedDate);
-          
-          if (!target) {
-            return {
-              statusCode: 200,
-              headers: corsHeaders,
-              body: JSON.stringify({ photos: [], total: 0, limit, offset, hasMore: false, success: true })
-            };
-          }
-          
-          const allImages = await fetchAllImagesForFolder(PUBLIC_LINK, target.path, requestedDate, 8, baseUrl);
-          const total = allImages.length;
-          const paginated = allImages.slice(offset, offset + limit);
-          
-          return {
-            statusCode: 200,
-            headers: corsHeaders,
-            body: JSON.stringify({ 
-              photos: paginated, 
-              total, 
-              limit, 
-              offset, 
-              hasMore: offset + limit < total, 
-              success: true 
-            })
-          };
-        } catch (e) {
-          console.error('Date fetch error', e);
-          return {
-            statusCode: 500,
-            headers: corsHeaders,
-            body: JSON.stringify({ photos: [], total: 0, limit, offset, hasMore: false, success: false })
-          };
+      // Filter by date if specified
+      if (date) {
+        folders = folders.filter(folder => extractDateFromFolderName(folder.name) === date);
+      }
+
+      // Process each folder to get photos
+      const allPhotos = [];
+      for (const folder of folders.slice(0, Math.min(folders.length, 5))) {
+        const folderDate = extractDateFromFolderName(folder.name);
+        const folderUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=${encodeURIComponent(folder.path)}`;
+        const folderResponse = await makeHttpsRequest(folderUrl + '&limit=50&preview_size=XXL&preview_crop=false');
+        const folderData = JSON.parse(folderResponse.body.toString());
+
+        if (folderData._embedded && folderData._embedded.items) {
+          const photos = folderData._embedded.items
+            .filter(item => item.type === 'file' && item.preview)
+            .map(item => ({
+              id: item.path,
+              name: item.name,
+              path: item.path,
+              src: proxify(replacePreviewSize(item.preview, 'XL'), baseUrl),
+              thumbnailSrc: proxify(replacePreviewSize(item.preview, 'M'), baseUrl),
+              fullSrc: proxify(replacePreviewSize(item.preview, 'XXXL'), baseUrl),
+              downloadUrl: item.file,
+              title: item.name.replace(/\.[^/.]+$/, ''),
+              date: folderDate,
+              category: category === 'all' ? 'all' : category,
+              size: item.size
+            }));
+          allPhotos.push(...photos);
         }
       }
 
-      // Default path: fetch from a few most recent date folders to populate "all"
-      let photos = [];
-      
-      try {
-        // Use listDateFolders to get ALL folders including 2025 with pagination
-        const folders = await listDateFolders(PUBLIC_LINK);
-        
-        // Only fetch photos from the most recent folders to avoid timeout
-        const foldersToFetch = folders.slice(0, 5); // Only fetch from 5 most recent events
-        
-        for (const folder of foldersToFetch) {
-          const folderPhotos = await fetchAllImagesForFolder(PUBLIC_LINK, folder.path, folder.date, 2, baseUrl);
-          photos.push(...folderPhotos);
-          
-          // Limit total photos to avoid timeout
-          if (photos.length > 100) break;
-        }
-      } catch (error) {
-        console.error('Error fetching photos:', error);
-        photos = [];
-      }
-      
-      console.log(`Total photos found: ${photos.length}`);
-      
-      // Sort by date (newest first)
-      photos.sort((a, b) => {
-        if (a.date && b.date) {
-          return b.date.localeCompare(a.date);
-        }
-        return 0;
-      });
-      
-      // Calculate total before pagination
-      const total = photos.length;
-      
       // Apply pagination
-      const paginatedPhotos = photos.slice(offset, offset + limit);
-      
+      const paginatedPhotos = allPhotos.slice(offset, offset + limit);
+
       return {
         statusCode: 200,
         headers: corsHeaders,
         body: JSON.stringify({
           photos: paginatedPhotos,
-          total,
+          total: allPhotos.length,
           limit,
-          offset,
-          hasMore: offset + limit < total,
-          success: true
+          offset
         })
       };
 
@@ -382,7 +383,8 @@ module.exports.handler = async function (event, context) {
 
       // Fetch the file and return it directly (binary)
       const fileResp = await makeHttpsRequest(fileUrl);
-      const base64Body = fileResp.body.toString('base64');
+      const buffer = fileResp.body;
+      const base64Body = buffer.toString('base64');
       const filename = path.split('/').pop() || 'download';
       
       return {
@@ -391,7 +393,66 @@ module.exports.handler = async function (event, context) {
           ...corsHeaders,
           'Content-Type': fileResp.headers['content-type'] || 'application/octet-stream',
           'Content-Disposition': `attachment; filename="${filename}"`,
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Content-Length': String(buffer.length)
+        },
+        body: base64Body,
+        isBase64Encoded: true
+      };
+
+    } else if (subPath === 'direct-download' || subPath === '/direct-download') {
+      // Alternate download endpoint used by web app to avoid zero-byte responses
+      const path = queryStringParameters.path;
+      if (!path) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Missing path parameter' })
+        };
+      }
+
+      const apiUrl = `${YANDEX_API_BASE}/download?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=${encodeURIComponent(path)}`;
+      const hrefResp = await makeHttpsRequest(apiUrl);
+      if (hrefResp.status < 200 || hrefResp.status >= 300) {
+        return {
+          statusCode: hrefResp.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Failed to get download URL' })
+        };
+      }
+
+      const data = JSON.parse(hrefResp.body.toString());
+      const fileUrl = data.href;
+
+      if (!fileUrl) {
+        return {
+          statusCode: 404,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'No download URL returned' })
+        };
+      }
+
+      const fileResp = await makeHttpsRequest(fileUrl);
+      if (fileResp.status < 200 || fileResp.status >= 400) {
+        return {
+          statusCode: fileResp.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Failed to fetch file' })
+        };
+      }
+
+      const buffer = fileResp.body;
+      const base64Body = buffer.toString('base64');
+      const filename = path.split('/').pop() || 'download';
+
+      return {
+        statusCode: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': fileResp.headers['content-type'] || 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Cache-Control': 'no-cache',
+          'Content-Length': String(buffer.length)
         },
         body: base64Body,
         isBase64Encoded: true

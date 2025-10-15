@@ -263,10 +263,8 @@ const GalleryPage = () => {
     ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
     : 'http://localhost:8787'
 
-  // Cloudflare worker, который умеет проксировать оригиналы без 0-byte
-  const DOWNLOAD_PROXY_BASE = import.meta.env.PROD
-    ? 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev'
-    : 'http://localhost:8787'
+  // Yandex gateway direct-download (новый эндпоинт на серверной функции)
+  const DOWNLOAD_PROXY_BASE = API_BASE_URL
 
   // Программная загрузка, чтобы избежать 0-byte при кросс-домене
   const downloadViaFetch = async (url: string, filename: string, fallbackUrl?: string) => {
@@ -575,10 +573,10 @@ const GalleryPage = () => {
           // Источник для fullres: либо наш download по path, либо оригинальный URL
           const originalUrl = (img as any).originalUrl || bestSrc
           const fullresSource = path
-            ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}`
+            ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
             : originalUrl
           const proxySource = path
-            ? `${DOWNLOAD_PROXY_BASE}/api/direct-download?path=${encodeURIComponent(path)}`
+            ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
             : fullresSource
           return {
             src: bestSrc,
@@ -602,10 +600,10 @@ const GalleryPage = () => {
             const filename = (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
             const pathForOriginal = (slide?.path) as string | undefined
             const fullresUrl = pathForOriginal
-              ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(pathForOriginal)}`
+              ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(pathForOriginal)}`
               : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
             const proxiedFullres = pathForOriginal
-              ? `${DOWNLOAD_PROXY_BASE}/api/direct-download?path=${encodeURIComponent(pathForOriginal)}`
+              ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(pathForOriginal)}`
               : fullresUrl
             const fallbackTarget = slide?.originalUrl && slide?.originalUrl !== fullresUrl
               ? (slide.originalUrl as string)
