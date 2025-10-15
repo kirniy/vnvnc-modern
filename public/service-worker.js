@@ -230,8 +230,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Images - cache first
-  if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/)) {
+  // Images - cache first (но НЕ для наших API-путей)
+  if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/) && !url.pathname.startsWith('/api/')) {
     event.respondWith(
       (async () => {
         const response = await cacheFirstStrategy(request, IMAGE_CACHE, CACHE_TTL.images);

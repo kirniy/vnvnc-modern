@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -16,6 +16,7 @@ import Sticker from '../components/ui/Sticker'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 import { PageBackground } from '../components/PageBackground'
 import HalloweenVideoBackground from '../components/HalloweenVideoBackground'
+import { useRaycastSkip } from '../hooks/useRaycastSkip'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -51,15 +52,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   const { hasPhotos } = useHasPhotosForDate(eventPhotoDate)
   const isHalloween = isInHalloween(event?.rawDate as any)
 
-  // Disable raycast background (UnicornScene) on Halloween pages to avoid console spam
-  useEffect(() => {
-    if (isHalloween) {
-      document.body.setAttribute('data-no-raycast-bg', '1')
-      return () => {
-        document.body.removeAttribute('data-no-raycast-bg')
-      }
-    }
-  }, [isHalloween])
+  useRaycastSkip(isHalloween)
 
   // Handle share functionality
   const handleShare = async () => {

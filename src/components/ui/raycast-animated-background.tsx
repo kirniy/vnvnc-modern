@@ -1,9 +1,28 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { isRaycastSkipForced } from "@/utils/raycastControl";
+
+const getGlobal = () => (typeof window === 'undefined' ? undefined : window);
 
 const getSkipFlag = () => {
+  if (isRaycastSkipForced()) return true;
   if (typeof document === 'undefined' || !document.body) return false;
   return document.body.getAttribute('data-no-raycast-bg') === '1';
+};
+
+const hasGlobalFailure = () => {
+  const w = getGlobal();
+  return w?.__VNVNC_RAYCAST_FAILED__ === true;
+};
+
+const markGlobalFailure = () => {
+  const w = getGlobal();
+  if (!w) return;
+  w.__VNVNC_RAYCAST_FAILED__ = true;
+  w.__VNVNC_FORCE_SKIP_RAYCAST__ = true;
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.setAttribute('data-no-raycast-bg', '1');
+  }
 };
 
 export const useWindowSize = () => {
@@ -37,6 +56,7 @@ export const Component = () => {
   const [shouldRender, setShouldRender] = useState(false);
   const [Scene, setScene] = useState<any>(null);
   const [shouldSkip, setShouldSkip] = useState(() => getSkipFlag());
+  const [hasError, setHasError] = useState(() => hasGlobalFailure());
   const hasViewport = width > 0 && height > 0;
 
   // detect WebGL support safely
@@ -63,7 +83,10 @@ export const Component = () => {
   }, []);
 
   useEffect(() => {
-    if (shouldSkip) {
+    if (hasError || shouldSkip) {
+      if (hasError) {
+        markGlobalFailure();
+      }
       setShouldRender(false);
       setScene(null);
       return;
@@ -72,30 +95,43 @@ export const Component = () => {
     if (!hasWebGL()) return; // no WebGL — do not import the library at all
 
     let cancelled = false;
+    const bail = () => {
+      setShouldRender(false);
+      setScene(null);
+    };
+    const markFailed = () => {
+      if (!hasError) {
+        setHasError(true);
+      }
+      markGlobalFailure();
+      bail();
+    };
     // Defer import to next frame to ensure stable layout
     const raf = requestAnimationFrame(() => {
       if (getSkipFlag()) {
         cancelled = true;
-        setShouldRender(false);
-        setScene(null);
+        bail();
         return;
       }
       import('unicornstudio-react')
         .then((m) => {
-          if (!cancelled) setScene(() => m.default);
+          if (cancelled) return;
+          setScene(() => m.default);
+          setShouldRender(true);
         })
         .catch(() => {
-          // silently skip on failure
+          if (!cancelled) {
+            markFailed();
+          }
         });
-      setShouldRender(true);
     });
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-  }, [shouldSkip, hasViewport, width, height]);
+  }, [shouldSkip, hasViewport, width, height, hasError]);
 
-  if (shouldSkip || !hasViewport) {
+  if (shouldSkip || !hasViewport || hasError) {
     return null;
   }
 
@@ -112,6 +148,19 @@ export const Component = () => {
         projectId="cbmTT38A0CcuYxeiyj5H"
         width={width}
         height={height}
+        onError={() => {
+          if (!hasError) {
+            setHasError(true);
+            markGlobalFailure();
+          }
+          setShouldRender(false);
+          setScene(null);
+        }}
+        onLoad={() => {
+          if (!shouldRender) {
+            setShouldRender(true);
+          }
+        }}
       />
     </div>
   );

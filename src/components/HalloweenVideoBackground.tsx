@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useRaycastSkip } from '../hooks/useRaycastSkip'
 
 interface HalloweenVideoBackgroundProps {
   sources?: string[]
@@ -22,6 +23,8 @@ const HalloweenVideoBackground = ({ sources = DEFAULT_SOURCES, overlayOpacity = 
   const videoBRef = useRef<HTMLVideoElement>(null)
   const [activeIndex, setActiveIndex] = useState<0 | 1>(0)
   const [currentSourceIdx, setCurrentSourceIdx] = useState<number>(0)
+
+  useRaycastSkip(true)
 
   // Shuffle helper to randomize playback order
   const shuffled = (arr: string[]) => {
@@ -109,5 +112,4 @@ const HalloweenVideoBackground = ({ sources = DEFAULT_SOURCES, overlayOpacity = 
 }
 
 export default HalloweenVideoBackground
-
 

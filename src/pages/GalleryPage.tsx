@@ -11,7 +11,6 @@ import { useInfiniteYandexPhotos, useYandexDates } from '../hooks/useYandexPhoto
 import LoadingSpinner from '../components/LoadingSpinner'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import BackButton from '../components/BackButton'
-import { PageBackground } from '../components/PageBackground'
 import { LiquidButton } from '../components/ui/liquid-glass-button'
 import VideoGalleryGrid from '../components/VideoGalleryGrid'
 
@@ -293,9 +292,25 @@ const GalleryPage = () => {
     }
   }
 
+  // Для оригиналов: отдаём управление браузеру (заголовок Content-Disposition сохранит имя)
+  const downloadOriginal = (url: string) => {
+    try {
+      console.log('[download-original] open', { url })
+      const a = document.createElement('a')
+      a.href = url
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+    } catch (e) {
+      console.error('[download-original] failed, fallback window.open', e)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
-    <div className="min-h-screen pt-20 relative">
-      <PageBackground />
+    <div className="min-h-screen pt-20 relative" data-no-raycast-bg="1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}
@@ -604,7 +619,7 @@ const GalleryPage = () => {
                   <DownloadIcon size={22} />
                 </button>
                 <button
-                  onClick={() => downloadViaFetch(fullresUrl, filename)}
+                  onClick={() => downloadOriginal(fullresUrl)}
                   className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download fullres"
                 >
