@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Camera, Sparkles, Maximize2, RefreshCw, Calendar, ChevronLeft, ChevronRight, FileDown, Download as DownloadIcon } from 'lucide-react'
+import { Camera, Sparkles, Maximize2, RefreshCw, Calendar, ChevronLeft, ChevronRight, FileDown, Download as DownloadIcon, X as CloseIcon } from 'lucide-react'
 // no default Download plugin; render our custom buttons outside Lightbox
 import { useSearchParams } from 'react-router-dom'
-import { createPortal } from 'react-dom'
 import Lightbox from 'yet-another-react-lightbox'
 // no default download plugin; we render two custom buttons in toolbar
 import 'yet-another-react-lightbox/styles.css'
@@ -554,10 +553,10 @@ const GalleryPage = () => {
         // не кастомизируем внутренние кнопки Lightbox, чтобы избежать несовместимости типов
       />
 
-      {/* Внешние кнопки скачивания через портал в <body>, чтобы перекрывать Lightbox */}
-      {lightboxOpen && typeof document !== 'undefined' && createPortal(
-        (
-          <div className="fixed top-4 right-4 flex items-center gap-2 pointer-events-auto" style={{ zIndex: 2147483647 }}>
+      {/* Встроим кнопки в слой Lightbox: заменяем стандартную кнопку закрытия на группу с двумя загрузками + X */}
+      {lightboxOpen && (
+        <div className="yarl__toolbar" style={{ position: 'fixed', top: 16, right: 16, zIndex: 2147483646 }}>
+          <div className="flex items-center gap-2">
             <a
               href={(() => {
                 const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
@@ -578,7 +577,7 @@ const GalleryPage = () => {
               href={(() => {
                 const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
                 const slide = list[photoIndex] as any
-                const path = (slide?._path || slide?.path) as string | undefined
+                const path = (slide?.path) as string | undefined
                 return path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : (slide?.originalUrl || slide?.fullSrc || slide?.src)
               })()}
               download={(() => {
@@ -591,9 +590,11 @@ const GalleryPage = () => {
             >
               <FileDown size={18} />
             </a>
+            <button onClick={() => setLightboxOpen(false)} aria-label="close" className="p-2 radius bg-black/40 hover:bg-black/60 transition-colors">
+              <CloseIcon size={18} />
+            </button>
           </div>
-        ),
-        document.body
+        </div>
       )}
     </div>
   )
