@@ -576,7 +576,6 @@ async function handleRequest(request) {
         }
         
         const buffer = await fileResponse.arrayBuffer();
-        console.log('download buffer bytes', buffer.byteLength, 'status', fileResponse.status);
         
         // Extract filename from path
         const filename = path ? path.split('/').pop() || 'download' : 'download';
@@ -593,8 +592,7 @@ async function handleRequest(request) {
           'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type, Content-Length',
           'Content-Disposition': `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
           'Cross-Origin-Resource-Policy': 'cross-origin',
-          'Content-Length': contentLength,
-          'X-VNVNC-Bytes': buffer.byteLength.toString()
+          'Content-Length': contentLength
         });
         
         return new Response(buffer, {
@@ -602,6 +600,55 @@ async function handleRequest(request) {
         });
       } catch (error) {
         console.error('Error downloading file:', error);
+        return new Response(JSON.stringify({ error: 'Failed to download file' }), {
+          status: 500,
+          headers: corsHeaders
+        });
+      }
+    }
+
+    if (url.pathname === '/api/direct-download') {
+      const path = url.searchParams.get('path');
+      if (!path) {
+        return new Response(JSON.stringify({ error: 'Missing path' }), {
+          status: 400,
+          headers: corsHeaders
+        });
+      }
+
+      const href = await getDownloadUrl(PUBLIC_LINK, path);
+      if (!href) {
+        return new Response(JSON.stringify({ error: 'Failed to get download URL' }), {
+          status: 404,
+          headers: corsHeaders
+        });
+      }
+
+      try {
+        const fileResponse = await fetch(href);
+        if (!fileResponse.ok) {
+          throw new Error(`Failed to fetch file: ${fileResponse.status}`);
+        }
+        const buffer = await fileResponse.arrayBuffer();
+        const filename = path.split('/').pop() || 'download';
+        const safeName = filename.replace(/["\r\n]/g, '_');
+        const contentType = fileResponse.headers.get('Content-Type') || 'application/octet-stream';
+
+        const headers = new Headers({
+          'Content-Type': contentType,
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type, Content-Length',
+          'Content-Disposition': `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+          'Cross-Origin-Resource-Policy': 'cross-origin',
+          'Content-Length': buffer.byteLength.toString()
+        });
+
+        return new Response(buffer, { headers });
+      } catch (error) {
+        console.error('Error direct-downloading file:', error);
         return new Response(JSON.stringify({ error: 'Failed to download file' }), {
           status: 500,
           headers: corsHeaders

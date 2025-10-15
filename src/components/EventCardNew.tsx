@@ -92,10 +92,14 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.995 }}
       onClick={() => {
+        const url = getShortUrl();
         if (isHalloween) {
           try { enableRaycastSkip() } catch {}
+          // Хард-режим: полноценный переход, чтобы гарантированно убить WebGL/RAF
+          window.location.assign(url);
+          return;
         }
-        navigate(getShortUrl())
+        navigate(url);
       }}
       className="relative group cursor-pointer"
     >
@@ -210,7 +214,7 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                 className="px-4 py-2 radius font-display font-extrabold text-sm flex items-center gap-2 border-2 border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (isFree) {
+                          if (isFree) {
                     trackTicketClick({ eventId: event.id, title: event.title, source: 'card_button_free' })
                     const el = e.currentTarget
                     const old = el.textContent
@@ -218,7 +222,13 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
                     setTimeout(() => { if (el) el.textContent = old || 'тикеты' }, 1200)
                   } else {
                     trackTicketClick({ eventId: event.id, title: event.title, source: 'card_button' })
-                    navigate(getShortUrl());
+                            const url = getShortUrl();
+                            if (isHalloween) {
+                              try { enableRaycastSkip() } catch {}
+                              window.location.assign(url);
+                            } else {
+                              navigate(url);
+                            }
                   }
                 }}
               >

@@ -263,6 +263,11 @@ const GalleryPage = () => {
     ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
     : 'http://localhost:8787'
 
+  // Cloudflare worker, который умеет проксировать оригиналы без 0-byte
+  const DOWNLOAD_PROXY_BASE = import.meta.env.PROD
+    ? 'https://vnvnc-yandex-gallery.kirlich-ps3.workers.dev'
+    : 'http://localhost:8787'
+
   // Программная загрузка, чтобы избежать 0-byte при кросс-домене
   const downloadViaFetch = async (url: string, filename: string, fallbackUrl?: string) => {
     try {
@@ -572,14 +577,15 @@ const GalleryPage = () => {
           const fullresSource = path
             ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}`
             : originalUrl
-          // Проксируем fullres через наш proxy для гарантии CORS и корректного бинарного тела
-          const fullresProxied = `${API_BASE_URL}/api/yandex-disk/proxy?url=${encodeURIComponent(fullresSource)}`
+          const proxySource = path
+            ? `${DOWNLOAD_PROXY_BASE}/api/direct-download?path=${encodeURIComponent(path)}`
+            : fullresSource
           return {
             src: bestSrc,
             downloadUrl: bestSrc,
             download: name,
             _fullres: fullresSource,
-            _fullresProxied: fullresProxied,
+            _fullresProxied: proxySource,
             _filename: name
           } as any
         })}
@@ -598,9 +604,12 @@ const GalleryPage = () => {
             const fullresUrl = pathForOriginal
               ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(pathForOriginal)}`
               : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
-            const directFallback = slide?.originalUrl && slide?.originalUrl !== fullresUrl
+            const proxiedFullres = pathForOriginal
+              ? `${DOWNLOAD_PROXY_BASE}/api/direct-download?path=${encodeURIComponent(pathForOriginal)}`
+              : fullresUrl
+            const fallbackTarget = slide?.originalUrl && slide?.originalUrl !== fullresUrl
               ? (slide.originalUrl as string)
-              : undefined
+              : fullresUrl
             return (
               <div className="flex items-center gap-2 mr-2">
                 <button
@@ -611,7 +620,7 @@ const GalleryPage = () => {
                   <DownloadIcon size={22} />
                 </button>
                 <button
-                  onClick={() => downloadOriginal(fullresUrl, filename, directFallback)}
+                  onClick={() => downloadOriginal(proxiedFullres, filename, fallbackTarget)}
                   className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download fullres"
                 >

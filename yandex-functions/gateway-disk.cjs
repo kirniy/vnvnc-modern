@@ -357,7 +357,8 @@ module.exports.handler = async function (event, context) {
 
       // Fetch the file and return it directly (binary)
       const fileResp = await makeHttpsRequest(fileUrl);
-      const base64Body = fileResp.body.toString('base64');
+      const buffer = fileResp.body;
+      const base64Body = buffer.toString('base64');
       const filename = path.split('/').pop() || 'download';
       
       return {
@@ -366,7 +367,66 @@ module.exports.handler = async function (event, context) {
           ...corsHeaders,
           'Content-Type': fileResp.headers['content-type'] || 'application/octet-stream',
           'Content-Disposition': `attachment; filename="${filename}"`,
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Content-Length': String(buffer.length)
+        },
+        body: base64Body,
+        isBase64Encoded: true
+      };
+
+    } else if (subPath === 'direct-download' || subPath === '/direct-download') {
+      // Alternate download endpoint used by web app to avoid zero-byte responses
+      const path = queryStringParameters.path;
+      if (!path) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Missing path parameter' })
+        };
+      }
+
+      const apiUrl = `${YANDEX_API_BASE}/download?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=${encodeURIComponent(path)}`;
+      const hrefResp = await makeHttpsRequest(apiUrl);
+      if (hrefResp.status < 200 || hrefResp.status >= 300) {
+        return {
+          statusCode: hrefResp.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Failed to get download URL' })
+        };
+      }
+
+      const data = JSON.parse(hrefResp.body.toString());
+      const fileUrl = data.href;
+
+      if (!fileUrl) {
+        return {
+          statusCode: 404,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'No download URL returned' })
+        };
+      }
+
+      const fileResp = await makeHttpsRequest(fileUrl);
+      if (fileResp.status < 200 || fileResp.status >= 400) {
+        return {
+          statusCode: fileResp.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Failed to fetch file' })
+        };
+      }
+
+      const buffer = fileResp.body;
+      const base64Body = buffer.toString('base64');
+      const filename = path.split('/').pop() || 'download';
+
+      return {
+        statusCode: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': fileResp.headers['content-type'] || 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Cache-Control': 'no-cache',
+          'Content-Length': String(buffer.length)
         },
         body: base64Body,
         isBase64Encoded: true
