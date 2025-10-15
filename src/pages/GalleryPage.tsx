@@ -267,9 +267,16 @@ const GalleryPage = () => {
   // Программная загрузка, чтобы избежать 0-byte при кросс-домене
   const downloadViaFetch = async (url: string, filename: string) => {
     try {
-      const res = await fetch(url, { mode: 'cors', credentials: 'omit' })
+      console.log('[download] start', { url, filename })
+      const controller = new AbortController()
+      const res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store', redirect: 'follow', signal: controller.signal })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const blob = await res.blob()
+      if (!blob || blob.size === 0) {
+        console.error('[download] empty blob, fallback to window.open', { url, filename })
+        window.open(url, '_blank', 'noopener,noreferrer')
+        return
+      }
       const objUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = objUrl
@@ -278,8 +285,9 @@ const GalleryPage = () => {
       a.click()
       a.remove()
       URL.revokeObjectURL(objUrl)
+      console.log('[download] success', { size: blob.size })
     } catch (e) {
-      console.error('download failed', e)
+      console.error('[download] failed', e)
       // запасной вариант — открыть ссылку в новом окне
       window.open(url, '_blank', 'noopener,noreferrer')
     }

@@ -194,10 +194,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // API calls to TicketsCloud
-  if (url.pathname.includes('/api') || url.host.includes('ticketscloud') || url.host.includes('vnvnc-cors-proxy')) {
+  // API calls to TicketsCloud and our Yandex proxy/download — ALWAYS NETWORK FIRST and DO NOT cache binary downloads
+  if (
+    url.pathname.startsWith('/api/yandex-disk/download') ||
+    url.pathname.startsWith('/api/yandex-disk/proxy') ||
+    url.pathname.includes('/api') ||
+    url.host.includes('ticketscloud') ||
+    url.host.includes('vnvnc-cors-proxy')
+  ) {
     event.respondWith(
       (async () => {
+        // Для download/proxy не кэшируем совсем
+        if (url.pathname.startsWith('/api/yandex-disk/')) {
+          return fetch(request);
+        }
         const response = await networkFirstStrategy(request, API_CACHE, CACHE_TTL.api);
         // Limit API cache size asynchronously - don't wait for it
         limitCacheSize(API_CACHE, CACHE_LIMITS.api).catch(() => {});
