@@ -582,22 +582,25 @@ const GalleryPage = () => {
             const slide = list[photoIndex] as any
             const compressedUrl = (slide?.fullSrc || slide?.src) as string
             const filename = (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
-            const fullresUrl = (slide?._fullresProxied || slide?._fullres || slide?.src) as string
+            const pathForOriginal = (slide?.path) as string | undefined
+            const fullresUrl = pathForOriginal
+              ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(pathForOriginal)}`
+              : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
             return (
               <div className="flex items-center gap-2 mr-2">
                 <button
                   onClick={() => downloadViaFetch(compressedUrl, filename)}
-                  className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
+                  className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download compressed"
                 >
-                  <DownloadIcon size={18} />
+                  <DownloadIcon size={22} />
                 </button>
                 <button
                   onClick={() => downloadViaFetch(fullresUrl, filename)}
-                  className="p-2 radius bg-black/50 hover:bg-black/70 transition-colors"
+                  className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download fullres"
                 >
-                  <FileDown size={18} />
+                  <FileDown size={22} />
                 </button>
                 <button onClick={() => setLightboxOpen(false)} aria-label="close" className="yarl__button">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>

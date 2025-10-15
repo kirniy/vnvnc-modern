@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
+const getSkipFlag = () => {
+  if (typeof document === 'undefined' || !document.body) return false;
+  return document.body.getAttribute('data-no-raycast-bg') === '1';
+};
+
 export const useWindowSize = () => {
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -31,10 +36,8 @@ export const Component = () => {
   const { width, height } = useWindowSize();
   const [shouldRender, setShouldRender] = useState(false);
   const [Scene, setScene] = useState<any>(null);
+  const [shouldSkip, setShouldSkip] = useState(() => getSkipFlag());
   const hasViewport = width > 0 && height > 0;
-
-  // check global skip flag (e.g., Halloween pages)
-  const skip = typeof document !== 'undefined' && document.body?.getAttribute('data-no-raycast-bg') === '1';
 
   // detect WebGL support safely
   const hasWebGL = () => {
@@ -46,14 +49,37 @@ export const Component = () => {
     }
   };
 
+  // Watch for mutations to the skip flag so we can react immediately
   useEffect(() => {
-    if (skip) return; // hard skip
+    if (typeof document === 'undefined' || !document.body) return;
+    setShouldSkip(getSkipFlag());
+
+    const observer = new MutationObserver(() => {
+      setShouldSkip(getSkipFlag());
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['data-no-raycast-bg'] });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (shouldSkip) {
+      setShouldRender(false);
+      setScene(null);
+      return;
+    }
     if (!hasViewport || width < 10 || height < 10) return;
     if (!hasWebGL()) return; // no WebGL — do not import the library at all
 
     let cancelled = false;
     // Defer import to next frame to ensure stable layout
     const raf = requestAnimationFrame(() => {
+      if (getSkipFlag()) {
+        cancelled = true;
+        setShouldRender(false);
+        setScene(null);
+        return;
+      }
       import('unicornstudio-react')
         .then((m) => {
           if (!cancelled) setScene(() => m.default);
@@ -67,9 +93,9 @@ export const Component = () => {
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-  }, [skip, hasViewport, width, height]);
+  }, [shouldSkip, hasViewport, width, height]);
 
-  if (skip || !hasViewport) {
+  if (shouldSkip || !hasViewport) {
     return null;
   }
 
