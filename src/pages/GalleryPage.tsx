@@ -554,15 +554,20 @@ const GalleryPage = () => {
         slides={(lightboxImages.length > 0 ? lightboxImages : filteredImages).map(img => {
           const name = ((img as any).name || (img as any).filename || 'vnvnc-photo.jpg') as string
           const bestSrc = (img as any).fullSrc || img.src
-          // Для fullres отдадим оригинальный прямой URL (если есть), иначе bestSrc
+          const path = (img as any).path as string | undefined
+          // Источник для fullres: либо наш download по path, либо оригинальный URL
           const originalUrl = (img as any).originalUrl || bestSrc
+          const fullresSource = path
+            ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}`
+            : originalUrl
+          // Проксируем fullres через наш proxy для гарантии CORS и корректного бинарного тела
+          const fullresProxied = `${API_BASE_URL}/api/yandex-disk/proxy?url=${encodeURIComponent(fullresSource)}`
           return {
             src: bestSrc,
-            // стандартная кнопка скачивания — сжатая (bestSrc)
             downloadUrl: bestSrc,
             download: name,
-            // добавим вторую ссылку кнопкой в render.slide
-            _fullres: originalUrl,
+            _fullres: fullresSource,
+            _fullresProxied: fullresProxied,
             _filename: name
           } as any
         })}
@@ -577,8 +582,7 @@ const GalleryPage = () => {
             const slide = list[photoIndex] as any
             const compressedUrl = (slide?.fullSrc || slide?.src) as string
             const filename = (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
-            const path = (slide?.path) as string | undefined
-            const fullresUrl = path ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(path)}` : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
+            const fullresUrl = (slide?._fullresProxied || slide?._fullres || slide?.src) as string
             return (
               <div className="flex items-center gap-2 mr-2">
                 <button
