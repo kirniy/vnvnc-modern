@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPin, ShoppingCart, Camera } from 'lucide-react'
 import { colors } from '../utils/colors'
 import { trackTicketClick } from './AnalyticsTracker'
 import { getShortDayOfWeek, isInHalloween } from '../utils/dateHelpers'
+import { enableRaycastSkip } from '../utils/raycastControl'
 import { shouldTreatAsFree } from '../config/eventsConfig'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 
@@ -90,7 +91,12 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
       transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.2) }}
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.995 }}
-      onClick={() => navigate(getShortUrl())}
+      onClick={() => {
+        if (isHalloween) {
+          try { enableRaycastSkip() } catch {}
+        }
+        navigate(getShortUrl())
+      }}
       className="relative group cursor-pointer"
     >
       <div className="relative overflow-hidden radius-lg backdrop-blur-lg border border-white/10"

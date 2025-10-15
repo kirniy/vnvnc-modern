@@ -575,11 +575,14 @@ async function handleRequest(request) {
           throw new Error(`Failed to fetch file: ${fileResponse.status}`);
         }
         
+        const buffer = await fileResponse.arrayBuffer();
+        console.log('download buffer bytes', buffer.byteLength, 'status', fileResponse.status);
+        
         // Extract filename from path
         const filename = path ? path.split('/').pop() || 'download' : 'download';
         const safeName = filename.replace(/["\r\n]/g, '_');
         const contentType = fileResponse.headers.get('Content-Type') || 'application/octet-stream';
-        const contentLength = fileResponse.headers.get('Content-Length');
+        const contentLength = buffer.byteLength.toString();
         
         const headers = new Headers({
           'Content-Type': contentType,
@@ -589,14 +592,12 @@ async function handleRequest(request) {
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type, Content-Length',
           'Content-Disposition': `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
-          'Cross-Origin-Resource-Policy': 'cross-origin'
+          'Cross-Origin-Resource-Policy': 'cross-origin',
+          'Content-Length': contentLength,
+          'X-VNVNC-Bytes': buffer.byteLength.toString()
         });
         
-        if (contentLength) {
-          headers.set('Content-Length', contentLength);
-        }
-        
-        return new Response(fileResponse.body, {
+        return new Response(buffer, {
           headers
         });
       } catch (error) {

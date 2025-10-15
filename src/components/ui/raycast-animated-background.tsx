@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { isRaycastSkipForced } from "@/utils/raycastControl";
+import { isRaycastSkipForced, enableRaycastSkip } from "@/utils/raycastControl";
 
 const getGlobal = () => (typeof window === 'undefined' ? undefined : window);
 
@@ -131,6 +131,9 @@ export const Component = () => {
     };
   }, [shouldSkip, hasViewport, width, height, hasError]);
 
+  if (hasError) {
+    enableRaycastSkip();
+  }
   if (shouldSkip || !hasViewport || hasError) {
     return null;
   }
