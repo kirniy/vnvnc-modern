@@ -264,7 +264,7 @@ const GalleryPage = () => {
     : 'http://localhost:8787'
 
   // Программная загрузка, чтобы избежать 0-byte при кросс-домене
-  const downloadViaFetch = async (url: string, filename: string) => {
+  const downloadViaFetch = async (url: string, filename: string, fallbackUrl?: string) => {
     try {
       console.log('[download] start', { url, filename })
       const controller = new AbortController()
@@ -287,26 +287,15 @@ const GalleryPage = () => {
       console.log('[download] success', { size: blob.size })
     } catch (e) {
       console.error('[download] failed', e)
-      // запасной вариант — открыть ссылку в новом окне
-      window.open(url, '_blank', 'noopener,noreferrer')
+      const fallback = fallbackUrl || url
+      window.open(fallback, '_blank', 'noopener,noreferrer')
     }
   }
 
   // Для оригиналов: отдаём управление браузеру (заголовок Content-Disposition сохранит имя)
-  const downloadOriginal = (url: string) => {
-    try {
-      console.log('[download-original] open', { url })
-      const a = document.createElement('a')
-      a.href = url
-      a.target = '_blank'
-      a.rel = 'noopener noreferrer'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-    } catch (e) {
-      console.error('[download-original] failed, fallback window.open', e)
-      window.open(url, '_blank', 'noopener,noreferrer')
-    }
+  const downloadOriginal = async (url: string, filename: string, fallbackUrl?: string) => {
+    console.log('[download-original] fetch', { url, fallbackUrl, filename })
+    await downloadViaFetch(url, filename, fallbackUrl)
   }
 
   return (
@@ -609,6 +598,9 @@ const GalleryPage = () => {
             const fullresUrl = pathForOriginal
               ? `${API_BASE_URL}/api/yandex-disk/download?path=${encodeURIComponent(pathForOriginal)}`
               : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
+            const directFallback = slide?.originalUrl && slide?.originalUrl !== fullresUrl
+              ? (slide.originalUrl as string)
+              : undefined
             return (
               <div className="flex items-center gap-2 mr-2">
                 <button
@@ -619,7 +611,7 @@ const GalleryPage = () => {
                   <DownloadIcon size={22} />
                 </button>
                 <button
-                  onClick={() => downloadOriginal(fullresUrl)}
+                  onClick={() => downloadOriginal(fullresUrl, filename, directFallback)}
                   className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
                   aria-label="download fullres"
                 >

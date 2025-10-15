@@ -576,16 +576,28 @@ async function handleRequest(request) {
         }
         
         // Extract filename from path
-        const filename = path ? path.split('/').pop() : 'download';
+        const filename = path ? path.split('/').pop() || 'download' : 'download';
+        const safeName = filename.replace(/["\r\n]/g, '_');
+        const contentType = fileResponse.headers.get('Content-Type') || 'application/octet-stream';
+        const contentLength = fileResponse.headers.get('Content-Length');
         
-        // Return the file with proper headers
+        const headers = new Headers({
+          'Content-Type': contentType,
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type, Content-Length',
+          'Content-Disposition': `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+          'Cross-Origin-Resource-Policy': 'cross-origin'
+        });
+        
+        if (contentLength) {
+          headers.set('Content-Length', contentLength);
+        }
+        
         return new Response(fileResponse.body, {
-          headers: {
-            'Content-Type': fileResponse.headers.get('Content-Type') || 'application/octet-stream',
-            'Content-Disposition': `attachment; filename="${filename}"`,
-            'Cache-Control': 'no-cache',
-            'Access-Control-Allow-Origin': '*',
-          }
+          headers
         });
       } catch (error) {
         console.error('Error downloading file:', error);
