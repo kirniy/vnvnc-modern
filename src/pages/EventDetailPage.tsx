@@ -113,7 +113,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   if (isLoading) {
     return (
       <div className="min-h-screen pt-20 relative">
-      <PageBackground />
+      {!isHalloween && <PageBackground />}
         <div className="relative">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
           <div className="absolute inset-0 animate-ping rounded-full h-32 w-32 border-red-600 opacity-20"></div>
@@ -125,7 +125,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
   if (!event) {
     return (
       <div className="min-h-screen pt-20 relative">
-      <PageBackground />
+      {!isHalloween && <PageBackground />}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Мероприятие не найдено</h1>
           <Link to="/events" className="text-red-500 hover:text-red-400">
