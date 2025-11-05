@@ -10,6 +10,7 @@ import { api } from '../services/api'
 import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
 const ContactPage = () => {
   const yandexMapRef = useRef<HTMLDivElement>(null)
@@ -83,6 +84,14 @@ const ContactPage = () => {
           'vnvnc телефон',
           'ночной клуб контакты',
           'конюшенная площадь 2b',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Контакты', url: 'https://vnvnc.ru/contact' },
+            ]),
+          ),
         ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">

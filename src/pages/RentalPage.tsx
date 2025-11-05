@@ -8,6 +8,7 @@ import { api } from '../services/api'
 import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
 const RentalPage = () => {
   const [formData, setFormData] = useState({
@@ -57,6 +58,14 @@ const RentalPage = () => {
           'аренда площадки санкт-петербург',
           'концертная площадка спб',
           'ночной клуб аренда',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Аренда', url: 'https://vnvnc.ru/rental' },
+            ]),
+          ),
         ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-safe relative z-10">

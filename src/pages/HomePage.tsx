@@ -7,6 +7,12 @@ import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import NewsTicker from '../components/ui/NewsTicker'
 import { colors } from '../utils/colors'
+import {
+  buildLocalBusinessJsonLd,
+  buildBreadcrumbJsonLd,
+  createBreadcrumbTrail,
+  buildVideoObjectJsonLd,
+} from '../utils/seo/siteSchema'
 import Seo from '../components/Seo'
 // Убрали DitherBackground — по фидбеку
 
@@ -52,6 +58,18 @@ const HomePage = () => {
           'ночной клуб санкт-петербург',
           'вечеринки спб',
           'конюшенная площадь 2в',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(createBreadcrumbTrail([])),
+          buildVideoObjectJsonLd({
+            name: 'VNVNC Aftermovie',
+            description: 'VNVNC — ночной клуб в центре Санкт-Петербурга. Погрузитесь в атмосферу вечеринки и бронируйте столы онлайн.',
+            thumbnailUrl: 'https://vnvnc.ru/og-image.jpg',
+            contentUrl: 'https://vnvnc.ru/herovideo-optimized.mp4',
+            uploadDate: '2024-12-01T00:00:00+03:00',
+            duration: 'PT1M',
+          }),
         ]}
       />
 

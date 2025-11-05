@@ -18,6 +18,7 @@ import HalloweenVideoBackground from '../components/HalloweenVideoBackground'
 import { useRaycastSkip } from '../hooks/useRaycastSkip'
 import Seo from '../components/Seo'
 import { buildEventJsonLd } from '../utils/seo/eventSchema'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -155,6 +156,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     .replace(/<[^>]*>/g, '') // Remove HTML tags
     .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
     .substring(0, 160); // Limit to 160 characters for meta description
+  const canonicalUrl = `https://vnvnc.ru/events/${event.id}`
 
   return (
     <div className="min-h-screen pt-20 relative" {...(isHalloween ? { 'data-no-raycast-bg': '1' } as any : {})}>
@@ -163,7 +165,7 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
       <Seo
         title={`${event.title} | VNVNC Concert Hall`}
         description={`${event.date} · ${cleanDescription}`}
-        canonical={`https://vnvnc.ru/events/${event.id}`}
+        canonical={canonicalUrl}
         ogType="event"
         ogImage={event.poster_original || event.image || 'https://vnvnc.ru/og-image.jpg'}
         additionalMeta={[
@@ -172,7 +174,16 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
             content: event.title,
           },
         ]}
-        jsonLd={buildEventJsonLd(event, { canonicalUrl: `https://vnvnc.ru/events/${event.id}` })}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Афиша', url: 'https://vnvnc.ru/events' },
+              { name: event.title, url: canonicalUrl },
+            ]),
+          ),
+          buildEventJsonLd(event, { canonicalUrl }),
+        ]}
       />
 
       {/* Content wrapper with higher z-index */}

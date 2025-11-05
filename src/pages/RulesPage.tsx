@@ -8,6 +8,7 @@ import { PageBackground } from '../components/PageBackground'
 import VideoPlayer from '../components/ui/VideoPlayer'
 // Убрали DitherBackground
 import Seo from '../components/Seo'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail, buildFaqJsonLd } from '../utils/seo/siteSchema'
 
 const RulesPage = () => {
   const rulesItems = [
@@ -155,6 +156,33 @@ const RulesPage = () => {
     }
   ]
 
+  const faqSchemaEntries = [
+    {
+      question: 'Возраст и документы',
+      answer: 'Вход строго с 18 лет. Принимаем только оригиналы документов: паспорт РФ, загранпаспорт, водительские права или военный билет.',
+    },
+    {
+      question: 'Дресс-код клуба VNVNC',
+      answer: 'Приветствуются клубный стиль, качественный стритвир и творческие образы. Не допускаются спортивная одежда, пляжная обувь и неопрятный вид.',
+    },
+    {
+      question: 'Фейсконтроль и селекция',
+      answer: 'В клубе действует селекция для поддержания атмосферы. Решение о входе принимается на основе общего впечатления и не носит личный характер.',
+    },
+    {
+      question: 'Требования к безопасности',
+      answer: 'Запрещены оружие, наркотические вещества, колюще-режущие предметы, пиротехника, аэрозольные баллончики и профессиональная съемка без разрешения.',
+    },
+    {
+      question: 'Поведение в клубе',
+      answer: 'Мы за уважение, позитив и безопасность. Отказываем во входе при сильном опьянении и агрессии. Нельзя приносить свой алкоголь и курить вне специально выделенных зон.',
+    },
+    {
+      question: 'Этикет и правила внутри клуба',
+      answer: 'Соблюдайте личное пространство гостей, не снимайте людей без согласия, уважайте персонал и интерьер. Агрессия и домогательства ведут к удалению без возврата билета.',
+    },
+  ]
+
   return (
     <div className="min-h-screen pt-20 relative">
       <PageBackground />
@@ -167,6 +195,15 @@ const RulesPage = () => {
           'дресс-код vnvnc',
           'фейсконтроль vnvnc',
           'правила ночного клуба',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Правила', url: 'https://vnvnc.ru/rules' },
+            ]),
+          ),
+          buildFaqJsonLd(faqSchemaEntries),
         ]}
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">

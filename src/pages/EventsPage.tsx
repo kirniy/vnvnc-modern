@@ -7,6 +7,7 @@ import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
 import { SundayFreeBadge } from '../components/SundayFreeBadge'
 import { PageBackground } from '../components/PageBackground'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 import Seo from '../components/Seo'
 // Dither удалён по фидбеку
 
@@ -66,6 +67,14 @@ const EventsPage = () => {
           'вечеринки санкт-петербург',
           'концерты санкт-петербург',
           'ночной клуб vnvnc',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Афиша', url: 'https://vnvnc.ru/events' },
+            ]),
+          ),
         ]}
       />
 

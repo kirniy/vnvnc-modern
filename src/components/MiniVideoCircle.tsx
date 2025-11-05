@@ -108,6 +108,15 @@ const MiniVideoCircle = ({
       onClick={handleClick}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
+      role="button"
+      aria-label={video.title}
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          handleClick()
+        }
+      }}
       // No special positioning needed since we're not expanding in place
     >
       {/* No background blur needed - fullscreen viewer handles its own background */}

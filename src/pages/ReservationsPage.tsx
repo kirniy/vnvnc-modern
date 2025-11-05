@@ -17,6 +17,7 @@ import { api } from '../services/api'
 import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
 const ReservationsPage = () => {
   const [formData, setFormData] = useState({
@@ -189,6 +190,14 @@ const ReservationsPage = () => {
           'бронирование столов vnvnc',
           'vip зона vnvnc',
           'бронь ночного клуба спб',
+        ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Бронирование', url: 'https://vnvnc.ru/reservations' },
+            ]),
+          ),
         ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-safe relative z-10">

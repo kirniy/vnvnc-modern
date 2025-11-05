@@ -14,6 +14,7 @@ import BackButton from '../components/BackButton'
 import { LiquidButton } from '../components/ui/liquid-glass-button'
 import VideoGalleryGrid from '../components/VideoGalleryGrid'
 import Seo from '../components/Seo'
+import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
@@ -314,6 +315,14 @@ const GalleryPage = () => {
           'виновница клуб фото',
           'ночной клуб фото санкт-петербург',
         ]}
+        jsonLd={[
+          buildLocalBusinessJsonLd(),
+          buildBreadcrumbJsonLd(
+            createBreadcrumbTrail([
+              { name: 'Галерея', url: 'https://vnvnc.ru/gallery' },
+            ]),
+          ),
+        ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
@@ -504,7 +513,7 @@ const GalleryPage = () => {
                     (image as any).fullSrc ? `${(image as any).fullSrc} 1280w` : ''
                   ].filter(Boolean).join(', ')}
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  alt={image.title}
+                  alt={image.title || image.name || 'Фото VNVNC'}
                   className="w-full h-full object-cover"
                   loading="lazy"
                   decoding="async"
