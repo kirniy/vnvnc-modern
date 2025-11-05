@@ -7,6 +7,7 @@ import Button from '../components/ui/Button'
 import { api } from '../services/api'
 import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
+import Seo from '../components/Seo'
 
 const RentalPage = () => {
   const [formData, setFormData] = useState({
@@ -47,6 +48,17 @@ const RentalPage = () => {
   return (
     <div className="min-h-screen pt-20 relative">
       <PageBackground />
+      <Seo
+        title="Аренда клуба VNVNC"
+        description="Арендуйте площадку VNVNC для концертов, вечеринок и корпоративов. Технический райдер, условия и контакт для сотрудничества."
+        canonical="https://vnvnc.ru/rental"
+        keywords={[
+          'аренда клуба vnvnc',
+          'аренда площадки санкт-петербург',
+          'концертная площадка спб',
+          'ночной клуб аренда',
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-safe relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}

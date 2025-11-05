@@ -7,6 +7,7 @@ import BackButton from '../components/BackButton'
 import { PageBackground } from '../components/PageBackground'
 import VideoPlayer from '../components/ui/VideoPlayer'
 // Убрали DitherBackground
+import Seo from '../components/Seo'
 
 const RulesPage = () => {
   const rulesItems = [
@@ -157,6 +158,17 @@ const RulesPage = () => {
   return (
     <div className="min-h-screen pt-20 relative">
       <PageBackground />
+      <Seo
+        title="Правила клуба VNVNC"
+        description="Ознакомьтесь с правилами клуба VNVNC: дресс-код, фейсконтроль, безопасность и этикет. Вход строго 18+."
+        canonical="https://vnvnc.ru/rules"
+        keywords={[
+          'правила vnvnc',
+          'дресс-код vnvnc',
+          'фейсконтроль vnvnc',
+          'правила ночного клуба',
+        ]}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}

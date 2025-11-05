@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, ArrowRight } from 'lucide-react'
-import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import NewsTicker from '../components/ui/NewsTicker'
 import { colors } from '../utils/colors'
+import Seo from '../components/Seo'
 // Убрали DitherBackground — по фидбеку
 
 const HomePage = () => {
@@ -43,27 +43,17 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      <Helmet>
-        <title>VNVNC | Официальный портал</title>
-        <meta name="description" content="Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно" />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="VNVNC Concert Hall" />
-        <meta property="og:description" content="Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="VNVNC" />
-        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="VNVNC Concert Hall" />
-        <meta property="og:locale" content="ru_RU" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="VNVNC Concert Hall" />
-        <meta name="twitter:description" content="Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно" />
-        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
-      </Helmet>
+      <Seo
+        title="VNVNC | Официальный портал"
+        description="Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно • Бронь столов и билеты онлайн."
+        canonical="https://vnvnc.ru/"
+        keywords={[
+          'vnvnc',
+          'ночной клуб санкт-петербург',
+          'вечеринки спб',
+          'конюшенная площадь 2в',
+        ]}
+      />
 
       <ModernHero />
       

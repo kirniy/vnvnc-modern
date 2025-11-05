@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, ArrowLeft, ShoppingCart, Maximize2, Clock, MapPin, Share2, Camera, TriangleAlert } from 'lucide-react'
-import { Helmet } from 'react-helmet-async'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { ticketsCloudService } from '../services/ticketsCloud'
@@ -17,6 +16,8 @@ import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 import { PageBackground } from '../components/PageBackground'
 import HalloweenVideoBackground from '../components/HalloweenVideoBackground'
 import { useRaycastSkip } from '../hooks/useRaycastSkip'
+import Seo from '../components/Seo'
+import { buildEventJsonLd } from '../utils/seo/eventSchema'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -159,28 +160,20 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
     <div className="min-h-screen pt-20 relative" {...(isHalloween ? { 'data-no-raycast-bg': '1' } as any : {})}>
       {!isHalloween && <PageBackground />}
       {isHalloween && <HalloweenVideoBackground />}
-      <Helmet>
-        <title>{event.title} | VNVNC Concert Hall</title>
-        <meta name="description" content={`${event.title} - ${event.date}. ${cleanDescription}`} />
-        
-        {/* Open Graph tags for social media */}
-        <meta property="og:title" content={`${event.title} | VNVNC`} />
-        <meta property="og:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
-        <meta property="og:url" content={`https://vnvnc.ru${window.location.pathname}`} />
-        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="VNVNC Concert Hall" />
-        <meta property="og:type" content="event" />
-        <meta property="og:site_name" content="VNVNC Concert Hall" />
-        <meta property="og:locale" content="ru_RU" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${event.title} | VNVNC`} />
-        <meta name="twitter:description" content={`${event.date} в VNVNC Concert Hall. ${cleanDescription}`} />
-        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
-      </Helmet>
+      <Seo
+        title={`${event.title} | VNVNC Concert Hall`}
+        description={`${event.date} · ${cleanDescription}`}
+        canonical={`https://vnvnc.ru/events/${event.id}`}
+        ogType="event"
+        ogImage={event.poster_original || event.image || 'https://vnvnc.ru/og-image.jpg'}
+        additionalMeta={[
+          {
+            property: 'og:image:alt',
+            content: event.title,
+          },
+        ]}
+        jsonLd={buildEventJsonLd(event, { canonicalUrl: `https://vnvnc.ru/events/${event.id}` })}
+      />
 
       {/* Content wrapper with higher z-index */}
       <div className="relative z-10">

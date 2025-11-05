@@ -157,9 +157,9 @@ async function fetchAllImagesForFolder(publicKey, startPath, inferredDate, maxDe
         } else if (item.type === 'file' && item.mime_type && item.mime_type.startsWith('image/')) {
           if (item.preview) {
             const direct = item.preview;
-            const thumb = proxify(withSize(direct, 'M'), baseUrl);
-            const src = proxify(withSize(direct, 'XL'), baseUrl);
-            const fullSrc = proxify(withSize(direct, 'XXXL'), baseUrl);
+            const thumb = proxify(replacePreviewSize(direct, 'M'), baseUrl);
+            const src = proxify(replacePreviewSize(direct, 'XL'), baseUrl);
+            const fullSrc = proxify(replacePreviewSize(direct, 'XXXL'), baseUrl);
             
             results.push({
               id: `yd-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -222,9 +222,37 @@ module.exports.handler = async function (event, context) {
       const offset = parseInt(queryStringParameters.offset) || 0;
       const date = queryStringParameters.date;
 
+      // If a specific date is requested, fetch that folder recursively for full coverage
+      if (date) {
+        const folders = await listDateFolders(PUBLIC_LINK);
+        const targetFolder = folders.find(folder => folder.date === date);
+
+        if (!targetFolder) {
+          return {
+            statusCode: 200,
+            headers: corsHeaders,
+            body: JSON.stringify({ photos: [], total: 0, limit, offset })
+          };
+        }
+
+        const images = await fetchAllImagesForFolder(PUBLIC_LINK, targetFolder.path, date, 6, baseUrl);
+        const paginated = images.slice(offset, offset + limit);
+
+        return {
+          statusCode: 200,
+          headers: corsHeaders,
+          body: JSON.stringify({
+            photos: paginated,
+            total: images.length,
+            limit,
+            offset
+          })
+        };
+      }
+
       let apiUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=/`;
-      apiUrl += `&limit=${Math.min(limit * 3, 100)}`; // Get more to filter
-      apiUrl += `&offset=${offset}`;
+      apiUrl += `&limit=200`;
+      apiUrl += '&offset=0';
       apiUrl += '&fields=_embedded.items.name,_embedded.items.type,_embedded.items.path,_embedded.items.preview,_embedded.items.file,_embedded.items.size,_embedded.items.created,_embedded.items.modified,_embedded.total';
       apiUrl += '&preview_size=XXL&preview_crop=false';
 
@@ -239,51 +267,25 @@ module.exports.handler = async function (event, context) {
         };
       }
 
-      // Filter and process folders
-      let folders = data._embedded.items.filter(item => item.type === 'dir');
-      
-      // Filter by date if specified
-      if (date) {
-        folders = folders.filter(folder => extractDateFromFolderName(folder.name) === date);
-      }
-
-      // Process each folder to get photos
+      const folders = data._embedded.items.filter(item => item.type === 'dir');
       const allPhotos = [];
-      for (const folder of folders.slice(0, Math.min(folders.length, 5))) {
-        const folderDate = extractDateFromFolderName(folder.name);
-        const folderUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=${encodeURIComponent(folder.path)}`;
-        const folderResponse = await makeHttpsRequest(folderUrl + '&limit=50&preview_size=XXL&preview_crop=false');
-        const folderData = JSON.parse(folderResponse.body.toString());
 
-        if (folderData._embedded && folderData._embedded.items) {
-          const photos = folderData._embedded.items
-            .filter(item => item.type === 'file' && item.preview)
-            .map(item => ({
-              id: item.path,
-              name: item.name,
-              path: item.path,
-              src: proxify(replacePreviewSize(item.preview, 'XL'), baseUrl),
-              thumbnailSrc: proxify(replacePreviewSize(item.preview, 'M'), baseUrl),
-              fullSrc: proxify(replacePreviewSize(item.preview, 'XXXL'), baseUrl),
-              downloadUrl: item.file,
-              title: item.name.replace(/\.[^/.]+$/, ''),
-              date: folderDate,
-              category: category === 'all' ? 'all' : category,
-              size: item.size
-            }));
-          allPhotos.push(...photos);
-        }
+      for (const folder of folders.slice(0, 8)) {
+        const folderDate = extractDateFromFolderName(folder.name);
+        const images = await fetchAllImagesForFolder(PUBLIC_LINK, folder.path, folderDate, 1, baseUrl);
+        allPhotos.push(...images);
+        if (allPhotos.length >= offset + limit) break;
       }
 
-      // Apply pagination
-      const paginatedPhotos = allPhotos.slice(offset, offset + limit);
+      const sortedPhotos = allPhotos.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const paginatedPhotos = sortedPhotos.slice(offset, offset + limit);
 
       return {
         statusCode: 200,
         headers: corsHeaders,
         body: JSON.stringify({
           photos: paginatedPhotos,
-          total: allPhotos.length,
+          total: sortedPhotos.length,
           limit,
           offset
         })

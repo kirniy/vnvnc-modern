@@ -13,6 +13,7 @@ import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 import BackButton from '../components/BackButton'
 import { LiquidButton } from '../components/ui/liquid-glass-button'
 import VideoGalleryGrid from '../components/VideoGalleryGrid'
+import Seo from '../components/Seo'
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
@@ -303,6 +304,17 @@ const GalleryPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative" data-no-raycast-bg="1">
+      <Seo
+        title="Галерея клуба VNVNC"
+        description="Лучшие фотографии и видео с вечеринок VNVNC. Атмосфера клуба, выступления артистов и моменты прошлых событий."
+        canonical="https://vnvnc.ru/gallery"
+        keywords={[
+          'галерея vnvnc',
+          'фото вечеринок vnvnc',
+          'виновница клуб фото',
+          'ночной клуб фото санкт-петербург',
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <BackButton to="/" text="на главную" />
         {/* Header */}

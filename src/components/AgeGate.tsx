@@ -12,7 +12,34 @@ const AgeGate = () => {
   useBodyScrollLock(isVisible)
 
   useEffect(() => {
-    // Check if user has already verified age
+    const isLikelyBot = () => {
+      if (typeof navigator === 'undefined') {
+        return false
+      }
+
+      const botPattern = /(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|slurp|sogou|facebot|ia_archiver|twitterbot|facebookexternalhit|linkedinbot|mediapartners-google|adsbot-google)/i
+      const ua = navigator.userAgent || ''
+      const languages = navigator.languages || []
+
+      if (botPattern.test(ua)) {
+        return true
+      }
+
+      // Headless browsers often expose webdriver or have no languages set
+      if ((navigator as any).webdriver || languages.length === 0) {
+        return true
+      }
+
+      return false
+    }
+
+    // Skip gate entirely for bots and crawlers
+    if (isLikelyBot()) {
+      localStorage.setItem('vnvnc_age_verified', 'bot-skip')
+      setIsVisible(false)
+      return
+    }
+
     const ageVerified = localStorage.getItem('vnvnc_age_verified')
     if (!ageVerified) {
       setIsVisible(true)

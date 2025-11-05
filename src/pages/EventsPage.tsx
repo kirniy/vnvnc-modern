@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { Helmet } from 'react-helmet-async'
 import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
 import { SundayFreeBadge } from '../components/SundayFreeBadge'
 import { PageBackground } from '../components/PageBackground'
+import Seo from '../components/Seo'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -57,27 +57,17 @@ const EventsPage = () => {
   return (
     <div className="min-h-screen pt-20 relative">
       <PageBackground />
-      <Helmet>
-        <title>Афиша | VNVNC Concert Hall</title>
-        <meta name="description" content="Афиша концертов и вечеринок в VNVNC. Актуальные и предстоящие события, билеты онлайн. Конюшенная 2В, Санкт-Петербург." />
-        
-        {/* Open Graph tags */}
-        <meta property="og:title" content="Афиша | VNVNC Concert Hall" />
-        <meta property="og:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="VNVNC" />
-        <meta property="og:image" content="https://vnvnc.ru/og-image.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="VNVNC Concert Hall - Афиша" />
-        <meta property="og:locale" content="ru_RU" />
-        
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Афиша | VNVNC Concert Hall" />
-        <meta name="twitter:description" content="Концерты и вечеринки в VNVNC. Конюшенная 2В, Санкт-Петербург" />
-        <meta name="twitter:image" content="https://vnvnc.ru/og-image.jpg" />
-      </Helmet>
+      <Seo
+        title="Афиша | VNVNC Concert Hall"
+        description="Актуальные и предстоящие события VNVNC: концерты, диджей-сеты и вечеринки. Покупка билетов и бронирование столов онлайн."
+        canonical="https://vnvnc.ru/events"
+        keywords={[
+          'афиша vnvnc',
+          'вечеринки санкт-петербург',
+          'концерты санкт-петербург',
+          'ночной клуб vnvnc',
+        ]}
+      />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
         <BackButton to="/" text="на главную" />
