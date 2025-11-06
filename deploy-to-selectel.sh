@@ -7,6 +7,10 @@ echo "🚀 Deploying to Selectel..."
 echo "📦 Building..."
 npm run build
 
+# Generate static OG pages for event short links
+echo "🖼️ Generating event OG pages..."
+node ./scripts/generate-event-og-pages.js
+
 # Generate videocircles manifest for all MP4s
 echo "📝 Generating videocircles manifest..."
 node ./scripts/generate-video-manifest.js
