@@ -2,12 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, ShoppingCart, Camera } from 'lucide-react'
-import { colors } from '../utils/colors'
+import { colors } from '../utils/colors';
 import { trackTicketClick } from './AnalyticsTracker'
 import { getShortDayOfWeek, isInHalloween } from '../utils/dateHelpers'
 import { enableRaycastSkip } from '../utils/raycastControl'
 import { shouldTreatAsFree } from '../config/eventsConfig'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
+import { buildEventSlug } from '../utils/eventSlug';
 
 interface Event {
   id: string
@@ -31,9 +32,10 @@ interface Event {
 interface EventCardProps {
   event: Event
   index: number
+  sameDateCount?: number
 }
 
-const EventCardNew = ({ event, index }: EventCardProps) => {
+const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
   const navigate = useNavigate();
 
   // Format event date to YYYY-MM-DD for photo availability check
@@ -54,15 +56,10 @@ const EventCardNew = ({ event, index }: EventCardProps) => {
   
   // Generate short date-based URL for the event
   const getShortUrl = () => {
-    if (event.rawDate) {
-      const eventDate = new Date(event.rawDate);
-      const moscowDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-      const day = moscowDate.getDate().toString().padStart(2, '0');
-      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0');
-      const year = moscowDate.getFullYear().toString().slice(-2);
-      return `/e/${day}-${month}-${year}`;
+    const slug = buildEventSlug(event as any, { sameDateCount: sameDateCount ?? 1 })
+    if (slug) {
+      return `/e/${slug}`
     }
-    // Fallback to regular URL if no date
     return `/events/${event.id}`;
   };
 

@@ -45,6 +45,7 @@ export interface Event {
     available: number
     total: number
   }>
+  hasSpecificTime?: boolean
 }
 
 interface ApiEvent {
@@ -228,6 +229,7 @@ class TicketsCloudService {
     // Parse the lifetime field to extract event date/time
     let eventDate: Date | undefined
     let eventTimestamp: number | undefined
+    let hasSpecificTime = false
 
     const dateTimeMatch = apiEvent.lifetime.match(/DTSTART;VALUE=DATE-TIME:(\d{8}T\d{6})Z/)
     const dateMatch = apiEvent.lifetime.match(/DTSTART;VALUE=DATE:(\d{8})/)
@@ -241,6 +243,7 @@ class TicketsCloudService {
       const minute = parseInt(dateStr.substring(11, 13))
       eventDate = new Date(Date.UTC(year, month, day, hour, minute))
       eventTimestamp = eventDate.getTime()
+      hasSpecificTime = true
     } else if (dateMatch) {
       const dateStr = dateMatch[1]
       const year = parseInt(dateStr.substring(0, 4))
@@ -249,6 +252,17 @@ class TicketsCloudService {
       eventDate = new Date(year, month, day) // Local midnight
       eventTimestamp = eventDate.getTime()
     }
+
+    const moscowDate = eventDate
+      ? new Date(eventDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+      : undefined
+    const formattedTime = hasSpecificTime && moscowDate
+      ? moscowDate.toLocaleTimeString('ru-RU', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        })
+      : ''
     
     // Use smaller images for list view, save original for detail view
     const posterImage = apiEvent.media?.cover?.url ||  // Medium size first
@@ -274,7 +288,7 @@ class TicketsCloudService {
         year: 'numeric',
         timeZone: 'Europe/Moscow'
       }) : 'Дата не указана',
-      time: '',
+      time: formattedTime,
       location: '',
       price: '',
       image: posterImage,
@@ -289,6 +303,7 @@ class TicketsCloudService {
       rawDate: eventDate || new Date(0), // Provide a fallback date
       hasPrice: prices.length > 0,
       eventTimestamp: eventTimestamp,
+      hasSpecificTime,
       ticket_types: apiEvent.ticket_types?.map(t => ({
         id: t.id,
         name: t.name,

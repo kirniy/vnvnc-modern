@@ -9,6 +9,7 @@ import { SundayFreeBadge } from '../components/SundayFreeBadge'
 import { PageBackground } from '../components/PageBackground'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 import Seo from '../components/Seo'
+import { getEventDateKey } from '../utils/eventSlug'
 // Dither удалён по фидбеку
 
 const EventsPage = () => {
@@ -54,6 +55,22 @@ const EventsPage = () => {
     .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
   const months = useMemo(() => ['all','01','02','03','04','05','06','07','08','09','10','11','12'], [])
+
+  const dateCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const event of events as any[]) {
+      const key = getEventDateKey(event)
+      if (!key) continue
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    return counts
+  }, [events])
+
+  const getSameDateCount = (event: any) => {
+    const key = getEventDateKey(event)
+    if (!key) return 1
+    return dateCounts.get(key) ?? 1
+  }
 
   return (
     <div className="min-h-screen pt-20 relative">
@@ -140,13 +157,23 @@ const EventsPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {activeTab === 'current' ? (
               currentEvents.map((event: any, index: number) => (
-                <EventCardNew key={event.id} event={event} index={index} />
+                <EventCardNew
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  sameDateCount={getSameDateCount(event)}
+                />
               ))
             ) : (
               archiveEvents
                 .filter((event: any) => activeMonth==='all' ? true : (new Date(event.rawDate).toISOString().slice(5,7)===activeMonth))
                 .map((event: any, index: number) => (
-                  <EventCardNew key={event.id} event={event} index={index} />
+                  <EventCardNew
+                    key={event.id}
+                    event={event}
+                    index={index}
+                    sameDateCount={getSameDateCount(event)}
+                  />
                 ))
             )}
           </div>

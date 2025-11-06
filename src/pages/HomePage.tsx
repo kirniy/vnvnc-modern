@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -14,6 +15,7 @@ import {
   buildVideoObjectJsonLd,
 } from '../utils/seo/siteSchema'
 import Seo from '../components/Seo'
+import { getEventDateKey } from '../utils/eventSlug'
 // Убрали DitherBackground — по фидбеку
 
 const HomePage = () => {
@@ -46,6 +48,22 @@ const HomePage = () => {
     })
     .sort((a: any, b: any) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime())
     .slice(0, 3)
+
+  const dateCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const event of events as any[]) {
+      const key = getEventDateKey(event)
+      if (!key) continue
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    return counts
+  }, [events])
+
+  const getSameDateCount = (event: any) => {
+    const key = getEventDateKey(event)
+    if (!key) return 1
+    return dateCounts.get(key) ?? 1
+  }
 
   return (
     <div className="min-h-screen">
@@ -107,7 +125,12 @@ const HomePage = () => {
           ) : upcomingEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((event: any, index: number) => (
-                <EventCardNew key={event.id} event={event} index={index} />
+                <EventCardNew
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  sameDateCount={getSameDateCount(event)}
+                />
               ))}
             </div>
           ) : (

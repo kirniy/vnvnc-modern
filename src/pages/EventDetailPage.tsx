@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -19,6 +19,7 @@ import { useRaycastSkip } from '../hooks/useRaycastSkip'
 import Seo from '../components/Seo'
 import { buildEventJsonLd } from '../utils/seo/eventSchema'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
+import { buildEventSlug, getEventDateKey } from '../utils/eventSlug'
 // Убрали DitherBackground
 
 interface EventDetailPageProps {
@@ -38,6 +39,10 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
       return await ticketsCloudService.getEventDetails(eventId || '')
     },
   })
+  const { data: allEvents = [] } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => ticketsCloudService.getEvents({}),
+  })
   // Format event date to YYYY-MM-DD for photo availability check (copied from EventCardNew)
   const eventPhotoDate = (() => {
     if (!event?.rawDate) return undefined
@@ -56,34 +61,33 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   useRaycastSkip(isHalloween)
 
+  const dateCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const evt of allEvents as any[]) {
+      const key = getEventDateKey(evt)
+      if (!key) continue
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    return counts
+  }, [allEvents])
+
+  const sameDateCount = useMemo(() => {
+    if (!event?.rawDate) return 1
+    const key = getEventDateKey(event)
+    if (!key) return 1
+    return dateCounts.get(key) ?? 1
+  }, [dateCounts, event])
   // Handle share functionality
   const handleShare = async () => {
     if (!event) return
     
     const baseUrl = window.location.origin
+    const slug = buildEventSlug(event, { sameDateCount })
     
-    // Extract date from event.rawDate which is more reliable
-    let dateSlug = ''
-    if (event.rawDate) {
-      const eventDate = new Date(event.rawDate)
-      // Use Moscow timezone to get the correct date
-      const formatter = new Intl.DateTimeFormat('ru-RU', {
-        timeZone: 'Europe/Moscow',
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit'
-      })
-      const parts = formatter.formatToParts(eventDate)
-      const day = parts.find(p => p.type === 'day')?.value || ''
-      const month = parts.find(p => p.type === 'month')?.value || ''
-      const year = parts.find(p => p.type === 'year')?.value || ''
-      dateSlug = `${day}-${month}-${year}`
-    }
-    
-    // Create short URL in format: /e/02-08-25
-    const shortUrl = dateSlug 
-      ? `${baseUrl}/e/${dateSlug}`
-      : `${baseUrl}/e/${id?.substring(0, 8)}`
+    // Create short URL using shared slug generator; fall back to canonical page
+    const shortUrl = slug
+      ? `${baseUrl}/e/${slug}`
+      : `${baseUrl}/events/${event.id}`
     
     try {
       await navigator.clipboard.writeText(shortUrl)
