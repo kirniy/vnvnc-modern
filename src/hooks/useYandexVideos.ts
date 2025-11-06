@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import yandexVideoService from '../services/yandexVideo';
 
 interface YandexVideo {
@@ -21,9 +21,15 @@ interface UseYandexVideosResult {
   error: string | null;
   fetchRandomVideo: () => Promise<void>;
   preloadedVideoElement: HTMLVideoElement | null;
+  loadVideos: () => Promise<void>;
 }
 
-export const useYandexVideos = (): UseYandexVideosResult => {
+interface UseYandexVideosOptions {
+  autoLoad?: boolean;
+  initialDelayMs?: number;
+}
+
+export const useYandexVideos = ({ autoLoad = true, initialDelayMs = 0 }: UseYandexVideosOptions = {}): UseYandexVideosResult => {
   const [videos, setVideos] = useState<YandexVideo[]>([]);
   const [currentVideo, setCurrentVideo] = useState<YandexVideo | null>(null);
   const [nextVideo, setNextVideo] = useState<YandexVideo | null>(null);
@@ -38,9 +44,12 @@ export const useYandexVideos = (): UseYandexVideosResult => {
 
   // Initialize by loading videos immediately and set a truly random first one
   useEffect(() => {
-    // Load videos first; we'll set initial random once we have a list
-    loadVideosInBackground();
-  }, []);
+    if (!autoLoad) return;
+    const timeoutId = window.setTimeout(() => {
+      void loadVideosInBackground();
+    }, initialDelayMs);
+    return () => window.clearTimeout(timeoutId);
+  }, [autoLoad, initialDelayMs]);
 
   // Preload next video whenever current video changes (with delay to not block initial load)
   useEffect(() => {
@@ -76,7 +85,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     }
   }, [videos.length, isLoadingVideos, pendingVideoSwitch, currentVideo?.id]);
 
-  const loadVideosInBackground = async () => {
+  const loadVideosInBackground = useCallback(async () => {
     // Prevent duplicate loading
     if (isLoadingVideos || videos.length > 0) {
       console.log('Already loading or loaded videos, skipping...');
@@ -142,7 +151,7 @@ export const useYandexVideos = (): UseYandexVideosResult => {
         }
         
         // PHASE 2: Progressive loading based on connection
-        if (videosToPreload > 1) {
+      if (videosToPreload > 1) {
           // Use requestIdleCallback for non-blocking preloading
           const preloadNextBatch = (startIndex: number, count: number, delay: number) => {
             setTimeout(() => {
@@ -224,7 +233,17 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     } finally {
       setIsLoadingVideos(false);
     }
-  };
+  }, [
+    isLoadingVideos,
+    videos.length,
+    preloadedVideosCache,
+    setIsLoadingVideos,
+    setError,
+    setVideos,
+    setPendingVideoSwitch,
+    setHasShuffled,
+    setRecentVideoIds,
+  ]);
 
   const getRandomVideo = (excludeId?: string) => {
     // Filter out current video and recently played videos
@@ -347,7 +366,8 @@ export const useYandexVideos = (): UseYandexVideosResult => {
     isLoading,
     error,
     fetchRandomVideo,
-    preloadedVideoElement
+    preloadedVideoElement,
+    loadVideos: loadVideosInBackground
   };
 };
 

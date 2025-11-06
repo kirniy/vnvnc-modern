@@ -5,11 +5,13 @@ import { colors } from '../utils/colors'
 import VideoCircle from './VideoCircle'
 import { LampLight } from './LampLight'
 import { useRef, useState, useEffect } from 'react'
+import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
 
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
   const [isMounted, setIsMounted] = useState(false)
   const [isVideoCircleExpanded, setIsVideoCircleExpanded] = useState(false)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     setIsMounted(true)
@@ -34,6 +36,7 @@ const ModernHero = () => {
       <div className="absolute inset-0">
         <video
           ref={backgroundVideoRef}
+          src="/herovideo-optimized.mp4"
           autoPlay
           loop
           muted
@@ -48,21 +51,30 @@ const ModernHero = () => {
       <div className="absolute inset-0" />
 
       {/* Animated gradient overlay */}
+      {prefersReducedMotion ? (
+        <div
+          className="absolute inset-0 z-[6]"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, ${colors.neon.red}10 0%, transparent 55%)`,
+          }}
+        />
+      ) : (
         <motion.div
-        className="absolute inset-0 z-[6]"
-        animate={{
-          background: [
-            `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
-            `radial-gradient(circle at 80% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
-            `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
-          ],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+          className="absolute inset-0 z-[6]"
+          animate={{
+            background: [
+              `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+              `radial-gradient(circle at 80% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+              `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+            ],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      )}
 
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-3 sm:px-4">
