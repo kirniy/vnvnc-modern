@@ -36,6 +36,7 @@ aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
     --exclude "*.html" \
     --exclude "*.js" \
     --exclude "*.css" \
+    --exclude "e/*" \
     --cache-control "public, max-age=86400" \
     --metadata-directive REPLACE
 
@@ -49,8 +50,8 @@ aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
     --cache-control "no-cache, no-store, must-revalidate" \
     --metadata-directive REPLACE || true
 
-# Upload HTML files with no-cache headers LAST
-echo "☁️ Uploading HTML files (no-cache) last..."
+# Upload HTML files with no-cache headers (excluding /e/* handled separately)
+echo "☁️ Uploading HTML files (no-cache)..."
 aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
     s3 sync ./dist s3://vnvnc \
     --profile selectel \
@@ -58,8 +59,37 @@ aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
     --delete \
     --exclude "*" \
     --include "*.html" \
+    --exclude "e/*" \
     --cache-control "no-cache, no-store, must-revalidate" \
     --metadata-directive REPLACE
+
+# Wipe previous OG short-link pages to avoid stale metadata
+echo "🧹 Clearing old OG short-link pages..."
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 rm s3://vnvnc/e \
+    --recursive \
+    --profile selectel || true
+
+# Upload short-link OG pages (extensionless + .html) with explicit content-type
+echo "☁️ Uploading OG short-link pages..."
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 cp ./dist/e s3://vnvnc/e \
+    --recursive \
+    --profile selectel \
+    --acl public-read \
+    --exclude "posters/*" \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "no-cache, no-store, must-revalidate" \
+    --metadata-directive REPLACE
+
+# Upload cached poster assets
+echo "🖼️ Uploading cached poster assets..."
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 sync ./dist/e/posters s3://vnvnc/e/posters \
+    --profile selectel \
+    --acl public-read \
+    --cache-control "public, max-age=604800" \
+    --metadata-directive REPLACE || true
 
 echo "✅ Deployment complete!"
 echo "🌐 Live at: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru"

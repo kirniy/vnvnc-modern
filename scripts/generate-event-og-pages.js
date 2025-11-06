@@ -1,12 +1,14 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import sizeOf from 'image-size'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const ROOT_DIR = path.resolve(__dirname, '..')
 const DIST_DIR = path.join(ROOT_DIR, 'dist')
 const OUTPUT_DIR = path.join(DIST_DIR, 'e')
+const POSTER_DIR = path.join(OUTPUT_DIR, 'posters')
 
 const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://vnvnc.ru'
 const API_BASE = (process.env.TICKETSCLOUD_API_BASE || 'https://ticketscloud.com').replace(/\/$/, '')
@@ -213,12 +215,14 @@ const formatDescription = event => {
   return trimmed
 }
 
-const buildHtml = ({ slug, event, targetUrl }) => {
+const buildHtml = ({ slug, event, targetUrl, ogImage, imageWidth, imageHeight }) => {
   const title = event?.title || DEFAULT_TITLE
   const description = formatDescription(event)
-  const image = event?.poster || event?.fallbackImage || DEFAULT_IMAGE
+  const image = ogImage || event?.poster || event?.fallbackImage || DEFAULT_IMAGE
   const ogUrl = `${SITE_ORIGIN}/e/${slug}`
-  const canonical = `${SITE_ORIGIN}${targetUrl}`
+  const canonical = `${SITE_ORIGIN}/e/${slug}`
+  const width = imageWidth || 1200
+  const height = imageHeight || 630
 
   return `<!DOCTYPE html>
 <html lang="ru">
@@ -228,14 +232,16 @@ const buildHtml = ({ slug, event, targetUrl }) => {
   <title>${escapeHtml(title)} | VNVNC</title>
   <meta name="description" content="${escapeHtml(description)}" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
+  <meta name="robots" content="noindex,follow" />
 
   <meta property="og:type" content="event" />
   <meta property="og:url" content="${escapeHtml(ogUrl)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta property="og:image" content="${escapeHtml(image)}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:image:secure_url" content="${escapeHtml(image)}" />
+  <meta property="og:image:width" content="${width}" />
+  <meta property="og:image:height" content="${height}" />
   <meta property="og:image:alt" content="${escapeHtml(title)}" />
   <meta property="og:site_name" content="VNVNC Concert Hall" />
 
@@ -244,7 +250,6 @@ const buildHtml = ({ slug, event, targetUrl }) => {
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${escapeHtml(image)}" />
 
-  <meta http-equiv="refresh" content="0; url=${escapeHtml(targetUrl)}" />
   <script>
     if (typeof window !== 'undefined') {
       window.location.replace('${targetUrl}');
@@ -253,6 +258,10 @@ const buildHtml = ({ slug, event, targetUrl }) => {
 </head>
 <body>
   <p>Перенаправляем...</p>
+  <noscript>
+    <meta http-equiv="refresh" content="3; url=${escapeHtml(targetUrl)}" />
+    <p><a href="${escapeHtml(targetUrl)}">Перейти к событию</a></p>
+  </noscript>
 </body>
 </html>
 `
@@ -262,11 +271,12 @@ const ensureDir = async dir => {
   await fs.mkdir(dir, { recursive: true })
 }
 
-const writeHtml = async ({ slug, html }) => {
-  const dir = path.join(OUTPUT_DIR, slug)
-  await ensureDir(dir)
-  const file = path.join(dir, 'index.html')
-  await fs.writeFile(file, html, 'utf8')
+const writeHtmlVariants = async ({ slug, html }) => {
+  await ensureDir(OUTPUT_DIR)
+  const baseFile = path.join(OUTPUT_DIR, slug)
+  const htmlFile = path.join(OUTPUT_DIR, `${slug}.html`)
+  await fs.writeFile(baseFile, html, 'utf8')
+  await fs.writeFile(htmlFile, html, 'utf8')
 }
 
 const createFallbackPage = async () => {
@@ -275,14 +285,40 @@ const createFallbackPage = async () => {
     slug,
     event: null,
     targetUrl: '/events',
+    ogImage: DEFAULT_IMAGE,
   })
-  await writeHtml({ slug, html })
+  await writeHtmlVariants({ slug, html })
+}
+
+const getPosterFilename = (slug, posterUrl) => {
+  if (!posterUrl) return `${slug}.jpg`
+  try {
+    const urlObj = new URL(posterUrl)
+    const ext = path.extname(urlObj.pathname) || '.jpg'
+    const sanitizedExt = ext.split('?')[0] || '.jpg'
+    return `${slug}${sanitizedExt}`
+  } catch {
+    return `${slug}.jpg`
+  }
+}
+
+const downloadPoster = async (posterUrl, destination) => {
+  const response = await fetch(posterUrl, { cache: 'no-store' })
+  if (!response.ok) {
+    throw new Error(`Failed to download poster (${response.status})`)
+  }
+  const buffer = Buffer.from(await response.arrayBuffer())
+  await ensureDir(path.dirname(destination))
+  await fs.writeFile(destination, buffer)
+  return destination
 }
 
 async function main() {
   try {
     await fs.rm(OUTPUT_DIR, { recursive: true, force: true })
   } catch {}
+  await ensureDir(OUTPUT_DIR)
+  await ensureDir(POSTER_DIR)
 
   let events = []
 
@@ -317,8 +353,30 @@ async function main() {
     if (!slug) continue
 
     const targetUrl = `/events/${event.id}`
-    const html = buildHtml({ slug, event, targetUrl })
-    await writeHtml({ slug, html })
+    let ogImage = event.poster || event.fallbackImage || DEFAULT_IMAGE
+    let imageWidth
+    let imageHeight
+
+    if (ogImage && ogImage !== DEFAULT_IMAGE) {
+      try {
+        const filename = getPosterFilename(slug, ogImage)
+        const destination = path.join(POSTER_DIR, filename)
+        await downloadPoster(ogImage, destination)
+        ogImage = `${SITE_ORIGIN}/e/posters/${filename}`
+
+        // Read actual image dimensions
+        const imageBuffer = await fs.readFile(destination)
+        const dimensions = sizeOf(imageBuffer)
+        imageWidth = dimensions.width
+        imageHeight = dimensions.height
+      } catch (error) {
+        console.error('Failed to cache poster locally:', error)
+        ogImage = event.poster || event.fallbackImage || DEFAULT_IMAGE
+      }
+    }
+
+    const html = buildHtml({ slug, event, targetUrl, ogImage, imageWidth, imageHeight })
+    await writeHtmlVariants({ slug, html })
     successCount += 1
   }
 
