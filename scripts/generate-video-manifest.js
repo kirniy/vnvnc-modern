@@ -30,22 +30,27 @@ function listMp4Files(dirPath) {
 function main() {
   const distDir = path.resolve(__dirname, '../dist/videocircles');
   const publicDir = path.resolve(__dirname, '../public/videocircles');
-  const destDir = distDir;
-
-  // Prefer scanning the built output (dist), fallback to public
-  let sourceDir = distDir;
-  if (!fs.existsSync(sourceDir)) {
-    sourceDir = publicDir;
+  
+  // We should always generate manifest in public so it gets copied to dist by Vite,
+  // AND if dist exists (during build), update it there too.
+  
+  // 1. Update public manifest
+  const publicFiles = listMp4Files(publicDir);
+  if (publicFiles.length > 0) {
+    const publicManifestPath = path.join(publicDir, 'manifest.json');
+    const json = JSON.stringify(publicFiles, null, 0);
+    fs.writeFileSync(publicManifestPath, json + '\n');
+    console.log(`Generated public manifest with ${publicFiles.length} files at ${publicManifestPath}`);
   }
 
-  const files = listMp4Files(sourceDir);
-  ensureDirExists(destDir);
-
-  const manifestPath = path.join(destDir, 'manifest.json');
-  const json = JSON.stringify(files, null, 0);
-  fs.writeFileSync(manifestPath, json + '\n');
-
-  console.log(`Generated manifest with ${files.length} files at ${manifestPath}`);
+  // 2. Update dist manifest if dist exists
+  if (fs.existsSync(distDir)) {
+    const distFiles = listMp4Files(distDir);
+    const distManifestPath = path.join(distDir, 'manifest.json');
+    const json = JSON.stringify(distFiles, null, 0);
+    fs.writeFileSync(distManifestPath, json + '\n');
+    console.log(`Generated dist manifest with ${distFiles.length} files at ${distManifestPath}`);
+  }
 }
 
 try {

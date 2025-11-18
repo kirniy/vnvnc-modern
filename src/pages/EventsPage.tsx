@@ -6,7 +6,6 @@ import { ticketsCloudService } from '../services/ticketsCloud'
 import EventCardNew from '../components/EventCardNew'
 import BackButton from '../components/BackButton'
 import { SundayFreeBadge } from '../components/SundayFreeBadge'
-import { PageBackground } from '../components/PageBackground'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 import Seo from '../components/Seo'
 import { getEventDateKey } from '../utils/eventSlug'
@@ -74,7 +73,6 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
       <Seo
         title="Афиша | VNVNC Concert Hall"
         description="Актуальные и предстоящие события VNVNC: концерты, диджей-сеты и вечеринки. Покупка билетов и бронирование столов онлайн."

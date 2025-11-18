@@ -4,7 +4,6 @@ import { colors } from '../utils/colors'
 import NeonText from '../components/ui/NeonText'
 import Accordion from '../components/ui/Accordion'
 import BackButton from '../components/BackButton'
-import { PageBackground } from '../components/PageBackground'
 import VideoPlayer from '../components/ui/VideoPlayer'
 // Убрали DitherBackground
 import Seo from '../components/Seo'
@@ -185,7 +184,6 @@ const RulesPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
       <Seo
         title="Правила клуба VNVNC"
         description="Ознакомьтесь с правилами клуба VNVNC: дресс-код, фейсконтроль, безопасность и этикет. Вход строго 18+."

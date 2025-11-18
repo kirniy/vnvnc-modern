@@ -15,7 +15,6 @@ import Accordion from '../components/ui/Accordion'
 // Убрали DitherBackground
 import { api } from '../services/api'
 import BackButton from '../components/BackButton'
-import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
@@ -181,7 +180,6 @@ const ReservationsPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
       <Seo
         title="Бронирование столов | VNVNC"
         description="Забронируйте стол в клубе VNVNC: VIP-зоны, депозиты и условия обслуживания. Оставьте заявку онлайн и мы свяжемся с вами."

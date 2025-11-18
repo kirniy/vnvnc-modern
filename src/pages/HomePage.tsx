@@ -7,6 +7,7 @@ import { ticketsCloudService } from '../services/ticketsCloud'
 import ModernHero from '../components/ModernHero'
 import EventCardNew from '../components/EventCardNew'
 import NewsTicker from '../components/ui/NewsTicker'
+import GlowingSeparator from '../components/ui/GlowingSeparator'
 import { colors } from '../utils/colors'
 import {
   buildLocalBusinessJsonLd,
@@ -26,13 +27,13 @@ const HomePage = () => {
 
   // Get current time and convert to Moscow timezone for display
   const now = new Date()
-  
+
   // Create a date object for "today" at 6 AM Moscow time
   // We'll use this as the cutoff - events before this time are considered "past"
   const todayMoscow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
   const cutoffTime = new Date(todayMoscow)
   cutoffTime.setHours(6, 0, 0, 0)
-  
+
   // If it's currently before 6 AM Moscow time, use yesterday's 6 AM as cutoff
   // This way, events from last night (e.g., 11 PM) still show as current until 6 AM
   if (todayMoscow.getHours() < 6) {
@@ -92,24 +93,24 @@ const HomePage = () => {
       />
 
       <ModernHero />
-      
+
       {/* Ticker between sections */}
-      <div 
-        className="relative z-20 border-t border-b border-white/10" 
-        style={{ background: `linear-gradient(90deg, ${colors.neon.red}, #b30000)` }}
-      >
-        <NewsTicker 
-          text="конюшенная 2в × конюшенная 2в × " 
-          speedMs={52000} 
-          className="text-[11px] sm:text-sm tracking-[0.15em] uppercase text-white py-2" 
-        />
+      <div className="relative z-20">
+        <GlowingSeparator />
+        <div className="bg-black/50 backdrop-blur-sm border-b border-white/5">
+          <NewsTicker
+            text="конюшенная 2в × конюшенная 2в × "
+            speedMs={52000}
+            className="text-[11px] sm:text-sm tracking-[0.15em] uppercase text-white py-2"
+          />
+        </div>
       </div>
-      
+
       {/* Upcoming Events Section */}
       <section className="py-12 sm:py-20 relative">
         {/* Ambient gradient for section */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -120,8 +121,8 @@ const HomePage = () => {
             <h2 className="text-3xl sm:text-5xl font-display font-extrabold text-white mb-4 lowercase tracking-tight text-stretch-heading">
               предстоящие
             </h2>
-            <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-neon-red to-transparent mb-6 opacity-80" 
-                 style={{ background: `linear-gradient(90deg, transparent, ${colors.neon.red}, transparent)` }} />
+            <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-neon-red to-transparent mb-6 opacity-80"
+              style={{ background: `linear-gradient(90deg, transparent, ${colors.neon.red}, transparent)` }} />
             <p className="text-base sm:text-xl text-white/60 lowercase tracking-wide max-w-xl mx-auto font-light">
               ближайшие события в vnvnc
             </p>

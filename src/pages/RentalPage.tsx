@@ -6,7 +6,6 @@ import NeonText from '../components/ui/NeonText'
 import Button from '../components/ui/Button'
 import { api } from '../services/api'
 import BackButton from '../components/BackButton'
-import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
@@ -48,7 +47,6 @@ const RentalPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
       <Seo
         title="Аренда клуба VNVNC"
         description="Арендуйте площадку VNVNC для концертов, вечеринок и корпоративов. Технический райдер, условия и контакт для сотрудничества."

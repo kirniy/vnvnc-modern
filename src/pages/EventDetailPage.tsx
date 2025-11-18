@@ -13,7 +13,6 @@ import { isInHalloween } from '../utils/dateHelpers'
 import CountdownTimer from '../components/CountdownTimer'
 import Sticker from '../components/ui/Sticker'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
-import { PageBackground } from '../components/PageBackground'
 import HalloweenVideoBackground from '../components/HalloweenVideoBackground'
 import { useRaycastSkip } from '../hooks/useRaycastSkip'
 import Seo from '../components/Seo'
@@ -164,7 +163,6 @@ const EventDetailPage = ({ eventIdOverride }: EventDetailPageProps = {}) => {
 
   return (
     <div className="min-h-screen pt-20 relative" {...(isHalloween ? { 'data-no-raycast-bg': '1' } as any : {})}>
-      {!isHalloween && <PageBackground />}
       {isHalloween && <HalloweenVideoBackground />}
       <Seo
         title={`${event.title} | VNVNC Concert Hall`}

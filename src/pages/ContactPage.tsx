@@ -8,7 +8,6 @@ import NeonText from '../components/ui/NeonText'
 // Убрали DitherBackground
 import { api } from '../services/api'
 import BackButton from '../components/BackButton'
-import { PageBackground } from '../components/PageBackground'
 import Seo from '../components/Seo'
 import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail } from '../utils/seo/siteSchema'
 
@@ -74,7 +73,6 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen pt-20 relative">
-      <PageBackground />
       <Seo
         title="Контакты VNVNC"
         description="Свяжитесь с клубом VNVNC: телефон +7 (921) 410-44-40, Telegram и WhatsApp, схема проезда и форма обратной связи."
