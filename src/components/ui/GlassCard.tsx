@@ -34,10 +34,10 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
     }
 
     const blurStyles = {
-      sm: 'backdrop-blur-[2px]',
-      md: 'backdrop-blur-[4px]',
-      lg: 'backdrop-blur-[8px]',
-      xl: 'backdrop-blur-[12px]'
+      sm: 'backdrop-blur-[1px] sm:backdrop-blur-[2px]',
+      md: 'backdrop-blur-[2px] sm:backdrop-blur-[4px]',
+      lg: 'backdrop-blur-[4px] sm:backdrop-blur-[8px]',
+      xl: 'backdrop-blur-[6px] sm:backdrop-blur-[12px]'
     }
 
     const borderStyles = border ? 'border border-white/10' : ''

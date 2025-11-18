@@ -10,49 +10,49 @@ const GlobalBackground = memo(() => {
 
       {/* Animated Red Gradient 1 (Top-Left ish) */}
       <motion.div
-        className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] opacity-40"
+        className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] opacity-40 will-change-transform"
         style={{ background: colors.neon.red }}
         animate={{
           scale: [1, 1.2, 1],
-          x: [0, 50, 0],
-          y: [0, 30, 0],
+          x: [0, 30, 0], // Reduced movement
+          y: [0, 20, 0], // Reduced movement
         }}
         transition={{
-          duration: 15,
+          duration: 18, // Slower duration
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: "linear", // Linear is cheaper than easeInOut
         }}
       />
 
       {/* Animated Red Gradient 2 (Bottom-Right ish) */}
       <motion.div
-        className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-30"
+        className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-30 will-change-transform"
         style={{ background: colors.neon.red }}
         animate={{
           scale: [1, 1.3, 1],
-          x: [0, -40, 0],
-          y: [0, -40, 0],
+          x: [0, -20, 0], // Reduced movement
+          y: [0, -20, 0], // Reduced movement
         }}
         transition={{
-          duration: 20,
+          duration: 25, // Slower duration
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: "linear",
           delay: 2
         }}
       />
 
-      {/* Animated Red Gradient 3 (Center-ish, very subtle pulsing) */}
+      {/* Animated Red Gradient 3 (Center-ish) - Static on mobile via CSS if possible, but here just simplified */}
       <motion.div
-        className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] rounded-full blur-[80px] opacity-20"
+        className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] rounded-full blur-[80px] opacity-20 will-change-[opacity,transform]"
         style={{ background: colors.neon.red }}
         animate={{
           opacity: [0.1, 0.3, 0.1],
-          scale: [1, 1.1, 1],
+          scale: [1, 1.05, 1], // Very subtle scale
         }}
         transition={{
-          duration: 10,
+          duration: 12,
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: "linear",
           delay: 5
         }}
       />
