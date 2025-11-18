@@ -113,11 +113,8 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
 
   // Handle randomizer click with smooth transition
   const handleRandomize = useCallback(async () => {
-    if (!shouldPlay) {
-      return
-    }
+    if (!shouldPlay) return
 
-    // Ensure videos are requested
     if (!hasRequestedVideosRef.current) {
       hasRequestedVideosRef.current = true
       void loadVideos()
@@ -125,12 +122,8 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
 
     // Helper to get random video
     const getRandomVideo = (videoList: VideoAsset[], excludeId: string) => {
-       // First try to filter out the current video
        const available = videoList.filter(v => v.id !== excludeId)
-       if (available.length === 0) {
-         // If no other videos (only 1 total), just return it
-         return videoList.length > 0 ? videoList[0] : null
-       }
+       if (available.length === 0) return videoList.length > 0 ? videoList[0] : null
        return available[Math.floor(Math.random() * available.length)]
     }
 
@@ -156,9 +149,9 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
     setIsRandomizing(true)
     setIsTransitioning(true)
     isTransitioningRef.current = true
-
+    
     let newVideoData: VideoAsset | null = null
-
+    
     if (!hasShuffled) {
       setHasShuffled(true)
       newVideoData = getRandomVideo(videos, currentVideo.id)
@@ -166,20 +159,45 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       newVideoData = getRandomVideo(videos, currentVideo.id)
     }
     
-    // Safety check - try to get different video if possible
+    // Safety check
     if (newVideoData && newVideoData.id === currentVideo.id && videos.length > 1) {
         const retry = getRandomVideo(videos, currentVideo.id)
         if (retry) newVideoData = retry
     }
     
-    if (newVideoData) {
-      // Just update the state, let useEffect handle the loading/switching
-      setCurrentVideo(newVideoData)
-    } else {
+    if (!newVideoData) {
       setIsTransitioning(false)
       isTransitioningRef.current = false
       setIsRandomizing(false)
+      return
     }
+    
+    // Preload logic: simply fetch the video data to ensure browser has it cached/ready
+    // Then update state to let useEffect handle the actual DOM switch
+    const preloadVideo = document.createElement('video')
+    preloadVideo.src = newVideoData.url
+    preloadVideo.preload = 'auto'
+    preloadVideo.muted = true
+    preloadVideo.playsInline = true
+    preloadVideo.crossOrigin = "anonymous"
+    
+    const performSwitch = () => {
+        if (!isTransitioningRef.current) return
+        setCurrentVideo(newVideoData)
+        // Cleanup
+        preloadVideo.remove()
+    }
+
+    preloadVideo.addEventListener('canplay', performSwitch, { once: true })
+    preloadVideo.load()
+    
+    // Fallback timeout
+    setTimeout(() => {
+        if (isTransitioningRef.current) {
+            console.log("Fallback switch triggered")
+            performSwitch()
+        }
+    }, 1500)
 
   }, [shouldPlay, hasShuffled, videos, currentVideo.id, loadVideos])
 
@@ -345,75 +363,55 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
 
-    // Only update if src is different (checking absolute URLs to be safe)
     const currentUrl = currentVideo.url
     const videoSrc = video.src
-    
-    // Check if we need to update source (simple check first)
     const needsUpdate = videoSrc !== currentUrl && !videoSrc.endsWith(currentUrl)
 
-    if (needsUpdate && backgroundVideoRef?.current) {
-      // Pause first
-      video.pause()
-      backgroundVideoRef.current.pause()
-      
-      video.src = currentUrl
-      backgroundVideoRef.current.src = currentUrl
-      
-      video.load()
-      backgroundVideoRef.current.load()
+    if (needsUpdate) {
+       if (backgroundVideoRef?.current) {
+          backgroundVideoRef.current.src = currentUrl
+          backgroundVideoRef.current.load() // Important
+       }
+       video.src = currentUrl
+       video.load() // Important
     }
 
     video.muted = isMuted
-    
-    // Play logic
+
     const playVideo = () => {
-        const playPromise = video.play()
-        if (playPromise !== undefined) {
-            playPromise
-            .then(() => {
-                setIsPlaying(true)
-                // Successful play means transition is done
-                if (isTransitioningRef.current) {
-                    // Small delay to ensure overlay fades out smoothly after video starts
-                    setTimeout(() => {
-                        setIsTransitioning(false)
-                        setIsRandomizing(false)
-                        isTransitioningRef.current = false
-                        setProgress(0)
-                    }, 100) 
-                }
-            })
-            .catch((err) => {
-                // Ignore AbortError
-                if (err.name !== 'AbortError') {
-                    setIsPlaying(false)
-                    console.error("Play failed:", err)
-                }
-                // If not aborted (real error), we should probably stop transitioning
-                if (err.name !== 'AbortError' && isTransitioningRef.current) {
-                     setIsTransitioning(false)
-                     setIsRandomizing(false)
-                     isTransitioningRef.current = false
-                }
-            })
-        }
+       video.play().then(() => {
+          setIsPlaying(true)
+          // If we were transitioning, now we are done
+          if (isTransitioningRef.current) {
+              // Delay slightly to let video render first frame
+              setTimeout(() => {
+                  setIsTransitioning(false)
+                  setIsRandomizing(false)
+                  isTransitioningRef.current = false
+                  setProgress(0)
+              }, 100)
+          }
+       }).catch(err => {
+          if (err.name !== 'AbortError') console.error(err)
+          // Don't stuck in transitioning state if error (unless AbortError which means another load)
+          if (err.name !== 'AbortError' && isTransitioningRef.current) {
+             setIsTransitioning(false)
+             setIsRandomizing(false)
+             isTransitioningRef.current = false
+          }
+       })
     }
 
     if (video.readyState >= 3) {
-        playVideo()
+       playVideo()
     } else {
-        // Use canplay which fires when enough data is available
-        const onCanPlay = () => {
-           video.removeEventListener('canplay', onCanPlay)
-           playVideo()
-        }
-        video.addEventListener('canplay', onCanPlay, { once: true })
+       const onCanPlay = () => {
+          video.removeEventListener('canplay', onCanPlay)
+          playVideo()
+       }
+       video.addEventListener('canplay', onCanPlay, { once: true })
     }
-    
-    return () => {
-        // Cleanup listeners on effect re-run
-    }
+
   }, [currentVideo, isMuted, backgroundVideoRef, shouldPlay])
 
   // Cleanup timeout on unmount
