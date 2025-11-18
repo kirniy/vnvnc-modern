@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { colors } from '../../utils/colors'
 
@@ -8,7 +9,7 @@ interface VideoCircleProgressProps {
   isPlaying: boolean
 }
 
-const VideoCircleProgress = ({ 
+const VideoCircleProgress = memo(({ 
   progress 
 }: VideoCircleProgressProps) => {
   const radius = 98 // Radius for 200px diameter circle
@@ -53,6 +54,8 @@ const VideoCircleProgress = ({
 
     </>
   )
-}
+})
+
+VideoCircleProgress.displayName = 'VideoCircleProgress'
 
 export default VideoCircleProgress

@@ -171,29 +171,7 @@ const ModernHero = () => {
           </motion.div>
         </motion.div>
 
-        {/* Floating particles - behind content with z-0 */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full"
-              style={{ backgroundColor: `${colors.neon.red}30` }}
-              initial={{
-                x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : 0,
-                y: typeof window !== 'undefined' ? Math.random() * window.innerHeight : 0,
-              }}
-              animate={{
-                x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : 0,
-                y: typeof window !== 'undefined' ? Math.random() * window.innerHeight : 0,
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            />
-          ))}
-        </div>
+        {/* Floating particles - removed for performance */ }
       </div>
 
     </section>

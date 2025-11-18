@@ -127,8 +127,8 @@ const RentalPage = () => {
                   P.A. System
                 </h3>
                 <ul className="text-white/80 space-y-1 ml-6">
-                  <li>• Top: Martin F12 x2</li>
-                  <li>• Sub: Martin WLX x2</li>
+                  <li>• Sub: EAW BH-800 x4</li>
+                  <li>• Sat: EAW AX-396 x4</li>
                 </ul>
               </div>
 
@@ -138,20 +138,36 @@ const RentalPage = () => {
                   AMP RACK
                 </h3>
                 <ul className="text-white/80 space-y-1 ml-6">
-                  <li>• Processing: Xilica XP3060 x1</li>
-                  <li>• POWERSOFT Q3204 x1</li>
+                  <li>• Processing: Xilica XP4080 x1</li>
+                  <li>• AMP Powersoft Q3204 x1</li>
+                  <li>• AMP Powersoft K6 x1</li>
+                  <li>• AMP Powersoft 7000 x2</li>
+                  <li>• AMP EV Q66 x1 (Stagefill)</li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="text-white font-bold mb-2 flex items-center gap-2">
                   <Monitor size={16} style={{ color: colors.neon.red }} />
-                  DJ
+                  F.O.H. console & Monitoring
                 </h3>
                 <ul className="text-white/80 space-y-1 ml-6">
-                  <li>• Pioneer CDJ 900 x2</li>
-                  <li>• Pioneer DJM 700 x1</li>
-                  <li>• Behringer XR-12 x1</li>
+                  <li>• Behringer x32 Compact</li>
+                  <li>• Analog multicore 16/8 from FOH to Stage</li>
+                  <li>• Clark ps-15 x2 (Stage Fill)</li>
+                  <li>• EV ELX115p x2</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-white font-bold mb-2 flex items-center gap-2">
+                  <Music size={16} style={{ color: colors.neon.red }} />
+                  MICS & DJ
+                </h3>
+                <ul className="text-white/80 space-y-1 ml-6">
+                  <li>• Shure SLX4 Beta 58 x3</li>
+                  <li>• Pioneer CDJ-2000NXS x2</li>
+                  <li>• Pioneer DJM-750 x1</li>
                 </ul>
               </div>
 
@@ -161,9 +177,31 @@ const RentalPage = () => {
                   LIGHT
                 </h3>
                 <ul className="text-white/80 space-y-1 ml-6">
-                  <li>• Led Par x4</li>
-                  <li>• Beam Bar RGBW x2</li>
-                  <li>• MA2 on PC x1</li>
+                  <li>• MaLighting MA2 Fader Wing laptop as console</li>
+                  <li>• Sharpy copy (back truss) x6</li>
+                  <li>• Mac Aura copy wash (on front) x4</li>
+                  <li>• Atomic 3000 (back truss) x2</li>
+                  <li>• 4-lite blinders w/ dimmer (on sides) x2</li>
+                  <li>• Laser Moving Bar 6 (on sides) x2</li>
+                  <li>• Pixel Tube (on ceiling) x16</li>
+                  <li>• Tour Haze x1</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-white font-bold mb-2 flex items-center gap-2">
+                  <Monitor size={16} style={{ color: colors.neon.red }} />
+                  LED SCREEN & EXTRA
+                </h3>
+                <ul className="text-white/80 space-y-1 ml-6">
+                  <li>• LED Screen 4*2m 4mm (1920/1080)</li>
+                  <li>• Led Tv Dexp 75"</li>
+                  <li>• PC w/ Resolume Arena 6 or HDMI on F.O.H</li>
+                  <li>• 3x mic stands</li>
+                  <li>• 2x ART X-Direct active Dibox</li>
+                  <li>• 8 xlr-xlr 10m, 3 jack-jack 5m</li>
+                  <li>• 1x cee 32a 5p plug on stage left</li>
+                  <li>• 2x ethernet cables</li>
                 </ul>
               </div>
 

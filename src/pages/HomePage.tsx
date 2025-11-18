@@ -106,16 +106,25 @@ const HomePage = () => {
       </div>
       
       {/* Upcoming Events Section */}
-      <section className="py-16 relative">
+      <section className="py-12 sm:py-20 relative">
+        {/* Ambient gradient for section */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none" />
+        
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-12"
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-4xl font-display font-extrabold text-white mb-4 lowercase text-stretch-y-120">предстоящие</h2>
-            <p className="text-xl text-white/70 lowercase tracking-wide block">ближайшие события в vnvnc</p>
+            <h2 className="text-3xl sm:text-5xl font-display font-extrabold text-white mb-4 lowercase tracking-tight text-stretch-heading">
+              предстоящие
+            </h2>
+            <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-neon-red to-transparent mb-6 opacity-80" 
+                 style={{ background: `linear-gradient(90deg, transparent, ${colors.neon.red}, transparent)` }} />
+            <p className="text-base sm:text-xl text-white/60 lowercase tracking-wide max-w-xl mx-auto font-light">
+              ближайшие события в vnvnc
+            </p>
           </motion.div>
 
           {isLoading ? (

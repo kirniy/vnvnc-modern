@@ -48,7 +48,15 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
   const [isMounted, setIsMounted] = useState(false)
   const prefersReducedMotion = usePrefersReducedMotion()
   
+  // Refs to access latest state in timeouts/callbacks
+  const videosRef = useRef(videos)
+  const currentVideoRef = useRef(currentVideo)
   const videoRef = useRef<HTMLVideoElement>(null)
+  
+  // Update refs
+  useEffect(() => { videosRef.current = videos }, [videos])
+  useEffect(() => { currentVideoRef.current = currentVideo }, [currentVideo])
+
   const containerRef = useRef<HTMLDivElement>(null)
   const hasRequestedVideosRef = useRef(false)
   const [isPageVisible, setIsPageVisible] = useState(
@@ -109,6 +117,7 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
 
+    // Ensure videos are requested
     if (!hasRequestedVideosRef.current) {
       hasRequestedVideosRef.current = true
       void loadVideos()
@@ -123,23 +132,41 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
     
     // Get a random video WITHOUT changing currentVideo yet
     let newVideoData = null
+    
+    // Helper to get random video
+    const getRandomVideo = (videoList: VideoAsset[], excludeId: string) => {
+       const available = videoList.filter(v => v.id !== excludeId)
+       if (available.length === 0) return null
+       return available[Math.floor(Math.random() * available.length)]
+    }
+
+    // If videos list is empty or just has current one, we might need to wait or use fallbacks
+    if (videos.length <= 1) {
+        // Force a small delay to see if videos arrive, otherwise cancel
+        setTimeout(() => {
+             // Check latest videos from ref
+             const retryVideo = getRandomVideo(videosRef.current, currentVideoRef.current.id)
+             if (retryVideo) {
+                 // Proceed with retryVideo
+                 preloadAndSwitch(retryVideo)
+             } else {
+                 // Still no videos, cancel
+                 setIsTransitioning(false)
+                 isTransitioningRef.current = false
+                 setIsRandomizing(false)
+             }
+        }, 1000)
+        return
+    }
+
     if (!hasShuffled) {
       setHasShuffled(true)
       // First shuffle - switch from background to Yandex
-      if (videos.length > 0) {
-        const availableVideos = videos.filter(v => v.id !== currentVideo.id)
-        if (availableVideos.length > 0) {
-          const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 6))
-          newVideoData = availableVideos[randomIndex]
-        }
-      }
+      // Prefer a video that isn't the current one
+      newVideoData = getRandomVideo(videos, currentVideo.id)
     } else {
       // Subsequent shuffles
-      const availableVideos = videos.filter(v => v.id !== currentVideo.id)
-      if (availableVideos.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableVideos.length)
-        newVideoData = availableVideos[randomIndex]
-      }
+      newVideoData = getRandomVideo(videos, currentVideo.id)
     }
     
     if (!newVideoData) {
@@ -149,64 +176,69 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
     
-    // Show the loading animation while we load the new video
-    // But make it feel responsive by starting immediately
+    preloadAndSwitch(newVideoData)
     
-    // Create a new video element to preload (safe because we check DOM in render)
-    if (!document || typeof document === 'undefined') {
-      setIsTransitioning(false)
-      isTransitioningRef.current = false
-      setIsRandomizing(false)
-      return
-    }
-    const preloadVideo = document.createElement('video')
-    preloadVideo.src = newVideoData.url
-    preloadVideo.muted = currentMuteState
-    preloadVideo.playsInline = true
-    preloadVideo.loop = true
-    
-    // Start loading
-    preloadVideo.load()
-    
-    // When ready to play, switch both videos
-    const handleCanPlay = () => {
-      // NOW update the current video and switch
-      setCurrentVideo(newVideoData)
-      
-      if (videoRef.current && backgroundVideoRef?.current) {
-        videoRef.current.src = newVideoData.url
-        videoRef.current.muted = currentMuteState
-        
-        backgroundVideoRef.current.src = newVideoData.url
-        backgroundVideoRef.current.play()
-        
-        videoRef.current.play().then(() => {
+    function preloadAndSwitch(videoData: VideoAsset) {
+        // Create a new video element to preload (safe because we check DOM in render)
+        if (!document || typeof document === 'undefined') {
           setIsTransitioning(false)
           isTransitioningRef.current = false
           setIsRandomizing(false)
-          setProgress(0)
-          setIsPlaying(true)
-        }).catch(() => {
-          setIsTransitioning(false)
-          isTransitioningRef.current = false
-          setIsRandomizing(false)
-        })
-      } else {
-        setIsTransitioning(false)
-        isTransitioningRef.current = false
-        setIsRandomizing(false)
-      }
+          return
+        }
+        const preloadVideo = document.createElement('video')
+        preloadVideo.src = videoData.url
+        preloadVideo.muted = currentMuteState
+        preloadVideo.playsInline = true
+        preloadVideo.loop = true
+        preloadVideo.crossOrigin = "anonymous"
+        
+        // Start loading
+        preloadVideo.load()
+        
+        // When ready to play, switch both videos
+        const handleCanPlay = () => {
+          if (!isTransitioningRef.current) return
+
+          // NOW update the current video and switch
+          setCurrentVideo(videoData)
+          
+          if (videoRef.current && backgroundVideoRef?.current) {
+            videoRef.current.src = videoData.url
+            videoRef.current.muted = currentMuteState
+            
+            backgroundVideoRef.current.src = videoData.url
+            backgroundVideoRef.current.play().catch(() => {})
+            
+            videoRef.current.play().then(() => {
+              setIsTransitioning(false)
+              isTransitioningRef.current = false
+              setIsRandomizing(false)
+              setProgress(0)
+              setIsPlaying(true)
+            }).catch(() => {
+              setIsTransitioning(false)
+              isTransitioningRef.current = false
+              setIsRandomizing(false)
+            })
+          } else {
+            setIsTransitioning(false)
+            isTransitioningRef.current = false
+            setIsRandomizing(false)
+          }
+        }
+        
+        // Use 'canplay' for faster response than 'canplaythrough'
+        preloadVideo.addEventListener('canplay', handleCanPlay, { once: true })
+        
+        // Fallback timeout - if it takes too long, just switch anyway
+        setTimeout(() => {
+          if (isTransitioningRef.current) {
+            handleCanPlay()
+          }
+        }, 2000) // 2 second max wait
     }
-    
-    // Use 'canplay' for faster response than 'canplaythrough'
-    preloadVideo.addEventListener('canplay', handleCanPlay, { once: true })
-    
-    // Fallback timeout - if it takes too long, just switch anyway
-    setTimeout(() => {
-      if (isTransitioningRef.current) {
-        handleCanPlay()
-      }
-    }, 2000) // 2 second max wait
+
   }, [shouldPlay, isMuted, hasShuffled, videos, currentVideo.id, backgroundVideoRef, loadVideos])
 
   // Handle click on video circle - Telegram style
@@ -309,11 +341,6 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       return
     }
 
-    const updateProgress = () => {
-      const progress = (video.currentTime / video.duration) * 100
-      setProgress(progress)
-    }
-
     const handleEnded = () => {
       // Don't stop, just restart (loop)
       if (video) {
@@ -327,6 +354,17 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
       if (bgVideo && video && bgVideo.currentTime && Math.abs(video.currentTime - bgVideo.currentTime) > 0.5) {
         video.currentTime = bgVideo.currentTime
       }
+    }
+
+    // Optimized progress update
+    let lastUpdate = 0
+    const updateProgress = () => {
+      const now = Date.now()
+      if (now - lastUpdate < 100) return // Limit to ~10fps
+      
+      lastUpdate = now
+      const progress = (video.currentTime / video.duration) * 100
+      setProgress(progress)
     }
 
     video.addEventListener('timeupdate', updateProgress)

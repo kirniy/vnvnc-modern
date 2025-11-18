@@ -153,7 +153,7 @@ const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
           {/* Archive Badge */}
           {isArchived && (
             <div className="absolute top-4 right-4 px-3 py-1 rounded-full backdrop-blur-md border border-white/20"
-                 style={{ backgroundColor: colors.glass.dark }}>
+             style={{ backgroundColor: colors.glass.dark }}>
               <span className="text-white/60 text-sm">Архив</span>
             </div>
           )}
@@ -252,7 +252,6 @@ const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Navigate to gallery with date parameter
                     navigate(`/gallery?date=${eventPhotoDate}`);
                   }}
                 >

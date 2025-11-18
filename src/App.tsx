@@ -11,6 +11,7 @@ import TelegramButton from './components/TelegramButton'
 // import MinimalCursor from './components/ui/MinimalCursor'
 import ScrollToTop from './components/ScrollToTop'
 import AnalyticsTracker from './components/AnalyticsTracker'
+import GlobalAmbientGlow from './components/GlobalAmbientGlow'
 // import GlitchScanLines from './components/ui/GlitchScanLines' - removed per user request
 import { useTelegramWebApp } from './hooks/useTelegramWebApp'
 // import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
@@ -61,6 +62,7 @@ function App() {
 
   return (
     <>
+      <GlobalAmbientGlow />
       <AgeGate />
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
