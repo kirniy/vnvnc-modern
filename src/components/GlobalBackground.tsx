@@ -10,7 +10,7 @@ const GlobalBackground = memo(() => {
 
       {/* Animated Red Gradient 1 (Top-Left ish) */}
       <motion.div
-        className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] opacity-20"
+        className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] opacity-40"
         style={{ background: colors.neon.red }}
         animate={{
           scale: [1, 1.2, 1],
@@ -26,7 +26,7 @@ const GlobalBackground = memo(() => {
 
       {/* Animated Red Gradient 2 (Bottom-Right ish) */}
       <motion.div
-        className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-15"
+        className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-30"
         style={{ background: colors.neon.red }}
         animate={{
           scale: [1, 1.3, 1],
@@ -43,10 +43,10 @@ const GlobalBackground = memo(() => {
 
       {/* Animated Red Gradient 3 (Center-ish, very subtle pulsing) */}
       <motion.div
-        className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] rounded-full blur-[80px] opacity-10"
+        className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] rounded-full blur-[80px] opacity-20"
         style={{ background: colors.neon.red }}
         animate={{
-          opacity: [0.05, 0.15, 0.05],
+          opacity: [0.1, 0.3, 0.1],
           scale: [1, 1.1, 1],
         }}
         transition={{
@@ -57,12 +57,20 @@ const GlobalBackground = memo(() => {
         }}
       />
 
+      {/* Static Noise Overlay - Lightweight */}
+      <div
+        className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
       {/* Vignette to darken edges */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)]" />
 
       {/* Bottom Ambient Glow (Matches Footer) - Static to save resources */}
-      <div className="absolute bottom-0 left-0 right-0 h-[500px] opacity-30 pointer-events-none"
-        style={{ background: `radial-gradient(circle at 50% 100%, ${colors.neon.red}20 0%, transparent 70%)` }}
+      <div className="absolute bottom-0 left-0 right-0 h-[500px] opacity-50 pointer-events-none"
+        style={{ background: `radial-gradient(circle at 50% 100%, ${colors.neon.red}30 0%, transparent 70%)` }}
       />
     </div>
   )
