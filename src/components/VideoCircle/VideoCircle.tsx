@@ -48,18 +48,25 @@ const SinglePlayer = memo(({
   onEnded: () => void,
   videoRef: React.RefObject<HTMLVideoElement | null>
 }) => {
+  // Helper to safely play
+  const safePlay = () => {
+    const el = videoRef.current
+    if (el && el.paused) {
+      el.play().catch(err => {
+        // Auto-play policy might block unmuted, but we are muted usually.
+        // AbortError happens if load() is called while playing or waiting to play.
+        if (err.name !== 'AbortError') console.log("Playback prevented:", err.name)
+      })
+    }
+  }
+
   // Manage play/pause based on active state
   useEffect(() => {
     const el = videoRef.current
     if (!el) return
 
     if (isActive) {
-      const playPromise = el.play()
-      if (playPromise !== undefined) {
-        playPromise.catch(err => {
-          if (err.name !== 'AbortError') console.error("Playback failed", err)
-        })
-      }
+      safePlay()
     } else {
       el.pause()
       el.currentTime = 0
@@ -75,6 +82,12 @@ const SinglePlayer = memo(({
     if (el.src !== video.url && !el.src.endsWith(video.url)) {
         el.src = video.url
         el.load()
+        // If active, we want to play as soon as possible
+        // The onCanPlay handler will trigger the actual play state up bubble
+        // but we can also try to play immediately if the browser allows
+        if (isActive) {
+            // We don't force play here, we wait for canplay event to be safe
+        }
     }
   }, [video?.url])
 
@@ -85,6 +98,11 @@ const SinglePlayer = memo(({
     }
   }, [isMuted])
 
+  const handleCanPlay = () => {
+      onCanPlay()
+      if (isActive) safePlay()
+  }
+
   return (
     <video
       ref={videoRef}
@@ -94,7 +112,7 @@ const SinglePlayer = memo(({
       playsInline
       preload="auto"
       crossOrigin="anonymous"
-      onCanPlay={onCanPlay}
+      onCanPlay={handleCanPlay}
       onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime, e.currentTarget.duration)}
       onEnded={onEnded}
     />
@@ -207,18 +225,11 @@ const VideoCircle = ({ className = '', backgroundVideoRef, onExpandChange }: Vid
 
   // Callback when a player is ready to play
   const onPlayerCanPlay = useCallback((player: 'A' | 'B') => {
-      // Only interesting if this player is the DESTINATION of a switch
-      // i.e., if we are transitioning AND this player is NOT the active one yet (or we are forcing a switch)
-      
-      // Actually, simpler: if we are transitioning and we just loaded this player, switch to it.
-      // But how do we know we just loaded it for *this* transition?
-      // We can check if it matches the "next" video.
-      
-      // Let's rely on state:
-      // If isTransitioning is true:
-      //   If active is A, and B calls this -> Switch to B
-      //   If active is B, and A calls this -> Switch to A
-      
+      // Handle initial load / regular playback
+      if (player === activePlayer) {
+          setIsPlaying(true)
+      }
+
       setIsTransitioning(prev => {
           if (!prev) return false // Not transitioning, ignore
 
