@@ -36,7 +36,7 @@ export const products: Product[] = [
             '/merch/VNVNC-36.webp', '/merch/VNVNC-37.webp', '/merch/VNVNC-41.webp', '/merch/VNVNC-42.webp',
             '/merch/VNVNC-43.webp', '/merch/VNVNC-44.webp'
         ],
-        tags: ['clothes', 'new'],
+        tags: ['clothes'],
         variants: [
             { id: 'hr-m', name: 'M', price: 5000, inStock: true },
             { id: 'hr-l', name: 'L', price: 5000, inStock: true },
@@ -50,7 +50,7 @@ export const products: Product[] = [
             '/merch/VNVNC-19.webp', '/merch/VNVNC-20.webp', '/merch/VNVNC-21.webp', '/merch/VNVNC-22.webp',
             '/merch/VNVNC-23.webp', '/merch/VNVNC-45.webp', '/merch/VNVNC-46.webp'
         ],
-        tags: ['clothes', 'new'],
+        tags: ['clothes'],
         variants: [
             { id: 'hb-m', name: 'M', price: 5000, inStock: true },
             { id: 'hb-l', name: 'L', price: 5000, inStock: true },
@@ -82,7 +82,7 @@ export const products: Product[] = [
             '/merch/VNVNC-30.webp', '/merch/VNVNC-32.jpg', '/merch/VNVNC-33.jpg', '/merch/VNVNC-35.webp',
             '/merch/VNVNC-59.webp'
         ],
-        tags: ['clothes', 'new'],
+        tags: ['clothes'],
         variants: [
             { id: 'tsp-m', name: 'M', price: 2500, inStock: true },
             { id: 'tsp-l', name: 'L', price: 2500, inStock: true },

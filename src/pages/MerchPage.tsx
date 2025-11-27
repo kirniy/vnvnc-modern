@@ -12,6 +12,8 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import { api } from '../services/api';
 
+const MERCH_OG_IMAGE = 'https://vnvnc.ru/merch/VNVNC-10.jpg';
+
 const MerchPage = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>(() => {
         const saved = localStorage.getItem('vnvnc_cart');
@@ -134,8 +136,14 @@ const MerchPage = () => {
         <div className="min-h-screen bg-black text-white pt-24 pb-20 relative">
             <Seo
                 title="VNVNC Merch Store"
-                description="Лимитированная коллекция мерча VNVNC. Футболки, худи и аксессуары."
+                description="Лимитированный дроп 2025: худи, футболки и аксессуары VNVNC. Бронируйте онлайн — забирайте в клубе."
                 canonical="https://vnvnc.ru/merch"
+                ogImage={MERCH_OG_IMAGE}
+                additionalMeta={[
+                    { property: 'og:image:width', content: '3459' },
+                    { property: 'og:image:height', content: '5189' },
+                    { property: 'og:image:alt', content: 'VNVNC merch drop 2025' },
+                ]}
             />
 
             <div className="container mx-auto px-4 relative z-10">

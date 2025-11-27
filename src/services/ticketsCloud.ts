@@ -176,7 +176,7 @@ class TicketsCloudService {
     // Create new request and store as pending
     const requestPromise = (async () => {
       try {
-        const workerUrl = `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net/api${endpoint}?key=${this.apiKey}`
+        const workerUrl = `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net/tc${endpoint}?key=${this.apiKey}`
         console.log('Making API request:', endpoint)
 
         const response = await fetch(workerUrl, {

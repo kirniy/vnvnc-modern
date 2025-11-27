@@ -246,7 +246,27 @@ Photos are loaded from Yandex Disk with fallback:
 ## Current Issues & Solutions
 
 ### Issue: CORS with TicketsCloud API
-**Solution**: Use Cloudflare Worker proxy at `vnvnc-cors-proxy.kirlich-ps3.workers.dev`
+**Solution**: Use Yandex Cloud API Gateway as CORS proxy
+- **Gateway URL**: `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net`
+- **Routes**: `/tc/v1/*` (preferred) or `/api/v1/*` (legacy)
+- **Function ID**: `d4ehafn3ofbigbqr3nsn`
+
+### Issue: Events API 404 (November 2025 Fix)
+**Root Cause**: The TicketsCloud proxy function wasn't normalizing paths from `/tc/` prefix - only handled `/api/`
+**Solution**: Updated path normalization regex in `tickets-cloud-function.js`:
+```javascript
+// Before: only stripped /api/
+const normalizedPath = path.replace('/api/', '/');
+
+// After: strips both /api/ and /tc/ prefixes
+const normalizedPath = rawPath.replace(/^\/?(api|tc)\//, '/');
+```
+**Also required**: API Gateway spec must have both routes in correct order:
+1. `/api/yandex-disk/{path+}` (specific - FIRST)
+2. `/tc/{path+}` (TicketsCloud alias)
+3. `/api/{path+}` (TicketsCloud legacy - LAST)
+
+**Deployment**: See `yandex-functions/DEPLOY_INSTRUCTIONS.md` for commands
 
 ### Issue: Selectel S3 doesn't support root domains
 **Solution**: Yandex Cloud CDN fronts Selectel S3 and terminates SSL for `vnvnc.ru` and `www.vnvnc.ru` (Certificate Manager, LE R12). Host Header fixed to bucket hostname.

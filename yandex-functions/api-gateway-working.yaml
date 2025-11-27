@@ -4,21 +4,9 @@ info:
   version: 1.0.0
 
 paths:
-  /api/{path+}:
-    x-yc-apigateway-any-method:
-      x-yc-apigateway-integration:
-        type: cloud_functions
-        function_id: d4ehafn3ofbigbqr3nsn
-        service_account_id: aje9aok7e67g6igumr3e
-      parameters:
-      - explode: false
-        in: path
-        name: path
-        required: false
-        schema:
-          type: string
-      operationId: ticketsCloudProxy
-      
+  # IMPORTANT: More specific routes MUST come BEFORE generic catch-all routes!
+
+  # Yandex Disk API (more specific - must be first)
   /api/yandex-disk/{path+}:
     x-yc-apigateway-any-method:
       x-yc-apigateway-integration:
@@ -57,3 +45,43 @@ paths:
         function_id: d4e2qumbfs0s4q88bodd
         service_account_id: aje9aok7e67g6igumr3e
       operationId: contactHandler
+
+  /merch-order:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        service_account_id: aje9aok7e67g6igumr3e
+      operationId: merchOrderHandler
+
+  # TicketsCloud API (using /tc/ prefix as alias)
+  /tc/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: ticketsCloudProxyTc
+
+  # TicketsCloud API (legacy /api/ path - MUST be AFTER /api/yandex-disk/ to allow that more specific route to match first)
+  /api/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: ticketsCloudProxyApi

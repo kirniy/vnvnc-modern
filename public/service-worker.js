@@ -1,5 +1,5 @@
 // VNVNC Service Worker - Force COMPLETE cache refresh
-const CACHE_VERSION = 'vnvnc-v3.0.2-gallery-direct-download';
+const CACHE_VERSION = 'vnvnc-v3.0.3-merch-og';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `images-${CACHE_VERSION}`;
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
       // Cache critical assets individually to prevent one failure from blocking all
-      const promises = CRITICAL_ASSETS.map(url => 
+      const promises = CRITICAL_ASSETS.map(url =>
         cache.add(url).catch(err => {
           console.log(`Failed to cache ${url}:`, err);
           // Continue with other assets even if one fails
@@ -77,7 +77,7 @@ function addTimestamp(response) {
   const clonedResponse = response.clone();
   const headers = new Headers(clonedResponse.headers);
   headers.append('sw-cache-timestamp', Date.now().toString());
-  
+
   return new Response(clonedResponse.body, {
     status: clonedResponse.status,
     statusText: clonedResponse.statusText,
@@ -89,7 +89,7 @@ function addTimestamp(response) {
 function isExpired(response, ttl) {
   const timestamp = response.headers.get('sw-cache-timestamp');
   if (!timestamp) return true;
-  
+
   const age = Date.now() - parseInt(timestamp);
   return age > ttl;
 }
@@ -98,25 +98,25 @@ function isExpired(response, ttl) {
 async function networkFirstStrategy(request, cacheName, ttl) {
   try {
     const networkResponse = await fetch(request);
-    
+
     // Only cache successful 200 responses - skip 206 partial responses
     if (networkResponse.ok && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       // Add timestamp and cache the response
       cache.put(request, addTimestamp(networkResponse.clone()));
     }
-    
+
     return networkResponse;
   } catch (error) {
     // Network failed, try cache
     const cachedResponse = await caches.match(request);
-    
+
     if (cachedResponse) {
       console.log('Network failed, serving from cache:', request.url);
       // Return even if expired during network failure (stale-while-error)
       return cachedResponse;
     }
-    
+
     throw error;
   }
 }
@@ -124,20 +124,20 @@ async function networkFirstStrategy(request, cacheName, ttl) {
 // Cache-first strategy for static assets
 async function cacheFirstStrategy(request, cacheName, ttl) {
   const cachedResponse = await caches.match(request);
-  
+
   if (cachedResponse && !isExpired(cachedResponse, ttl)) {
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
-    
+
     // Only cache successful 200 responses - skip 206 partial responses
     if (networkResponse.ok && networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, addTimestamp(networkResponse.clone()));
     }
-    
+
     return networkResponse;
   } catch (error) {
     // If we have expired cache, use it anyway
@@ -152,7 +152,7 @@ async function cacheFirstStrategy(request, cacheName, ttl) {
 // Stale-while-revalidate strategy
 async function staleWhileRevalidateStrategy(request, cacheName, ttl) {
   const cachedResponse = await caches.match(request);
-  
+
   // Fetch fresh data in background
   const fetchPromise = fetch(request).then(async (networkResponse) => {
     // Only cache successful responses (200 OK) - skip 206 partial responses
@@ -162,12 +162,12 @@ async function staleWhileRevalidateStrategy(request, cacheName, ttl) {
     }
     return networkResponse;
   });
-  
+
   // Return cached response immediately if available
   if (cachedResponse && !isExpired(cachedResponse, ttl)) {
     return cachedResponse;
   }
-  
+
   // Wait for network if no cache
   return fetchPromise;
 }
@@ -176,7 +176,7 @@ async function staleWhileRevalidateStrategy(request, cacheName, ttl) {
 async function limitCacheSize(cacheName, maxSize) {
   const cache = await caches.open(cacheName);
   const requests = await cache.keys();
-  
+
   if (requests.length > maxSize) {
     // Delete oldest entries
     const toDelete = requests.slice(0, requests.length - maxSize);
@@ -188,19 +188,28 @@ async function limitCacheSize(cacheName, maxSize) {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-HTTP(S) requests
   if (!url.protocol.startsWith('http')) {
     return;
   }
-  
+
+  // For cross-origin requests (analytics, Telegram, etc.) just try network and fail silently
+  if (url.origin !== self.location.origin) {
+    event.respondWith(
+      fetch(request).catch(() => new Response('', { status: 204 }))
+    );
+    return;
+  }
+
   // API calls to TicketsCloud and our Yandex proxy/download — ALWAYS NETWORK FIRST and DO NOT cache binary downloads
   if (
     url.pathname.startsWith('/api/yandex-disk/download') ||
     url.pathname.startsWith('/api/yandex-disk/proxy') ||
     url.pathname.includes('/api') ||
     url.host.includes('ticketscloud') ||
-    url.host.includes('vnvnc-cors-proxy')
+    url.host.includes('vnvnc-cors-proxy') ||
+    url.host.includes('apigw.yandexcloud.net')
   ) {
     event.respondWith(
       (async () => {
@@ -210,58 +219,65 @@ self.addEventListener('fetch', (event) => {
         }
         const response = await networkFirstStrategy(request, API_CACHE, CACHE_TTL.api);
         // Limit API cache size asynchronously - don't wait for it
-        limitCacheSize(API_CACHE, CACHE_LIMITS.api).catch(() => {});
+        limitCacheSize(API_CACHE, CACHE_LIMITS.api).catch(() => { });
         return response;
-      })()
+      })().catch(() => new Response('', { status: 504 }))
     );
     return;
   }
-  
+
   // Video files - use stale-while-revalidate
   if (request.url.includes('.mp4') || request.url.includes('.webm')) {
     event.respondWith(
       (async () => {
         const response = await staleWhileRevalidateStrategy(request, VIDEO_CACHE, CACHE_TTL.videos);
         // Limit video cache size asynchronously - don't wait for it
-        limitCacheSize(VIDEO_CACHE, CACHE_LIMITS.videos).catch(() => {});
+        limitCacheSize(VIDEO_CACHE, CACHE_LIMITS.videos).catch(() => { });
         return response;
-      })()
+      })().catch(() => new Response('', { status: 504 }))
     );
     return;
   }
-  
+
   // Images - cache first (но НЕ для наших API-путей)
   if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/) && !url.pathname.startsWith('/api/')) {
     event.respondWith(
       (async () => {
         const response = await cacheFirstStrategy(request, IMAGE_CACHE, CACHE_TTL.images);
         // Limit image cache size asynchronously - don't wait for it
-        limitCacheSize(IMAGE_CACHE, CACHE_LIMITS.images).catch(() => {});
+        limitCacheSize(IMAGE_CACHE, CACHE_LIMITS.images).catch(() => { });
         return response;
-      })()
+      })().catch(() => new Response('', { status: 504 }))
     );
     return;
   }
-  
+
   // JavaScript and CSS - cache first with long TTL
   if (request.url.match(/\.(js|css)$/)) {
     event.respondWith(
-      cacheFirstStrategy(request, STATIC_CACHE, CACHE_TTL.static)
+      cacheFirstStrategy(request, STATIC_CACHE, CACHE_TTL.static).catch(() => new Response('', { status: 504 }))
     );
     return;
   }
-  
+
   // HTML pages - network first for fresh content
   if (request.mode === 'navigate' || request.url.includes('.html')) {
     event.respondWith(
-      networkFirstStrategy(request, STATIC_CACHE, CACHE_TTL.api)
+      networkFirstStrategy(request, STATIC_CACHE, CACHE_TTL.api).catch(() => new Response('', { status: 504 }))
     );
     return;
   }
-  
+
   // Default - try network first
   event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    (async () => {
+      try {
+        return await fetch(request);
+      } catch (error) {
+        const cached = await caches.match(request);
+        return cached || new Response('', { status: 504 });
+      }
+    })()
   );
 });
 
@@ -270,7 +286,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     caches.keys().then((cacheNames) => {
       return Promise.all(

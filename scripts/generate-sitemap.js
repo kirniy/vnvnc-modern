@@ -13,6 +13,7 @@ const OUTPUT_PATH = path.resolve(__dirname, '../public/sitemap.xml')
 const STATIC_ROUTES = [
   { loc: '/', changefreq: 'daily', priority: 1.0 },
   { loc: '/events', changefreq: 'hourly', priority: 0.9 },
+  { loc: '/merch', changefreq: 'weekly', priority: 0.8 },
   { loc: '/gallery', changefreq: 'weekly', priority: 0.8 },
   { loc: '/reservations', changefreq: 'weekly', priority: 0.7 },
   { loc: '/rental', changefreq: 'monthly', priority: 0.6 },

@@ -14,6 +14,17 @@
       ],
       "destination": "/api/og?date=:date"
     },
+    {
+      "source": "/merch",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|telegram|whatsapp|facebook|twitter|linkedin|pinterest|slack|discord|vk).*"
+        }
+      ],
+      "destination": "/api/og-merch"
+    },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [

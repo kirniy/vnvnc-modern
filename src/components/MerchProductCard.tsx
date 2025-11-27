@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ChevronRight, ChevronLeft } from 'lucide-react';
 import type { Product, ProductVariant } from '../data/merch-products';
@@ -16,18 +16,39 @@ interface MerchProductCardProps {
 const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCart, onImageClick }) => {
     const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(product.variants[0]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isInteracting, setIsInteracting] = useState(false);
 
-    const nextImage = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    // Auto-slideshow
+    useEffect(() => {
+        if (!product.images || product.images.length <= 1 || isInteracting) return;
+
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, [product.images, isInteracting]);
+
+    const nextImage = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
         if (product.images.length > 0) {
             setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
         }
     };
 
-    const prevImage = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const prevImage = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
         if (product.images.length > 0) {
             setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+        }
+    };
+
+    const handleDragEnd = (_: any, info: any) => {
+        const swipeThreshold = 50;
+        if (info.offset.x < -swipeThreshold) {
+            nextImage();
+        } else if (info.offset.x > swipeThreshold) {
+            prevImage();
         }
     };
 
@@ -41,6 +62,10 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
+            onMouseEnter={() => setIsInteracting(true)}
+            onMouseLeave={() => setIsInteracting(false)}
+            onTouchStart={() => setIsInteracting(true)}
+            onTouchEnd={() => setIsInteracting(false)}
         >
             {/* Image Container */}
             <div
@@ -49,9 +74,18 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
             >
                 {hasImages ? (
                     <motion.img
+                        key={currentImageIndex}
                         src={product.images[currentImageIndex]}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={handleDragEnd}
+                        whileTap={{ cursor: "grabbing" }}
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/5 text-white/20">
@@ -60,7 +94,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
                 )}
 
                 {/* Tags */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                <div className="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
                     {product.tags.map(tag => (
                         <span
                             key={tag}
@@ -76,17 +110,29 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
                     <>
                         <button
                             onClick={prevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-10"
                         >
                             <ChevronLeft size={20} />
                         </button>
                         <button
                             onClick={nextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-10"
                         >
                             <ChevronRight size={20} />
                         </button>
                     </>
+                )}
+
+                {/* Image Dots Indicator */}
+                {product.images.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                        {product.images.map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/30'}`}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
 

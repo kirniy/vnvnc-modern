@@ -25,8 +25,10 @@ module.exports.handler = async function (event, context) {
   }
 
   try {
-    // Map /api/v1/* → /v1/* (EXACTLY like Cloudflare Worker)
-    const apiPath = path.replace('/api/', '/');
+    // Map /api/v1/* or /tc/v1/* → /v1/* (strip gateway route prefix)
+    const rawPath = (event.params && (event.params.proxy || event.params.path)) || path || '';
+    const normalizedPath = rawPath.replace(/^\/?(api|tc)\//, '/');
+    const apiPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
     
     // Extract API key from query parameters
     const apiKey = queryStringParameters?.key;
