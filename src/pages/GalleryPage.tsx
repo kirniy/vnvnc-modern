@@ -652,6 +652,10 @@ const GalleryPage = () => {
             )
           }
         }}
+        on={{
+          // Keep our state in sync when user swipes inside the lightbox
+          view: ({ index }) => setPhotoIndex(index)
+        }}
       />
     </div>
   )

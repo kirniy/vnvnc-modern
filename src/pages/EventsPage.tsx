@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
@@ -14,6 +14,7 @@ import { getEventDateKey } from '../utils/eventSlug'
 const EventsPage = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'archive'>('current')
   const [activeMonth, setActiveMonth] = useState<string | 'all'>('all')
+  const [archiveVisibleCount, setArchiveVisibleCount] = useState(12)
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
@@ -53,6 +54,13 @@ const EventsPage = () => {
     })
     .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
+  // Reset archive pagination when switching tabs or month
+  useEffect(() => {
+    if (activeTab === 'archive') {
+      setArchiveVisibleCount(12)
+    }
+  }, [activeTab, activeMonth])
+
   const months = useMemo(() => ['all','01','02','03','04','05','06','07','08','09','10','11','12'], [])
 
   const dateCounts = useMemo(() => {
@@ -70,6 +78,19 @@ const EventsPage = () => {
     if (!key) return 1
     return dateCounts.get(key) ?? 1
   }
+
+  const filteredArchiveEvents = useMemo(() => {
+    return archiveEvents.filter((event: any) => {
+      if (activeMonth === 'all') return true
+      const date = new Date(event.rawDate)
+      if (Number.isNaN(date.getTime())) return false
+      const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+      const month = (moscowDate.getMonth() + 1).toString().padStart(2, '0')
+      return month === activeMonth
+    })
+  }, [archiveEvents, activeMonth])
+
+  const limitedArchiveEvents = filteredArchiveEvents.slice(0, archiveVisibleCount)
 
   return (
     <div className="min-h-screen pt-20 relative">
@@ -163,17 +184,27 @@ const EventsPage = () => {
                 />
               ))
             ) : (
-              archiveEvents
-                .filter((event: any) => activeMonth==='all' ? true : (new Date(event.rawDate).toISOString().slice(5,7)===activeMonth))
-                .map((event: any, index: number) => (
-                  <EventCardNew
-                    key={event.id}
-                    event={event}
-                    index={index}
-                    sameDateCount={getSameDateCount(event)}
-                  />
-                ))
+              limitedArchiveEvents.map((event: any, index: number) => (
+                <EventCardNew
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  sameDateCount={getSameDateCount(event)}
+                />
+              ))
             )}
+          </div>
+        )}
+
+        {/* Load more for archive to avoid heavy initial render on mobile Safari */}
+        {activeTab === 'archive' && limitedArchiveEvents.length < filteredArchiveEvents.length && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setArchiveVisibleCount(count => Math.min(count + 12, filteredArchiveEvents.length))}
+              className="px-5 py-3 radius text-white font-semibold bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              Показать еще
+            </button>
           </div>
         )}
 
