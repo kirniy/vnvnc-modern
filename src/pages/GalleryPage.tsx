@@ -249,6 +249,39 @@ const GalleryPage = () => {
     window.location.reload()
   }
 
+  // Slides snapshot for the lightbox
+  const lightboxList = lightboxImages.length > 0 ? lightboxImages : filteredImages
+
+  // Clamp photoIndex to available slides (defensive when data changes)
+  useEffect(() => {
+    if (photoIndex >= lightboxList.length && lightboxList.length > 0) {
+      setPhotoIndex(lightboxList.length - 1)
+    }
+  }, [photoIndex, lightboxList.length])
+
+  const lightboxSlides = useMemo(() => {
+    return lightboxList.map(img => {
+      const name = ((img as any).name || (img as any).filename || 'vnvnc-photo.jpg') as string
+      const bestSrc = (img as any).fullSrc || img.src
+      const path = (img as any).path as string | undefined
+      const originalUrl = (img as any).originalUrl || bestSrc
+      const fullresSource = path
+        ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
+        : originalUrl
+      const proxySource = path
+        ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
+        : fullresSource
+      return {
+        src: bestSrc,
+        downloadUrl: bestSrc,
+        download: name,
+        _fullres: fullresSource,
+        _fullresProxied: proxySource,
+        _filename: name
+      } as any
+    })
+  }, [lightboxList, DOWNLOAD_PROXY_BASE])
+
   // Scroll date selector
   const scrollDates = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -587,66 +620,35 @@ const GalleryPage = () => {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={photoIndex}
-        slides={(lightboxImages.length > 0 ? lightboxImages : filteredImages).map(img => {
-          const name = ((img as any).name || (img as any).filename || 'vnvnc-photo.jpg') as string
-          const bestSrc = (img as any).fullSrc || img.src
-          const path = (img as any).path as string | undefined
-          // Источник для fullres: либо наш download по path, либо оригинальный URL
-          const originalUrl = (img as any).originalUrl || bestSrc
-          const fullresSource = path
-            ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
-            : originalUrl
-          const proxySource = path
-            ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(path)}`
-            : fullresSource
-          return {
-            src: bestSrc,
-            downloadUrl: bestSrc,
-            download: name,
-            _fullres: fullresSource,
-            _fullresProxied: proxySource,
-            _filename: name
-          } as any
-        })}
-        // заменим стандартную кнопку закрытия на группу (compressed + fullres + close)
+        slides={lightboxSlides}
         styles={{
           container: { backgroundColor: 'rgba(0, 0, 0, 0.95)', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' },
           slide: { cursor: 'grab' },
         }}
         render={{
-          buttonClose: () => {
-            const list = (lightboxImages.length > 0 ? lightboxImages : filteredImages) as any[]
-            const slide = list[photoIndex] as any
-            const compressedUrl = (slide?.fullSrc || slide?.src) as string
-            const filename = (slide?.name || slide?.filename || 'vnvnc-photo.jpg') as string
-            const pathForOriginal = (slide?.path) as string | undefined
-            const fullresUrl = pathForOriginal
-              ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(pathForOriginal)}`
-              : ((slide?.originalUrl || slide?.fullSrc || slide?.src) as string)
-            const proxiedFullres = pathForOriginal
-              ? `${DOWNLOAD_PROXY_BASE}/api/yandex-disk/direct-download?path=${encodeURIComponent(pathForOriginal)}`
-              : fullresUrl
-            const fallbackTarget = slide?.originalUrl && slide?.originalUrl !== fullresUrl
-              ? (slide.originalUrl as string)
-              : fullresUrl
+          // Per-slide footer is re-rendered with the correct slide, so downloads follow navigation
+          slideFooter: ({ slide }) => {
+            const s = slide as any
+            const filename = (s._filename || s.download || 'vnvnc-photo.jpg') as string
+            const compressedUrl = (s.fullSrc || s.src || s.downloadUrl) as string
+            const fullresUrl = (s._fullresProxied || s._fullres || s.downloadUrl || s.src) as string
+            const fallbackTarget = (s._fullres || s.downloadUrl || s.src) as string
+
             return (
-              <div className="flex items-center gap-2 mr-2">
+              <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
                 <button
                   onClick={() => downloadViaFetch(compressedUrl, filename)}
-                  className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
+                  className="p-3 radius bg-black/60 hover:bg-black/80 transition-colors"
                   aria-label="download compressed"
                 >
                   <DownloadIcon size={22} />
                 </button>
                 <button
-                  onClick={() => downloadOriginal(proxiedFullres, filename, fallbackTarget)}
-                  className="p-3 radius bg-black/50 hover:bg-black/70 transition-colors"
+                  onClick={() => downloadOriginal(fullresUrl, filename, fallbackTarget)}
+                  className="p-3 radius bg-black/60 hover:bg-black/80 transition-colors"
                   aria-label="download fullres"
                 >
                   <FileDown size={22} />
-                </button>
-                <button onClick={() => setLightboxOpen(false)} aria-label="close" className="yarl__button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </button>
               </div>
             )
