@@ -149,10 +149,7 @@ const MerchPage = () => {
             <div className="container mx-auto px-4 relative z-10">
                 <div className="flex items-center justify-between mb-12">
                     <div>
-                        <h1 className="text-4xl md:text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50 mb-2 lowercase">
-                            vnvnc <span className="text-neon-red drop-shadow-[0_0_15px_rgba(255,0,64,0.5)]">merch</span>
-                        </h1>
-                        <p className="text-white/40 text-lg lowercase">limited collection 2025</p>
+                        {/* Header removed as per request */}
                     </div>
 
                     <button
@@ -170,18 +167,9 @@ const MerchPage = () => {
 
                 {/* Categories / Filter could go here */}
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
-                >
-                    <h1 className="text-4xl md:text-7xl font-display font-extrabold text-white mb-4 lowercase">
-                        vnvnc <span className="text-neon-red drop-shadow-[0_0_15px_rgba(255,0,64,0.5)]">merch</span>
-                    </h1>
-                    <p className="text-white/60 text-lg max-w-2xl mx-auto">
-                        лимитированная коллекция 2025
-                    </p>
-                </motion.div>
+                {/* Categories / Filter could go here */}
+
+                <div className="mb-8"></div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {products.map((product) => (

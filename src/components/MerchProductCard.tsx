@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ChevronRight, ChevronLeft } from 'lucide-react';
 import type { Product, ProductVariant } from '../data/merch-products';
 import { tagTranslations } from '../data/merch-products';
@@ -17,12 +17,14 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
     const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(product.variants[0]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isInteracting, setIsInteracting] = useState(false);
+    const [direction, setDirection] = useState(0);
 
     // Auto-slideshow
     useEffect(() => {
         if (!product.images || product.images.length <= 1 || isInteracting) return;
 
         const interval = setInterval(() => {
+            setDirection(1);
             setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
         }, 4000);
 
@@ -32,6 +34,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
     const nextImage = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (product.images.length > 0) {
+            setDirection(1);
             setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
         }
     };
@@ -39,6 +42,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
     const prevImage = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (product.images.length > 0) {
+            setDirection(-1);
             setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
         }
     };
@@ -53,6 +57,23 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
     };
 
     const hasImages = product.images && product.images.length > 0;
+
+    const slideVariants = {
+        enter: (direction: number) => ({
+            x: direction > 0 ? '100%' : '-100%',
+            opacity: 0
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1
+        },
+        exit: (direction: number) => ({
+            zIndex: 0,
+            x: direction < 0 ? '100%' : '-100%',
+            opacity: 0
+        })
+    };
 
     return (
         <motion.div
@@ -73,20 +94,28 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
                 onClick={() => onImageClick(product.images, currentImageIndex)}
             >
                 {hasImages ? (
-                    <motion.img
-                        key={currentImageIndex}
-                        src={product.images[currentImageIndex]}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={0.2}
-                        onDragEnd={handleDragEnd}
-                        whileTap={{ cursor: "grabbing" }}
-                    />
+                    <AnimatePresence initial={false} custom={direction}>
+                        <motion.img
+                            key={currentImageIndex}
+                            src={product.images[currentImageIndex]}
+                            alt={product.name}
+                            custom={direction}
+                            variants={slideVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{
+                                x: { type: "spring", stiffness: 300, damping: 30 },
+                                opacity: { duration: 0.2 }
+                            }}
+                            className="absolute w-full h-full object-cover"
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={1}
+                            onDragEnd={handleDragEnd}
+                            whileTap={{ cursor: "grabbing" }}
+                        />
+                    </AnimatePresence>
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/5 text-white/20">
                         <ShoppingBag size={48} />
@@ -94,7 +123,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
                 )}
 
                 {/* Tags */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
+                <div className="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none z-10">
                     {product.tags.map(tag => (
                         <span
                             key={tag}
@@ -110,13 +139,13 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
                     <>
                         <button
                             onClick={prevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-10"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-20"
                         >
                             <ChevronLeft size={20} />
                         </button>
                         <button
                             onClick={nextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-10"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-20"
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -125,7 +154,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
 
                 {/* Image Dots Indicator */}
                 {product.images.length > 1 && (
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
                         {product.images.map((_, idx) => (
                             <div
                                 key={idx}
@@ -137,7 +166,7 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
             </div>
 
             {/* Content */}
-            <div className="p-5 flex flex-col flex-grow">
+            <div className="p-5 flex flex-col flex-grow z-10 relative bg-inherit">
                 <h3 className="text-lg font-bold text-white mb-1 leading-tight">{product.name}</h3>
                 <p className="text-white/60 text-sm mb-4 line-clamp-2 flex-grow">{product.description}</p>
 
