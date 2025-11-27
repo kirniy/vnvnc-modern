@@ -23,11 +23,30 @@ export interface RentalData {
   email: string;
 }
 
+export interface MerchOrderData {
+  items: {
+    productId: string;
+    productName: string;
+    variantId: string;
+    variantName: string;
+    price: number;
+    quantity: number;
+  }[];
+  total: number;
+  discount?: number;
+  couponCode?: string;
+  customer: {
+    name: string;
+    phone: string;
+    comment?: string;
+  };
+}
+
 // Helper function to create fetch with timeout
 const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 8000) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -57,7 +76,7 @@ export const api = {
       });
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit booking');
       }
@@ -84,7 +103,7 @@ export const api = {
       );
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit contact form');
       }
@@ -95,9 +114,9 @@ export const api = {
       if (error.message === 'Request timeout - please try again') {
         // Return success on timeout to avoid user frustration
         // The worker might still process it
-        return { 
-          success: true, 
-          message: 'Заявка отправлена. Если мы не свяжемся в течение 30 минут, позвоните нам.' 
+        return {
+          success: true,
+          message: 'Заявка отправлена. Если мы не свяжемся в течение 30 минут, позвоните нам.'
         };
       }
       throw error;
@@ -119,7 +138,7 @@ export const api = {
       );
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit rental form');
       }
@@ -130,9 +149,44 @@ export const api = {
       if (error.message === 'Request timeout - please try again') {
         // Return success on timeout to avoid user frustration
         // The worker might still process it
-        return { 
-          success: true, 
-          message: 'Заявка отправлена. Мы свяжемся с вами в ближайшее время для обсуждения деталей.' 
+        return {
+          success: true,
+          message: 'Заявка отправлена. Мы свяжемся с вами в ближайшее время для обсуждения деталей.'
+        };
+      }
+      throw error;
+    }
+  },
+
+  async submitMerchOrder(data: MerchOrderData): Promise<{ success: boolean; message?: string; orderId?: string }> {
+    try {
+      const response = await fetchWithTimeout(
+        `${WORKER_URL}/merch-order`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        },
+        10000 // 10 second timeout
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit order');
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error('Error submitting merch order:', error);
+      if (error.message === 'Request timeout - please try again') {
+        // Return success on timeout to avoid user frustration
+        return {
+          success: true,
+          message: 'Заказ принят в обработку. Если мы не свяжемся в течение 30 минут, позвоните нам.',
+          orderId: 'PENDING-' + Date.now().toString().slice(-4)
         };
       }
       throw error;

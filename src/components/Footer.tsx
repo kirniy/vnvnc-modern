@@ -19,6 +19,7 @@ const Footer = () => {
     { name: 'правила', path: '/rules' },
     { name: 'бронирование', path: '/reservations' },
     { name: 'аренда клуба', path: '/rental' },
+    { name: 'мерч', path: '/merch' },
     { name: 'контакты', path: '/contact' },
   ]
 

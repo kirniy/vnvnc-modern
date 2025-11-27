@@ -19,7 +19,7 @@ const corsHeaders = {
 // Send Telegram message
 async function sendTelegramMessage(telegramBotToken, chatId, text) {
   const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-  
+
   const data = JSON.stringify({
     chat_id: chatId,
     text: text,
@@ -124,7 +124,7 @@ function withTimeout(promise, ms) {
   });
   return Promise.race([
     promise.then(res => { clearTimeout(timeoutId); return res; })
-           .catch(err => { clearTimeout(timeoutId); return { __error: err }; }),
+      .catch(err => { clearTimeout(timeoutId); return { __error: err }; }),
     timeoutPromise
   ]);
 }
@@ -196,6 +196,61 @@ async function handleContact(data, telegramBotToken, brevoApiKey) {
   return { success: true, message: 'Contact form submitted successfully', channels: { telegram: true } };
 }
 
+// Handle merch order submission
+async function handleMerchOrder(data, telegramBotToken) {
+  const { items, total, discount, couponCode, customer } = data;
+
+  // Validate required fields
+  if (!items || !items.length || !customer || !customer.name || !customer.phone) {
+    throw new Error('Missing required fields');
+  }
+
+  const orderId = `M-${Date.now().toString().slice(-6)}`;
+
+  // Format items list
+  const itemsList = items.map(item =>
+    `▫️ ${item.productName} (${item.variantName}) x${item.quantity} - ${item.price * item.quantity}₽`
+  ).join('\n');
+
+  // Format the message for Telegram
+  const telegramMessage = `
+🛍 <b>Новый заказ мерча!</b> #${orderId}
+
+👤 <b>Покупатель:</b> ${customer.name}
+📱 <b>Телефон:</b> ${customer.phone}
+${customer.comment ? `💬 <b>Комментарий:</b> ${customer.comment}\n` : ''}
+<b>Заказ:</b>
+${itemsList}
+
+${discount ? `🏷 <b>Скидка (${couponCode}):</b> -${discount}₽\n` : ''}💰 <b>Итого: ${total}₽</b>
+
+#мерч #заказ
+  `.trim();
+
+  // Telegram only with bounded time
+  const [tg1, tg2] = await Promise.all([
+    withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
+  ]);
+
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  if (!telegramOk) {
+    // Log error but don't fail the request completely if possible, 
+    // but here we want to ensure admin knows.
+    console.error('Failed to send merch notification', { tg1, tg2 });
+    // We still return success to the user but maybe log it? 
+    // For now, let's throw if BOTH fail.
+    throw new Error('Failed to send Telegram notification');
+  }
+
+  return {
+    success: true,
+    message: 'Order submitted successfully',
+    orderId,
+    channels: { telegram: true }
+  };
+}
+
 // Main handler for Yandex Cloud Functions
 module.exports.handler = async function (event, context) {
   const { httpMethod, path, body } = event;
@@ -242,6 +297,8 @@ module.exports.handler = async function (event, context) {
       result = await handleContact(data, telegramBotToken);
     } else if ((path === '/rental' || path === '/api/rental') && httpMethod === 'POST') {
       result = await handleRental(data, telegramBotToken);
+    } else if ((path === '/merch-order' || path === '/api/merch-order') && httpMethod === 'POST') {
+      result = await handleMerchOrder(data, telegramBotToken);
     } else {
       return {
         statusCode: 404,
@@ -261,9 +318,9 @@ module.exports.handler = async function (event, context) {
     return {
       statusCode: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to process form', 
-        details: error.message 
+      body: JSON.stringify({
+        error: 'Failed to process form',
+        details: error.message
       })
     };
   }

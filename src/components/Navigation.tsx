@@ -15,6 +15,7 @@ const Navigation = () => {
     { name: 'правила', path: '/rules' },
     { name: 'бронирование', path: '/reservations' },
     { name: 'аренда', path: '/rental' },
+    { name: 'мерч', path: '/merch' },
     { name: 'контакты', path: '/contact' },
   ]
 
@@ -24,10 +25,10 @@ const Navigation = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10)
     }
-    
+
     // Initial check
     handleScroll()
-    
+
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
@@ -43,7 +44,7 @@ const Navigation = () => {
         document.body.style.overflow = 'unset'
       }
     }
-    
+
     return () => {
       if (document.body) {
         document.body.style.overflow = 'unset'
@@ -63,8 +64,8 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Always visible for symmetry with hamburger menu */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center group pl-2 sm:pl-0 transition-all duration-300"
             onClick={() => {
               if (location.pathname === '/') {
@@ -73,10 +74,9 @@ const Navigation = () => {
             }}
           >
             <div className="relative flex items-center">
-              <span 
-                className={`font-display font-extrabold text-2xl lowercase transition-all duration-300 group-hover:scale-[1.03] ${
-                  scrolled ? 'drop-shadow-[0_0_15px_rgba(255,0,64,0.5)]' : ''
-                }`}
+              <span
+                className={`font-display font-extrabold text-2xl lowercase transition-all duration-300 group-hover:scale-[1.03] ${scrolled ? 'drop-shadow-[0_0_15px_rgba(255,0,64,0.5)]' : ''
+                  }`}
                 style={{ color: colors.neon.red }}
               >
                 vnvnc
@@ -90,18 +90,17 @@ const Navigation = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`relative px-2 py-2 text-sm font-medium transition-all duration-200 ${
-                  location.pathname === item.path
-                    ? ''
-                    : 'text-white/80 hover:text-white'
-                }`}
+                className={`relative px-2 py-2 text-sm font-medium transition-all duration-200 ${location.pathname === item.path
+                  ? ''
+                  : 'text-white/80 hover:text-white'
+                  }`}
                 style={location.pathname === item.path ? { color: colors.neon.red } : {}}
               >
                 {item.name}
                 {location.pathname === item.path && (
                   <motion.div
                     className="absolute bottom-0 left-0 right-0 h-0.5"
-                    style={{ 
+                    style={{
                       backgroundColor: colors.neon.red,
                       boxShadow: `0 0 20px ${colors.neon.red}`
                     }}
@@ -170,16 +169,16 @@ const Navigation = () => {
             {/* Items */}
             <div className="absolute inset-0 px-6 py-16 flex pointer-events-none overflow-y-auto">
               <div className="flex flex-col gap-4 pointer-events-auto min-h-full w-full justify-center max-h-[calc(100vh-8rem)]">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className="w-full radius h-12 border-2 border-white text-white px-4 font-display font-extrabold text-lg lowercase text-center flex items-center justify-center hover:bg-white hover:text-black transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full radius h-12 border-2 border-white text-white px-4 font-display font-extrabold text-lg lowercase text-center flex items-center justify-center hover:bg-white hover:text-black transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
               </div>
             </div>
           </motion.div>

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'
@@ -25,6 +25,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'))
 const ReservationsPage = lazy(() => import('./pages/ReservationsPage'))
 const RulesPage = lazy(() => import('./pages/RulesPage'))
 const RentalPage = lazy(() => import('./pages/RentalPage'))
+const MerchPage = lazy(() => import('./pages/MerchPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
 // Custom loading component that hides the footer
@@ -76,6 +77,8 @@ function App() {
         <Suspense fallback={<LoadingWithHiddenFooter />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/merch" element={<MerchPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/e/:slug" element={<ShortUrlRedirect />} />
@@ -87,7 +90,7 @@ function App() {
           </Routes>
         </Suspense>
       </main>
-      
+
       <Footer />
       <TelegramButton />
       <Analytics />
