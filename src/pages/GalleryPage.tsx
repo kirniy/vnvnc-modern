@@ -259,6 +259,14 @@ const GalleryPage = () => {
     }
   }, [photoIndex, lightboxList.length])
 
+  // API base для full-res загрузки
+  const API_BASE_URL = import.meta.env.PROD
+    ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
+    : 'http://localhost:8787'
+
+  // Yandex gateway direct-download (новый эндпоинт на серверной функции)
+  const DOWNLOAD_PROXY_BASE = API_BASE_URL
+
   const lightboxSlides = useMemo(() => {
     return lightboxList.map(img => {
       const name = ((img as any).name || (img as any).filename || 'vnvnc-photo.jpg') as string
@@ -292,14 +300,6 @@ const GalleryPage = () => {
       });
     }
   }
-
-  // API base для full-res загрузки
-  const API_BASE_URL = import.meta.env.PROD
-    ? 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
-    : 'http://localhost:8787'
-
-  // Yandex gateway direct-download (новый эндпоинт на серверной функции)
-  const DOWNLOAD_PROXY_BASE = API_BASE_URL
 
   // Программная загрузка, чтобы избежать 0-byte при кросс-домене
   const downloadViaFetch = async (url: string, filename: string, fallbackUrl?: string) => {
