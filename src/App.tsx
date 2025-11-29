@@ -14,6 +14,7 @@ import AnalyticsTracker from './components/AnalyticsTracker'
 // import GlitchScanLines from './components/ui/GlitchScanLines' - removed per user request
 import GlobalBackground from './components/GlobalBackground'
 import { useTelegramWebApp } from './hooks/useTelegramWebApp'
+import SnowOverlay from './components/effects/SnowOverlay'
 // import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
 
 // Lazy load pages for better performance
@@ -93,6 +94,7 @@ function App() {
 
       <Footer />
       <TelegramButton />
+      <SnowOverlay />
       <Analytics />
     </>
   )
