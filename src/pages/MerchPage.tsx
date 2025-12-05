@@ -45,12 +45,8 @@ const MerchPage = () => {
     }, [cartItems]);
 
     const addToCart = (product: Product, variantId: string) => {
-        const originalVariant = product.variants.find(v => v.id === variantId);
-        if (!originalVariant) return;
-
-        // Apply 30% discount
-        const discountedPrice = Math.round(originalVariant.price * 0.7);
-        const variant = { ...originalVariant, price: discountedPrice };
+        const variant = product.variants.find(v => v.id === variantId);
+        if (!variant) return;
 
         setCartItems(prev => {
             const existing = prev.find(item => item.product.id === product.id && item.variant.id === variant.id);
