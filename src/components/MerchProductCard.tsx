@@ -195,11 +195,8 @@ const MerchProductCard: React.FC<MerchProductCardProps> = ({ product, onAddToCar
 
                     <div className="flex items-center justify-between pt-2 border-t border-white/10">
                         <div className="flex flex-col">
-                            <span className="text-white/40 text-sm line-through decoration-white/40 decoration-1">
-                                {selectedVariant.price}₽
-                            </span>
                             <NeonText variant="red" size="xl" glow className="font-bold">
-                                {Math.round(selectedVariant.price * 0.7)}₽
+                                {selectedVariant.price}₽
                             </NeonText>
                         </div>
 
