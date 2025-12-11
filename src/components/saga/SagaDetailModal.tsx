@@ -78,14 +78,34 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
         staleTime: 1000 * 60 * 5
     })
 
+    // Helper: Verify if a specific date string (DD.MM) is "expired" (past 8AM next day)
+    const isDateExpired = (dateStr: string) => {
+        const [day, month] = dateStr.trim().split('.').map(Number)
+        const year = month === 12 ? 2024 : 2025 // Context-aware year
+
+        // Expiry: 8:00 AM on the day AFTER the event
+        const expiryDate = new Date(year, month - 1, day + 1, 8, 0, 0)
+
+        // Compare with current local time (simplest approximation since user is likely local)
+        // Ideally we'd compare to Moscow time, but local client time is usually sufficient for UI default
+        return new Date() > expiryDate
+    }
+
+    // Determine default date: First non-expired date, or the last one if all expired
+    const getInitialDate = () => {
+        if (!event.twinEventDates) return event.date
+
+        // Find first date that is NOT expired
+        const activeDate = event.twinEventDates.find(d => !isDateExpired(d.date))
+        return activeDate ? activeDate.date : event.twinEventDates[event.twinEventDates.length - 1].date
+    }
+
     // Helper to force re-render logic when event changes or cycling resets
-    const [selectedDate, setSelectedDate] = useState<string>(
-        event.twinEventDates ? event.twinEventDates[0].date : event.date
-    )
+    const [selectedDate, setSelectedDate] = useState<string>(getInitialDate())
 
     // Reset date when event changes
     useEffect(() => {
-        setSelectedDate(event.twinEventDates ? event.twinEventDates[0].date : event.date)
+        setSelectedDate(getInitialDate())
     }, [event.id])
 
     // Find the specific TC event matching the selected date
@@ -189,19 +209,24 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                     {/* Twin Event Selector */}
                     {event.twinEventDates && (
                         <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white/5 rounded-xl w-fit">
-                            {event.twinEventDates.map((twin) => (
-                                <button
-                                    key={twin.date}
-                                    onClick={() => setSelectedDate(twin.date)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedDate === twin.date
-                                        ? 'bg-white text-black shadow-lg'
-                                        : 'text-white/60 hover:text-white hover:bg-white/10'
-                                        }`}
-                                >
-                                    {twin.date}
-                                    {twin.titleSuffix && <span className="ml-2 opacity-60 font-normal">{twin.titleSuffix}</span>}
-                                </button>
-                            ))}
+                            {event.twinEventDates.map((twin) => {
+                                const expired = isDateExpired(twin.date)
+                                return (
+                                    <button
+                                        key={twin.date}
+                                        onClick={() => setSelectedDate(twin.date)}
+                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedDate === twin.date
+                                                ? 'bg-white text-black shadow-lg'
+                                                : expired
+                                                    ? 'text-white/20 hover:text-white/40 bg-transparent' // Expired styling
+                                                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                                            }`}
+                                    >
+                                        {twin.date}
+                                        {twin.titleSuffix && <span className="ml-2 opacity-60 font-normal">{twin.titleSuffix}</span>}
+                                    </button>
+                                )
+                            })}
                         </div>
                     )}
 
