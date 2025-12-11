@@ -81,14 +81,23 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
     // Helper: Verify if a specific date string (DD.MM) is "expired" (past 8AM next day)
     const isDateExpired = (dateStr: string) => {
         const [day, month] = dateStr.trim().split('.').map(Number)
-        const year = month === 12 ? 2024 : 2025 // Context-aware year
+
+        const now = new Date()
+        const currentYear = now.getFullYear()
+        const currentMonth = now.getMonth() + 1 // 1-12
+
+        // Define Season Start Year dynamically
+        // If we are late in the year (Sept-Dec), season starts this year.
+        // If we are early in the year (Jan-June), season started last year.
+        const seasonStartYear = currentMonth >= 9 ? currentYear : currentYear - 1
+
+        // If event month is 12, it's in the start year. If 01, it's start year + 1.
+        const eventYear = month === 12 ? seasonStartYear : seasonStartYear + 1
 
         // Expiry: 8:00 AM on the day AFTER the event
-        const expiryDate = new Date(year, month - 1, day + 1, 8, 0, 0)
+        const expiryDate = new Date(eventYear, month - 1, day + 1, 8, 0, 0)
 
-        // Compare with current local time (simplest approximation since user is likely local)
-        // Ideally we'd compare to Moscow time, but local client time is usually sufficient for UI default
-        return new Date() > expiryDate
+        return now > expiryDate
     }
 
     // Determine default date: First non-expired date, or the last one if all expired
@@ -216,10 +225,10 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                                         key={twin.date}
                                         onClick={() => setSelectedDate(twin.date)}
                                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedDate === twin.date
-                                                ? 'bg-white text-black shadow-lg'
-                                                : expired
-                                                    ? 'text-white/20 hover:text-white/40 bg-transparent' // Expired styling
-                                                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                                            ? 'bg-white text-black shadow-lg'
+                                            : expired
+                                                ? 'text-white/20 hover:text-white/40 bg-transparent' // Expired styling
+                                                : 'text-white/60 hover:text-white hover:bg-white/10'
                                             }`}
                                     >
                                         {twin.date}
