@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { WINTER_SAGA_DATA, type SagaEventConfig } from '../../data/winterSaga'
 import SagaCard from './SagaCard'
@@ -9,6 +9,7 @@ import FrostedTitle from './FrostedTitle'
 
 const SagaGrid = () => {
     const [selectedEvent, setSelectedEvent] = useState<SagaEventConfig | null>(null)
+    const [isMobile, setIsMobile] = useState(false)
 
     const { data: tcEvents = [] } = useQuery({
         queryKey: ['events'],
@@ -16,9 +17,34 @@ const SagaGrid = () => {
         staleTime: 1000 * 60 * 60
     })
 
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
 
+    const posterByDate = useMemo(() => {
+        const posterMap = new Map<string, string>()
 
-    const getPosterForEvent = (sagaEvent: SagaEventConfig) => {
+        tcEvents.forEach((e: any) => {
+            if (!e.rawDate) return
+            const d = new Date(e.rawDate)
+            const key = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`
+            const posterSmall = e.poster_small || e.poster // fallback for API variance
+            const posterSrc = isMobile
+                ? (posterSmall || e.poster_original)
+                : (e.poster_original || posterSmall)
+
+            if (posterSrc && !posterMap.has(key)) {
+                posterMap.set(key, posterSrc)
+            }
+        })
+
+        return posterMap
+    }, [tcEvents, isMobile])
+
+    const getPosterForEvent = useCallback((sagaEvent: SagaEventConfig) => {
         // Find matching TC event by date (simple match for now)
         // Saga dates are "26-27.12", "31.12". TC rawDate is full ISO.
         const targetDatePart = sagaEvent.twinEventDates
@@ -27,13 +53,14 @@ const SagaGrid = () => {
 
         const [day, month] = targetDatePart.trim().split('.').map(Number)
 
-        const match = tcEvents.find((e: any) => {
-            if (!e.rawDate) return false
-            const d = new Date(e.rawDate)
-            return d.getDate() === day && d.getMonth() === (month - 1)
-        })
-        return match?.poster_original
-    }
+        const key = `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}`
+        return posterByDate.get(key)
+    }, [posterByDate])
+
+    const visibleEvents = useMemo(
+        () => WINTER_SAGA_DATA.filter(event => getPosterForEvent(event)),
+        [getPosterForEvent]
+    )
 
     return (
         <div className="w-full max-w-7xl mx-auto">
@@ -42,15 +69,18 @@ const SagaGrid = () => {
 
             {/* The Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
-                {WINTER_SAGA_DATA.filter(event => getPosterForEvent(event)).map((event, index) => (
-                    <SagaCard
-                        key={index}
-                        event={event}
-                        onClick={setSelectedEvent}
-                        index={index}
-                        posterUrl={getPosterForEvent(event)}
-                    />
-                ))}
+                {visibleEvents.map((event, index) => {
+                    const posterUrl = getPosterForEvent(event)
+                    return (
+                        <SagaCard
+                            key={index}
+                            event={event}
+                            onClick={setSelectedEvent}
+                            index={index}
+                            posterUrl={posterUrl}
+                        />
+                    )
+                })}
             </div>
 
             {/* Modal */}

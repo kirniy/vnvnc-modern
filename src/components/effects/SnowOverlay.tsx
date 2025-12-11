@@ -14,9 +14,9 @@ const SnowOverlay = () => {
 
     // Determine number of snowflakes based on screen width
     const getSnowflakeCount = (w: number) => {
-        if (w < 768) return 20 // Significantly reduced for mobile
-        if (w < 1024) return 60
-        return 100
+        if (w < 768) return 16 // Reduced further for mobile
+        if (w < 1024) return 50
+        return 90
     }
 
     useEffect(() => {
@@ -25,6 +25,11 @@ const SnowOverlay = () => {
 
         const ctx = canvas.getContext('2d')
         if (!ctx) return
+
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+        const connection = (navigator as any)?.connection as { saveData?: boolean } | undefined
+        const saveData = Boolean(connection?.saveData)
+        const prefersReducedMotion = motionQuery?.matches ?? false
 
         // helper to set size
         const handleResize = () => {
@@ -39,8 +44,20 @@ const SnowOverlay = () => {
         // Initial size
         handleResize()
         window.addEventListener('resize', handleResize)
+        if (motionQuery?.addEventListener) {
+            motionQuery.addEventListener('change', handleResize)
+        } else if (motionQuery?.addListener) {
+            motionQuery.addListener(handleResize)
+        }
 
-        const maxSnowflakes = getSnowflakeCount(window.innerWidth)
+        const allowAnimation = !prefersReducedMotion && !saveData
+        const targetFps = allowAnimation
+            ? (window.innerWidth < 768 ? 24 : 45)
+            : 0
+
+        const maxSnowflakes = allowAnimation
+            ? getSnowflakeCount(window.innerWidth)
+            : Math.min(12, getSnowflakeCount(window.innerWidth))
         const snowflakes: Snowflake[] = []
 
         const createSnowflake = (): Snowflake => ({
@@ -52,29 +69,37 @@ const SnowOverlay = () => {
             opacity: Math.random() * 0.4 + 0.1
         })
 
-        // Populate
         for (let i = 0; i < maxSnowflakes; i++) {
             snowflakes.push(createSnowflake())
         }
 
         let animationFrameId: number
+        let lastFrame = performance.now()
 
-        const render = () => {
+        const drawFrame = (timestamp: number) => {
+            if (allowAnimation && timestamp - lastFrame < 1000 / targetFps) {
+                animationFrameId = requestAnimationFrame(drawFrame)
+                return
+            }
+
+            lastFrame = timestamp
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             snowflakes.forEach((flake) => {
-                flake.y += flake.speed
-                flake.x += flake.wind
+                if (allowAnimation) {
+                    flake.y += flake.speed
+                    flake.x += flake.wind
 
-                // Wrap around
-                if (flake.y > canvas.height) {
-                    flake.y = -5
-                    flake.x = Math.random() * canvas.width
-                }
-                if (flake.x > canvas.width) {
-                    flake.x = 0
-                } else if (flake.x < 0) {
-                    flake.x = canvas.width
+                    // Wrap around
+                    if (flake.y > canvas.height) {
+                        flake.y = -5
+                        flake.x = Math.random() * canvas.width
+                    }
+                    if (flake.x > canvas.width) {
+                        flake.x = 0
+                    } else if (flake.x < 0) {
+                        flake.x = canvas.width
+                    }
                 }
 
                 ctx.beginPath()
@@ -83,18 +108,19 @@ const SnowOverlay = () => {
                 ctx.fill()
             })
 
-            // Adjust snowflake count dynamically if width changes significantly in a way that matters,
-            // but simpler to just keep current set for smooth resize usually.
-            // If we really want dynamic count on resize, we'd need to re-init arrays. 
-            // For now constant set based on init width is safer for perf.
-
-            animationFrameId = requestAnimationFrame(render)
+            if (!allowAnimation) return
+            animationFrameId = requestAnimationFrame(drawFrame)
         }
 
-        render()
+        animationFrameId = requestAnimationFrame(drawFrame)
 
         return () => {
             window.removeEventListener('resize', handleResize)
+            if (motionQuery?.removeEventListener) {
+                motionQuery.removeEventListener('change', handleResize)
+            } else if (motionQuery?.removeListener) {
+                motionQuery.removeListener(handleResize)
+            }
             cancelAnimationFrame(animationFrameId)
         }
     }, []) // Run once on mount, internal resize listener handles dimension updates

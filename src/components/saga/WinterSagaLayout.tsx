@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import SagaPosterWall from './SagaPosterWall'
-import SnowOverlay from '../effects/SnowOverlay'
 
 interface WinterSagaLayoutProps {
     children: ReactNode
@@ -12,11 +11,6 @@ const WinterSagaLayout = ({ children }: WinterSagaLayoutProps) => {
             {/* Background Layer - Animated Poster Wall */}
             <div className="fixed inset-0 z-0">
                 <SagaPosterWall />
-            </div>
-
-            {/* Weather Effects - Fixed Overlay */}
-            <div className="fixed inset-0 z-10 pointer-events-none mix-blend-screen">
-                <SnowOverlay />
             </div>
 
             {/* Vignette & Atmosphere - Reduced opacity */}

@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion'
 import type { SagaEventConfig } from '../../data/winterSaga'
 
@@ -53,6 +52,9 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                         src={posterUrl}
                         alt=""
                         className="w-full h-full object-cover transition-all duration-700 scale-100 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1024px) 20vw, (min-width: 768px) 40vw, 90vw"
                     />
                     {/* Gradient Overlay for Text Readability - Lighter for vibrant colors */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
@@ -69,7 +71,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
 
 
             {/* Content Container */}
-            <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-between z-10">
+            <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between z-10">
 
                 {/* Header: Date & Tag */}
                 <div className="flex justify-between items-start">
@@ -89,7 +91,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                         </span>
                     </div>
 
-                    <h3 className={`text-white font-display font-black text-2xl md:text-3xl uppercase leading-none mb-2 drop-shadow-xl text-wrap break-words ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
+                    <h3 className={`text-white font-display font-black text-xl sm:text-2xl md:text-3xl uppercase leading-[1.05] mb-2 drop-shadow-xl break-words overflow-hidden [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
                         {event.title}
                     </h3>
 

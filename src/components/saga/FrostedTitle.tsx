@@ -30,7 +30,7 @@ const FrostedTitle = () => {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 0.5, scale: 1 }}
                     transition={{ duration: 2, delay: 0.5 }}
-                    className="font-display font-black text-6xl md:text-9xl tracking-tighter text-cyan-400 blur-2xl absolute inset-0 select-none"
+                    className="font-display font-black text-[13vw] md:text-9xl tracking-tighter text-cyan-400 blur-2xl absolute inset-0 select-none whitespace-nowrap"
                     aria-hidden="true"
                 >
                     WINTER SAGA
@@ -41,14 +41,14 @@ const FrostedTitle = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="font-display font-black text-6xl md:text-[9rem] tracking-tighter leading-none relative z-10 text-transparent bg-clip-text"
+                    className="font-display font-black text-[13vw] md:text-[9rem] tracking-tighter leading-none relative z-10 text-transparent bg-clip-text whitespace-nowrap"
                     style={{
                         backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #e0f2fe 40%, #7dd3fc 100%)',
                         filter: 'url(#ice-texture) drop-shadow(0 10px 20px rgba(0,0,0,0.5))',
                         WebkitTextStroke: '2px rgba(255,255,255,0.6)'
                     }}
                 >
-                    WINTER<br className="md:hidden" /> SAGA
+                    WINTER SAGA
                 </motion.h1>
 
                 {/* Sharp Overlay for readability */}
@@ -56,9 +56,9 @@ const FrostedTitle = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1.5, delay: 0.8 }}
-                    className="font-display font-black text-6xl md:text-[9rem] tracking-tighter leading-none absolute inset-0 z-20 text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent pointer-events-none mix-blend-overlay"
+                    className="font-display font-black text-[13vw] md:text-[9rem] tracking-tighter leading-none absolute inset-0 z-20 text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent pointer-events-none mix-blend-overlay whitespace-nowrap"
                 >
-                    WINTER<br className="md:hidden" /> SAGA
+                    WINTER SAGA
                 </motion.h1>
             </div>
 
