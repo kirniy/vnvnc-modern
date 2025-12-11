@@ -14,7 +14,8 @@ const SagaPosterWall = () => {
     })
 
     const [viewport, setViewport] = useState({
-        isMobileLike: false,
+        isMobileLike: false, // For image resolution text
+        isMobile: false,     // For simplified animation
         prefersReducedMotion: false
     })
 
@@ -23,8 +24,10 @@ const SagaPosterWall = () => {
     useEffect(() => {
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
         const checkViewport = () => {
+            const width = window.innerWidth
             setViewport({
-                isMobileLike: window.innerWidth < WALL_MIN_WIDTH,
+                isMobileLike: width < WALL_MIN_WIDTH,
+                isMobile: width < 1024, // Tablet/Mobile cutoff
                 prefersReducedMotion: motionQuery?.matches ?? false
             })
         }
@@ -40,7 +43,7 @@ const SagaPosterWall = () => {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
 
-        // 1. Filter relevant upcoming events
+        // 1. Filter relevant upcoming events (Dec 26 - Jan 11)
         const validEvents = events.filter((e: any) => {
             if (!e.rawDate) return false
             const date = new Date(e.rawDate)
@@ -81,19 +84,48 @@ const SagaPosterWall = () => {
             {/* Poster Slide Layer */}
             {posterUrls.map((url, index) => {
                 const isActive = index === currentIndex
+
+                // MOBILE: Simple, lightweight version
+                if (viewport.isMobile) {
+                    return (
+                        <div
+                            key={url}
+                            className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                        >
+                            <img
+                                src={url}
+                                alt=""
+                                className="w-full h-full object-cover"
+                                style={{ filter: 'saturate(0.8) contrast(1.1) brightness(0.7)' }}
+                                loading={index === 0 ? 'eager' : 'lazy'}
+                            />
+                        </div>
+                    )
+                }
+
+                // DESKTOP: Full Cinematic Dual-Layer
                 return (
                     <div
                         key={url}
-                        className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                        className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${isActive ? 'opacity-100' : 'opacity-0'}`}
                     >
+                        {/* 1. Ambient Background Layer (Blurred Colors) */}
+                        <div className="absolute inset-0 overflow-hidden">
+                            <img
+                                src={url}
+                                alt=""
+                                className={`w-full h-full object-cover blur-[80px] scale-125 opacity-60 mix-blend-screen transition-transform duration-[20s] ease-linear ${isActive ? 'scale-150' : 'scale-125'}`}
+                            />
+                        </div>
+
+                        {/* 2. Sharp Foreground Layer (Slow Zoom) */}
                         <img
                             src={url}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] ease-out will-change-transform ${isActive ? 'scale-110' : 'scale-100'}`}
                             style={{
-                                // Filter: Desaturate slightly + boost contrast + cool hue rotation
-                                // Removed scale transform - too GPU heavy for background
-                                filter: 'saturate(0.8) contrast(1.1) brightness(0.7)'
+                                // Filter: Cinematic Winter Grade
+                                filter: 'saturate(0.9) contrast(1.15) brightness(0.75)'
                             }}
                             loading={index === 0 ? 'eager' : 'lazy'}
                         />
@@ -101,13 +133,15 @@ const SagaPosterWall = () => {
                 )
             })}
 
-            {/* Winter Color Grade: Unifies disparate posters into the Blue/Cyan theme */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/60 via-slate-900/40 to-indigo-950/60 mix-blend-hard-light" />
-            <div className="absolute inset-0 bg-blue-900/20 mix-blend-color" /> {/* Forces Cool Tone */}
+            {/* Winter Color Grade Overlays - Applied over the final composite */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/40 via-transparent to-blue-950/60 mix-blend-soft-light" />
+            <div className="absolute inset-0 bg-[#08182b]/30 mix-blend-color" /> {/* Harmonize colors to Blue/Cyan */}
 
-            {/* Vignette & Fade Out Bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/60" />
-            <div className="absolute inset-0 bg-radial-at-c from-transparent via-black/20 to-black/80" />
+            {/* Clean Vignette - Focuses center */}
+            <div className="absolute inset-0 bg-radial-at-c from-transparent via-black/10 to-black/90 scale-110" />
+
+            {/* Grain Texture (Static, efficient) */}
+            <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
 
         </div>
     )

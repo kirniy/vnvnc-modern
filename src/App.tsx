@@ -4,7 +4,6 @@ import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
-import LoadingSpinner from './components/LoadingSpinner'
 import CinematicLoader from './components/CinematicLoader'
 import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
