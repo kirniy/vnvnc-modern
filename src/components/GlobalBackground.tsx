@@ -9,14 +9,14 @@ const GlobalBackground = memo(() => {
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(circle at center, #0a0a0a 0%, #000000 100%)'
+          background: 'radial-gradient(circle at center, #050a14 0%, #000000 100%)'
         }}
       />
 
-      {/* Animated Red Gradient (Primary) */}
+      {/* Animated ICE BLUE Gradient (Primary) - Was Red */}
       <motion.div
         className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-30 will-change-transform"
-        style={{ background: colors.neon.red }}
+        style={{ background: '#0891b2' }} // Cyan-600
         animate={{
           scale: [1, 1.1, 1],
           x: [0, 20, 0],
@@ -29,10 +29,10 @@ const GlobalBackground = memo(() => {
         }}
       />
 
-      {/* Animated Deep Purple/Blue Gradient (Secondary - Adds Depth) */}
+      {/* Animated DEEP WINTER BLUE Gradient (Secondary) - Was Purple */}
       <motion.div
         className="absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] rounded-full blur-[140px] opacity-20 will-change-transform"
-        style={{ background: '#1a0b2e' }} // Deep purple
+        style={{ background: '#172554' }} // Blue-950
         animate={{
           scale: [1, 1.2, 1],
           x: [0, -30, 0],
@@ -48,7 +48,7 @@ const GlobalBackground = memo(() => {
 
       {/* Subtle White/Silver Highlight (Lighting) */}
       <motion.div
-        className="absolute top-[40%] right-[20%] w-[30vw] h-[30vw] rounded-full blur-[100px] opacity-5 will-change-[opacity,transform]"
+        className="absolute top-[40%] right-[20%] w-[30vw] h-[30vw] rounded-full blur-[100px] opacity-10 will-change-[opacity,transform]"
         style={{ background: '#ffffff' }}
         animate={{
           opacity: [0.03, 0.08, 0.03],
@@ -62,7 +62,7 @@ const GlobalBackground = memo(() => {
         }}
       />
 
-      {/* Static Noise Overlay - Slightly more visible for texture */}
+      {/* Static Noise Overlay */}
       <div
         className="absolute inset-0 opacity-[0.2] pointer-events-none mix-blend-overlay"
         style={{
@@ -73,9 +73,9 @@ const GlobalBackground = memo(() => {
       {/* Vignette to darken edges and focus center */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.7)_100%)]" />
 
-      {/* Bottom Ambient Glow (Matches Footer) */}
+      {/* Bottom Ambient Glow - Winter Blue */}
       <div className="absolute bottom-0 left-0 right-0 h-[400px] opacity-40 pointer-events-none"
-        style={{ background: `radial-gradient(circle at 50% 100%, ${colors.neon.red}20 0%, transparent 70%)` }}
+        style={{ background: `radial-gradient(circle at 50% 100%, #06b6d420 0%, transparent 70%)` }}
       />
     </div>
   )
