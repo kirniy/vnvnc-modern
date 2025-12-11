@@ -14,17 +14,15 @@ const SnowOverlay = () => {
 
     // Determine number of snowflakes based on screen width
     const getSnowflakeCount = (w: number) => {
-        if (w < 768) return 10 // Reduced further for mobile
-        if (w < 1280) return 24
-        return 45
+        if (w < 768) return 35 // Increased significantly for visibility (was 10)
+        if (w < 1280) return 60
+        return 100 // Richer snow on desktop (was 45)
     }
 
     useEffect(() => {
         const canvas = canvasRef.current
-        if (!canvas) return
-
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return
+        const ctx = canvas?.getContext('2d')
+        if (!canvas || !ctx) return
 
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
         const connection = (navigator as any)?.connection as { saveData?: boolean } | undefined
@@ -52,21 +50,21 @@ const SnowOverlay = () => {
 
         const allowAnimation = !prefersReducedMotion && !saveData
         const targetFps = allowAnimation
-            ? (window.innerWidth < 768 ? 20 : 28)
+            ? (window.innerWidth < 768 ? 30 : 40) // Slightly smoother FPS
             : 0
 
         const maxSnowflakes = allowAnimation
             ? getSnowflakeCount(window.innerWidth)
-            : Math.min(12, getSnowflakeCount(window.innerWidth))
+            : Math.min(15, getSnowflakeCount(window.innerWidth))
         const snowflakes: Snowflake[] = []
 
         const createSnowflake = (): Snowflake => ({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            radius: Math.random() * 2 + 0.5,
-            speed: Math.random() * 1 + 0.2,
+            radius: Math.random() * 3 + 1, // Larger flakes: 1-4px (was 1-3)
+            speed: Math.random() * 1.5 + 0.5, // Faster fall speed
             wind: Math.random() * 0.5 - 0.25,
-            opacity: Math.random() * 0.4 + 0.1
+            opacity: Math.random() * 0.5 + 0.3 // More opaque: 0.3-0.8 (was 0.1-0.5)
         })
 
         for (let i = 0; i < maxSnowflakes; i++) {
