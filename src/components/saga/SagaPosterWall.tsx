@@ -3,7 +3,8 @@ import { ticketsCloudService } from '../../services/ticketsCloud'
 import { useEffect, useMemo, useState } from 'react'
 
 const WALL_MIN_WIDTH = 1600
-const SLIDE_DURATION = 8000 // 8s per slide
+const SLIDE_DURATION = 12000 // 12s per slide (slower = less CPU)
+const MAX_POSTERS = 3 // Limit loaded images to reduce memory
 
 const SagaPosterWall = () => {
     const { data: events = [] } = useQuery({
@@ -59,8 +60,8 @@ const SagaPosterWall = () => {
             )
             .filter(Boolean) as string[]
 
-        // 3. Deduplicate
-        return Array.from(new Set(urls))
+        // 3. Deduplicate and limit to reduce memory
+        return Array.from(new Set(urls)).slice(0, MAX_POSTERS)
     }, [events, viewport.isMobileLike])
 
     // Cycle slides
@@ -88,12 +89,13 @@ const SagaPosterWall = () => {
                         <img
                             src={url}
                             alt=""
-                            className={`w-full h-full object-cover transform transition-transform duration-[10000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                            className="w-full h-full object-cover"
                             style={{
                                 // Filter: Desaturate slightly + boost contrast + cool hue rotation
+                                // Removed scale transform - too GPU heavy for background
                                 filter: 'saturate(0.8) contrast(1.1) brightness(0.7)'
                             }}
-                            loading="eager" // Preload for smoother transitions
+                            loading={index === 0 ? 'eager' : 'lazy'}
                         />
                     </div>
                 )
