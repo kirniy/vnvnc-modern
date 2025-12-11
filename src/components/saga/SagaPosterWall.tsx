@@ -3,10 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ticketsCloudService } from '../../services/ticketsCloud'
 import { useEffect, useMemo, useState } from 'react'
 
+declare global {
+    interface Window {
+        __vnvncPosterWallReport?: () => void
+    }
+}
+
 const SCROLL_DURATION = 140 // Seconds for a full loop (slower for CPU)
-const SLIDE_DURATION = 8000 // ms for each poster in slideshow
-const MAX_POSTERS_MOBILE = 6
-const MAX_POSTERS_DESKTOP = 6
+const SLIDE_DURATION = 9000 // ms for each poster in slideshow
+const MAX_POSTERS_MOBILE = 4
+const MAX_POSTERS_DESKTOP = 4
 const WALL_MIN_WIDTH = 1600
 
 const SagaPosterWall = () => {
@@ -71,9 +77,8 @@ const SagaPosterWall = () => {
     const posters = useMemo(() => {
         if (!events.length) return []
 
-        const useMarquee = viewport.isWideWall && !viewport.prefersReducedMotion && !viewport.saveData
-        const simplify = !useMarquee || viewport.prefersReducedMotion || viewport.saveData
-        const limit = simplify ? MAX_POSTERS_MOBILE : MAX_POSTERS_DESKTOP
+        // Force slideshow everywhere to minimize memory/CPU
+        const limit = viewport.isMobileLike ? MAX_POSTERS_MOBILE : MAX_POSTERS_DESKTOP
 
         // Filter events that have posters AND fall within the Saga range (Dec 26 - Jan 11)
         const validPosters = events
@@ -102,16 +107,54 @@ const SagaPosterWall = () => {
         return shuffled.slice(0, limit)
     }, [events, viewport])
 
-    const postersForMarquee = useMemo(() => {
-        if (!posters.length) return []
-        // Duplicate for seamless loop but keep DOM weight low
-        return [...posters, ...posters]
-    }, [posters])
+    if (import.meta.env.DEV && posters.length) {
+        // Debug logging in dev to see wall footprint
+        console.log('[PosterWall] posters', {
+            count: posters.length,
+            width: viewport.width,
+            isMobileLike: viewport.isMobileLike,
+            prefersReducedMotion: viewport.prefersReducedMotion,
+            saveData: viewport.saveData,
+            sample: posters.slice(0, 3)
+        })
+    }
+
+    useEffect(() => {
+        if (!import.meta.env.DEV) return
+        window.__vnvncPosterWallReport = () => {
+            const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+            const imgs = entries.filter((e) => e.initiatorType === 'img')
+            const totalKb = imgs.reduce((sum, e) => sum + (e.transferSize || 0), 0) / 1024
+            const largest = [...imgs]
+                .sort((a, b) => (b.transferSize || 0) - (a.transferSize || 0))
+                .slice(0, 5)
+                .map((e) => ({
+                    url: e.name.split('?')[0],
+                    kb: Math.round((e.transferSize || 0) / 1024),
+                }))
+
+            const msg = {
+                viewportWidth: viewport.width,
+                postersInUse: posters.length,
+                uniquePosterSample: posters.slice(0, 5),
+                imgRequests: imgs.length,
+                totalImgKB: Math.round(totalKb),
+                top5ImagesKB: largest,
+            }
+
+            console.log('[PosterWall Report]', msg)
+            return msg
+        }
+
+        return () => {
+            delete window.__vnvncPosterWallReport
+        }
+    }, [posters, viewport])
 
     if (posters.length === 0) return <div className="fixed inset-0 bg-stone-950" />
 
-    const useMarquee = viewport.isWideWall && !viewport.prefersReducedMotion && !viewport.saveData
-    const simplifyMotion = !useMarquee
+    // Always use slideshow for better performance (marquee disabled)
+    const useSlideshow = true
 
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-stone-950 pointer-events-none">
@@ -125,10 +168,10 @@ const SagaPosterWall = () => {
             <div className="absolute inset-0 bg-radial-at-c from-transparent via-transparent to-black/80 z-30" />
 
             {/* Render Logic */}
-            {simplifyMotion ? (
+            {useSlideshow ? (
                 <PosterSlideshow posters={posters} isLowMotion={viewport.prefersReducedMotion || viewport.saveData} />
             ) : (
-                <PosterMarquee posters={postersForMarquee} reduceMotion={viewport.prefersReducedMotion} />
+                <PosterMarquee posters={posters} reduceMotion={viewport.prefersReducedMotion} />
             )}
 
         </div>

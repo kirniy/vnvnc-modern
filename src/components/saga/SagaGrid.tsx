@@ -32,9 +32,7 @@ const SagaGrid = () => {
             const d = new Date(e.rawDate)
             const key = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`
             const posterSmall = e.poster_small || e.poster // fallback for API variance
-            const posterSrc = isMobileLike
-                ? (posterSmall || e.poster_original)
-                : (e.poster_original || posterSmall)
+            const posterSrc = posterSmall || e.poster_original // always prefer small to save memory
 
             if (posterSrc && !posterMap.has(key)) {
                 posterMap.set(key, posterSrc)
