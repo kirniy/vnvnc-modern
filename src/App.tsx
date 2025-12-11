@@ -77,6 +77,18 @@ function App() {
     }
   }, [])
 
+  // Performance testing: ?noblur disables all blur effects
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('noblur')) {
+      document.documentElement.classList.add('noblur')
+      console.log('🚀 NOBLUR MODE: All blur effects disabled for performance testing')
+    }
+    return () => {
+      document.documentElement.classList.remove('noblur')
+    }
+  }, [])
+
   return (
     <>
       <CinematicLoader /> {/* Intro acts as top-level curtain */}

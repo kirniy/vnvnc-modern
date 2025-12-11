@@ -14,12 +14,23 @@ const SagaGrid = () => {
     const { data: tcEvents = [] } = useQuery({
         queryKey: ['events'],
         queryFn: () => ticketsCloudService.getEvents(),
-        staleTime: 1000 * 60 * 60
+        staleTime: 1000 * 60 * 60,
+        refetchOnWindowFocus: false // Prevent list flicker on mobile scroll/tab switch
     })
 
     useEffect(() => {
-        const checkMobile = () => setIsMobileLike(window.innerWidth < 1280) // treat medium as mobile
-        checkMobile()
+        let lastWidth = window.innerWidth
+        const checkMobile = () => {
+            const width = window.innerWidth
+            // Only update if crossing the breakpoint (prevents resize on mobile install/scroll)
+            if ((lastWidth >= 1280 && width < 1280) || (lastWidth < 1280 && width >= 1280)) {
+                setIsMobileLike(width < 1280)
+            }
+            lastWidth = width
+        }
+        // Set initial
+        setIsMobileLike(window.innerWidth < 1280)
+
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
@@ -55,6 +66,7 @@ const SagaGrid = () => {
         return posterByDate.get(key)
     }, [posterByDate])
 
+    // Filter events: Only show if we found a matching poster/event in API
     const visibleEvents = useMemo(
         () => WINTER_SAGA_DATA.filter(event => getPosterForEvent(event)),
         [getPosterForEvent]
