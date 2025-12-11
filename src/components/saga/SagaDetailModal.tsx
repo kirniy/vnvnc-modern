@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Ticket, Music, Shirt, Star, Users, Flame, Maximize2 } from 'lucide-react'
@@ -61,7 +60,7 @@ const CyclingText = ({ texts }: { texts: string[] }) => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="text-sm text-gray-300 leading-snug absolute w-full"
+                    className="text-white leading-snug absolute w-full truncate"
                 >
                     {texts[index]}
                 </motion.p>
@@ -81,36 +80,42 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
     // Helper: Verify if a specific date string (DD.MM) is "expired" (past 8AM next day)
     const isDateExpired = (dateStr: string) => {
         const [day, month] = dateStr.trim().split('.').map(Number)
-
         const now = new Date()
         const currentYear = now.getFullYear()
-        const currentMonth = now.getMonth() + 1 // 1-12
-
-        // Define Season Start Year dynamically
-        // If we are late in the year (Sept-Dec), season starts this year.
-        // If we are early in the year (Jan-June), season started last year.
+        const currentMonth = now.getMonth() + 1
         const seasonStartYear = currentMonth >= 9 ? currentYear : currentYear - 1
-
-        // If event month is 12, it's in the start year. If 01, it's start year + 1.
         const eventYear = month === 12 ? seasonStartYear : seasonStartYear + 1
-
-        // Expiry: 8:00 AM on the day AFTER the event
         const expiryDate = new Date(eventYear, month - 1, day + 1, 8, 0, 0)
-
         return now > expiryDate
     }
 
-    // Determine default date: First non-expired date, or the last one if all expired
+    // Determine default date
     const getInitialDate = () => {
         if (!event.twinEventDates) return event.date
-
-        // Find first date that is NOT expired
         const activeDate = event.twinEventDates.find(d => !isDateExpired(d.date))
         return activeDate ? activeDate.date : event.twinEventDates[event.twinEventDates.length - 1].date
     }
 
-    // Helper to force re-render logic when event changes or cycling resets
     const [selectedDate, setSelectedDate] = useState<string>(getInitialDate())
+
+    // Apply data overrides based on selected date
+    const currentData = useMemo(() => {
+        if (!event.twinEventDates) return event
+        const override = event.twinEventDates.find(d => d.date === selectedDate)
+        if (!override) return event
+
+        // Merge base event with overrides
+        return {
+            ...event,
+            ...override,
+            hooks: { ...event.hooks, ...override.hooks },
+            audience: { ...event.audience, ...override.audience },
+            // If overrides exist for array fields, use them, else fallback
+            vibeLabel: override.vibeLabel || event.vibeLabel,
+            visualTheme: override.visualTheme || event.visualTheme,
+            dressCode: override.dressCode || event.dressCode
+        }
+    }, [event, selectedDate])
 
     // Reset date when event changes
     useEffect(() => {
@@ -120,29 +125,20 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
     // Find the specific TC event matching the selected date
     const matchedTcEvent = useMemo(() => {
         if (!tcEvents.length) return null
-
-        // If it's a twin event, match by specific date "DD.MM"
-        const targetDateStr = event.twinEventDates ? selectedDate : event.date.split('-')[0] // handle "26-27.12" range by taking first part or logic? 
-        // Actually, single events store date as "31.12". Twin are "26-27.12" but we use the selector.
-
-        // Let's parse the target date string into Day/Month
+        const targetDateStr = event.twinEventDates ? selectedDate : event.date.split('-')[0]
         const [targetDay, targetMonth] = targetDateStr.trim().split('.').map(Number)
 
         return tcEvents.find((tcEvent: any) => {
             if (!tcEvent.rawDate) return false
             const date = new Date(tcEvent.rawDate)
-            // Month in JS is 0-indexed!!
             return date.getDate() === targetDay && date.getMonth() === (targetMonth - 1)
         })
     }, [tcEvents, selectedDate, event])
 
-
-    // Toggle body class for nav hiding
+    // Toggle body class
     useEffect(() => {
         document.body.classList.add('modal-open-hide-nav')
-        return () => {
-            document.body.classList.remove('modal-open-hide-nav')
-        }
+        return () => document.body.classList.remove('modal-open-hide-nav')
     }, [])
 
     return (
@@ -152,56 +148,55 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/95"
+                className="absolute inset-0 bg-black/90 backdrop-blur-md"
             />
 
             <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 50 }}
-                transition={{ type: 'tween', duration: 0.25 }}
-                className="relative w-full max-w-5xl bg-zinc-900 border-t md:border border-white/10 rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[100dvh] md:h-[85vh] mt-0 md:mt-0"
+                layoutId={`card-${event.date}`}
+                className="relative w-full max-w-5xl bg-[#111] border-t md:border border-white/10 rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[100dvh] md:h-[650px] mt-0 md:mt-0"
                 style={{
-                    boxShadow: `0 0 50px ${event.accentColor}30`
+                    boxShadow: `0 0 50px ${event.accentColor}20`
                 }}
             >
-                {/* Close Button - Desktop */}
+                {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 transition-colors text-white hidden md:block"
+                    className="absolute top-4 right-4 z-50 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white hidden md:block"
                 >
                     <X size={20} />
                 </button>
 
-                {/* Mobile Drag/Close Handle */}
+                {/* Mobile Handle & Close */}
                 <div className="md:hidden absolute top-0 inset-x-0 h-6 z-50 flex justify-center items-center pointer-events-none">
                     <div className="w-12 h-1.5 bg-white/20 rounded-full mt-2" />
                 </div>
-                <button
-                    onClick={onClose}
-                    className="md:hidden absolute top-4 right-4 z-50 p-2 bg-black/80 rounded-full text-white"
-                >
+                <button onClick={onClose} className="md:hidden absolute top-4 right-4 z-50 p-2 bg-black/50 backdrop-blur rounded-full text-white">
                     <X size={20} />
                 </button>
 
 
-                {/* Left Side: Poster / Visual */}
+                {/* Left Side: Poster (Full Height on Desktop, 25vh on Mobile) */}
                 <div
-                    className="w-full md:w-5/12 relative h-[35vh] md:h-full bg-black overflow-hidden group cursor-zoom-in shrink-0"
+                    className="w-full md:w-5/12 relative h-[25vh] md:h-full bg-black overflow-hidden group cursor-zoom-in shrink-0"
                     onClick={() => setLightboxOpen(true)}
                 >
                     {matchedTcEvent?.poster_original ? (
                         <>
-                            {/* Removed blur-xl background - too heavy on mobile Safari */}
-
+                            {/* Blur BG */}
+                            <div
+                                className="absolute inset-0 bg-cover bg-center opacity-40 blur-2xl scale-125"
+                                style={{ backgroundImage: `url(${matchedTcEvent.poster_original})` }}
+                            />
+                            {/* Main Image */}
                             <motion.img
+                                key={matchedTcEvent.poster_original} // Animate switch
                                 initial={{ opacity: 0, scale: 1.05 }}
                                 animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5 }}
                                 src={matchedTcEvent.poster_original}
-                                alt={event.title}
-                                className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center z-10 transition-transform duration-500 group-hover:scale-105"
+                                alt={currentData.title}
+                                className="absolute inset-0 w-full h-full object-cover object-top md:object-cover z-10"
                             />
-
                             <div className="absolute top-4 left-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 p-2 rounded-full text-white">
                                 <Maximize2 size={20} />
                             </div>
@@ -211,43 +206,37 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                             <Ticket size={48} />
                         </div>
                     )}
-
-                    {/* Mobile Title Overlay - Gradient */}
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent pt-12 pb-4 px-6 md:hidden z-20">
-                        <h2 className="text-2xl font-display font-bold text-white leading-none shadow-black drop-shadow-lg">{event.title}</h2>
-                        <p className="text-cyan-300 font-mono text-sm tracking-widest mt-1 opacity-90">{selectedDate}</p>
-                    </div>
                 </div>
 
-                {/* Right Side: Content */}
-                <div className="w-full md:w-7/12 flex flex-col flex-1 md:h-full bg-zinc-900 relative min-h-0 overflow-hidden">
+                {/* Right Side: Content Panel */}
+                <div className="w-full md:w-7/12 flex flex-col bg-[#111] relative md:h-full overflow-hidden">
 
-                    {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 md:p-8 pb-32"> {/* Increased bottom padding */}
+                    {/* Header Section */}
+                    <div className="pt-8 px-6 md:px-8 pb-4 shrink-0 z-20 bg-[#111]">
+                        <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase leading-none mb-1">
+                            {currentData.title}
+                        </h2>
+                        <p className="text-base md:text-lg text-white/50 font-medium tracking-wide uppercase">
+                            {currentData.subtitle}
+                        </p>
+                    </div>
 
-                        {/* Desktop Header */}
-                        <div className="hidden md:block mb-6">
-                            <h2 className="text-4xl lg:text-5xl font-display font-black text-white uppercase tracking-tight leading-none mb-2">
-                                {event.title}
-                            </h2>
-                            <p className="text-xl text-white/60 font-light">{event.subtitle}</p>
-                        </div>
+                    {/* Scrollable Body */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar px-6 md:px-8 pb-32 md:pb-24">
 
-                        {/* Twin Event Selector - STICKY & ENHANCED for Mobile */}
-                        {event.twinEventDates && (
-                            <div className="sticky top-0 z-30 bg-zinc-900 py-3 -mx-2 px-2 md:-mx-0 md:px-0 mb-6 border-b border-white/5 md:border-none shadow-xl md:shadow-none">
-                                <div className="flex w-full bg-white/5 rounded-xl p-1 gap-1">
+                        {/* Date Switcher (Segmented Control) */}
+                        <div className="mb-6">
+                            {event.twinEventDates ? (
+                                <div className="inline-flex bg-white/5 p-1 rounded-full border border-white/10">
                                     {event.twinEventDates.map((twin) => {
-                                        const expired = isDateExpired(twin.date)
+                                        const isActive = selectedDate === twin.date
                                         return (
                                             <button
                                                 key={twin.date}
                                                 onClick={() => setSelectedDate(twin.date)}
-                                                className={`flex-1 py-3 md:py-2 rounded-lg text-base md:text-sm font-bold uppercase tracking-widest transition-all ${selectedDate === twin.date
-                                                    ? 'bg-white text-black shadow-lg scale-[1.02]'
-                                                    : expired
-                                                        ? 'text-white/20 cursor-not-allowed'
-                                                        : 'text-white/40 hover:text-white hover:bg-white/10'
+                                                className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${isActive
+                                                    ? 'bg-white text-black shadow-lg'
+                                                    : 'text-white/40 hover:text-white'
                                                     }`}
                                             >
                                                 {twin.date}
@@ -255,124 +244,110 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                                         )
                                     })}
                                 </div>
-                            </div>
-                        )}
-
-                        {/* Description */}
-                        <div className="space-y-4 mb-6 md:mb-8">
-                            <div className="border-l-2 border-cyan-500/50 pl-4 py-1">
-                                <p className="text-base md:text-lg text-white font-medium italic leading-relaxed break-words">
-                                    {event.hooks?.main || event.description}
-                                </p>
-                            </div>
-                            {event.hooks?.story && (
-                                <p className="text-gray-400 font-light leading-relaxed text-sm">
-                                    {event.hooks.story}
-                                </p>
+                            ) : (
+                                <div className="inline-flex bg-white/10 px-6 py-2 rounded-full text-sm font-bold text-white border border-white/10">
+                                    {event.date}
+                                </div>
                             )}
                         </div>
 
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
-                            {/* Icons - Flex Wrap Fix */}
-                            <div className="bg-white/5 rounded-xl p-3 md:p-4 flex flex-col gap-2">
-                                <div className="flex items-center gap-2 text-[10px] md:text-xs text-white/50 uppercase tracking-widest">
-                                    <Flame size={12} /> СИМВОЛЫ
+                        {/* Main Hook / Description */}
+                        <div className="mb-8 border-l-2 border-cyan-500 pl-4 py-1">
+                            <AnimatePresence mode="wait">
+                                <motion.p
+                                    key={selectedDate}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 10 }}
+                                    className="text-white italic text-lg leading-relaxed font-serif text-white/90"
+                                >
+                                    "{currentData.hooks?.main || currentData.description}"
+                                </motion.p>
+                            </AnimatePresence>
+                            <AnimatePresence mode="wait">
+                                {currentData.hooks?.story && (
+                                    <motion.p
+                                        key={selectedDate + 'story'}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-white/40 text-sm mt-2"
+                                    >
+                                        {currentData.hooks.story}
+                                    </motion.p>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Info Grid (Gray Cards) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+                            {/* Symbols Card */}
+                            <div className="bg-[#1a1a1a] rounded-2xl p-4 flex flex-col gap-3">
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <Flame size={12} /> Символы
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {event.vibeIcons ? (
-                                        event.vibeIcons.map((iconName, i) => {
-                                            const IconComponent = getIconByName(iconName)
-                                            return (
-                                                <IconComponent
-                                                    key={i}
-                                                    size={22}
-                                                    className="text-white/90"
-                                                    style={{ color: event.accentColor }}
-                                                />
-                                            )
-                                        })
-                                    ) : (
-                                        <Star size={20} className="text-cyan-400" />
-                                    )}
+                                <div className="flex flex-wrap gap-3">
+                                    {currentData.vibeIcons?.map((iconName, i) => {
+                                        const Icon = getIconByName(iconName)
+                                        return <Icon key={i} size={20} className="text-cyan-200" />
+                                    })}
                                 </div>
                             </div>
 
-                            {/* Audience */}
-                            <div className="bg-white/5 rounded-xl p-3 md:p-4 flex flex-col gap-2 relative overflow-hidden">
-                                <div className="flex items-center gap-2 text-[10px] md:text-xs text-white/50 uppercase tracking-widest z-10">
-                                    <Users size={12} /> ДЛЯ КОГО
+                            {/* Audience Card */}
+                            <div className="bg-[#1a1a1a] rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden">
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <Users size={12} /> Для Кого
                                 </div>
-                                <div className="h-[30px] relative z-10 flex items-center">
-                                    <CyclingText texts={Array.isArray(event.audience?.perfectFor) ? event.audience!.perfectFor : [event.audience?.perfectFor || '']} />
+                                <div className="h-[40px] flex items-center">
+                                    <CyclingText texts={Array.isArray(currentData.audience?.perfectFor) ? currentData.audience!.perfectFor : [currentData.audience?.perfectFor || '']} />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Details */}
-                        <div className="space-y-4 mb-8">
-                            <div className="flex gap-3">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 text-cyan-400">
-                                    <Music size={16} />
+                        {/* Additional Info Rows */}
+                        <div className="space-y-5 mb-8">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center text-cyan-500 shrink-0">
+                                    <Music size={18} />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs md:text-sm font-bold text-white">Визуал & Атмосфера</h4>
-                                    <p className="text-white/60 text-xs md:text-sm leading-snug">{event.visualTheme}</p>
+                                    <h4 className="text-sm font-bold text-white uppercase mb-0.5">Визуал & Атмосфера</h4>
+                                    <p className="text-sm text-white/60 leading-snug">{currentData.visualTheme}</p>
                                 </div>
                             </div>
-                            <div className="flex gap-3">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0" style={{ color: event.accentColor }}>
-                                    <Shirt size={16} />
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center text-cyan-500 shrink-0">
+                                    <Shirt size={18} />
                                 </div>
                                 <div>
-                                    <h4 className="text-xs md:text-sm font-bold text-white">Дресс-код</h4>
-                                    <p className="text-white/60 text-xs md:text-sm leading-snug">{event.dressCode}</p>
+                                    <h4 className="text-sm font-bold text-white uppercase mb-0.5">Дресс-код</h4>
+                                    <p className="text-white/60 text-sm leading-snug">{currentData.dressCode}</p>
                                 </div>
                             </div>
                         </div>
 
-                        {event.hooks?.alternate && (
-                            <p className="text-center text-xs text-white/50 italic mb-4">
-                                "{event.hooks.alternate}"
-                            </p>
-                        )}
+                        {/* Disclaimer */}
+                        <p className="text-[10px] text-white/20 italic text-center mt-8 mb-4">
+                            "декабрь заканчивается быстрее чем сезон любимого сериала. успеваем в последний вагон"
+                        </p>
+
                     </div>
 
-                    {/* Buy Button - Fixed on mobile, inline on desktop */}
-                    {/* Desktop: inline button at end of content */}
-                    <div className="hidden md:block mt-6 mb-4">
+                    {/* Footer / Buy Button - Sticky at bottom of Right Panel */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#111] via-[#111] to-transparent z-30">
                         <motion.a
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             href="#"
-                            className={`ticketscloud-widget w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black text-lg uppercase shadow-xl transition-all ${matchedTcEvent
+                            className={`w-full py-4 rounded-xl flex items-center justify-center gap-2 font-black text-lg uppercase shadow-lg transition-all ${matchedTcEvent
                                 ? 'bg-cyan-500 text-black hover:bg-cyan-400'
-                                : 'bg-white/10 text-white/50 cursor-not-allowed'
+                                : 'bg-white/10 text-white/30 cursor-not-allowed'
                                 }`}
                             data-tc-event={matchedTcEvent?.id}
                             data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
                         >
-                            <Ticket size={22} />
-                            <span>{matchedTcEvent ? 'Купить Билет' : 'Скоро в продаже'}</span>
-                            {matchedTcEvent?.price && <span className="opacity-70">• {matchedTcEvent.price}</span>}
-                        </motion.a>
-                    </div>
-
-                    {/* Mobile: Fixed bottom bar */}
-                    <div className="fixed md:hidden bottom-4 left-0 right-0 px-4 pb-safe z-[210]">
-                        <div className="absolute inset-x-0 bottom-[-20px] h-[140px] bg-gradient-to-t from-black via-zinc-900 to-transparent -z-10 pointer-events-none" />
-                        <motion.a
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            href="#"
-                            className={`ticketscloud-widget w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xl uppercase shadow-2xl transition-all ${matchedTcEvent
-                                ? 'bg-white text-black hover:bg-cyan-50 border-2 border-white'
-                                : 'bg-white/10 text-white/50 cursor-not-allowed'
-                                }`}
-                            data-tc-event={matchedTcEvent?.id}
-                            data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
-                        >
-                            <Ticket size={24} className="mb-0.5" />
+                            <Ticket size={20} />
                             <span>{matchedTcEvent ? 'Купить Билет' : 'Скоро в продаже'}</span>
                         </motion.a>
                     </div>
