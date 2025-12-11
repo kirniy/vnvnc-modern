@@ -4,7 +4,7 @@ import { ticketsCloudService } from '../../services/ticketsCloud'
 import { useEffect, useMemo, useState } from 'react'
 
 const SCROLL_DURATION = 140 // Seconds for a full loop (kept for marquee fallback)
-const SLIDE_DURATION = 9500 // ms for each poster in slideshow
+const SLIDE_DURATION = 10500 // ms for each poster in slideshow
 const MAX_POSTERS = 3
 const WALL_MIN_WIDTH = 1600
 
@@ -104,7 +104,7 @@ const SagaPosterWall = () => {
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-stone-950 pointer-events-none">
             {/* Base Darkening Layer - Minimal opacity */}
-            <div className="absolute inset-0 bg-black/40 z-10" />
+            <div className="absolute inset-0 bg-black/30 z-10" />
 
             {/* Blue Winter Tint - Very subtle */}
             <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-20" />
@@ -164,11 +164,10 @@ const PosterSlideshow = ({ posters, isLowMotion }: { posters: string[], isLowMot
                     <img
                         src={posters[index]}
                         alt=""
-                        className="w-full h-full object-cover grayscale-[0.3] contrast-110"
+                        className="w-full h-full object-cover grayscale-[0.1] contrast-115 saturate-120"
                         loading="lazy"
                         decoding="async"
                         sizes="100vw"
-                        data-poster-wall="1"
                     />
                 </motion.div>
             </AnimatePresence>
@@ -210,7 +209,6 @@ const MarqueeRow = ({ posters, direction, speed, reduceMotion }: { posters: stri
                             loading="lazy"
                             decoding="async"
                             sizes="33vw"
-                            data-poster-wall="1"
                         />
                     </div>
                 ))}
