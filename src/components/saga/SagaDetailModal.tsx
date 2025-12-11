@@ -338,16 +338,34 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                         )}
                     </div>
 
-                    {/* Fixed/Sticky Action Bar - Fixed to Viewport on Mobile - LIFTED UP */}
-                    <div className="fixed md:absolute bottom-4 md:bottom-0 left-0 right-0 px-4 md:p-6 pb-safe md:pb-6 z-[210] md:z-40">
-                        {/* Gradient Backing for readability/separation on mobile */}
-                        <div className="absolute inset-x-0 bottom-[-20px] h-[140px] bg-gradient-to-t from-black via-zinc-900 to-transparent md:hidden -z-10 pointer-events-none" />
-
+                    {/* Buy Button - Fixed on mobile, inline on desktop */}
+                    {/* Desktop: inline button at end of content */}
+                    <div className="hidden md:block mt-6 mb-4">
                         <motion.a
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             href="#"
-                            className={`ticketscloud-widget w-full py-4 md:py-4 rounded-2xl md:rounded-xl flex items-center justify-center gap-2 font-black text-xl md:text-lg uppercase shadow-2xl transition-all ${matchedTcEvent
+                            className={`ticketscloud-widget w-full py-4 rounded-xl flex items-center justify-center gap-3 font-black text-lg uppercase shadow-xl transition-all ${matchedTcEvent
+                                ? 'bg-cyan-500 text-black hover:bg-cyan-400'
+                                : 'bg-white/10 text-white/50 cursor-not-allowed'
+                                }`}
+                            data-tc-event={matchedTcEvent?.id}
+                            data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
+                        >
+                            <Ticket size={22} />
+                            <span>{matchedTcEvent ? 'Купить Билет' : 'Скоро в продаже'}</span>
+                            {matchedTcEvent?.price && <span className="opacity-70">• {matchedTcEvent.price}</span>}
+                        </motion.a>
+                    </div>
+
+                    {/* Mobile: Fixed bottom bar */}
+                    <div className="fixed md:hidden bottom-4 left-0 right-0 px-4 pb-safe z-[210]">
+                        <div className="absolute inset-x-0 bottom-[-20px] h-[140px] bg-gradient-to-t from-black via-zinc-900 to-transparent -z-10 pointer-events-none" />
+                        <motion.a
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            href="#"
+                            className={`ticketscloud-widget w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xl uppercase shadow-2xl transition-all ${matchedTcEvent
                                 ? 'bg-white text-black hover:bg-cyan-50 border-2 border-white'
                                 : 'bg-white/10 text-white/50 cursor-not-allowed'
                                 }`}

@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ticketsCloudService } from '../../services/ticketsCloud'
 import { useEffect, useMemo, useState } from 'react'
 
-const SCROLL_DURATION = 120 // Seconds for a full loop
+const SCROLL_DURATION = 140 // Seconds for a full loop (slower for CPU)
 const SLIDE_DURATION = 8000 // ms for each poster in slideshow
-const MAX_POSTERS_MOBILE = 8
-const MAX_POSTERS_DESKTOP = 12
-const DESKTOP_MIN_WIDTH = 1280
+const MAX_POSTERS_MOBILE = 6
+const MAX_POSTERS_DESKTOP = 6
+const WALL_MIN_WIDTH = 1600
 
 const SagaPosterWall = () => {
     const { data: events = [] } = useQuery({
@@ -18,8 +18,10 @@ const SagaPosterWall = () => {
 
     const [viewport, setViewport] = useState({
         isMobileLike: false,
+        isWideWall: false,
         prefersReducedMotion: false,
         saveData: false,
+        width: 0,
     })
 
     // Track viewport and user preferences to tone down motion on mobile
@@ -27,7 +29,9 @@ const SagaPosterWall = () => {
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
         const checkViewport = () => {
             const next = {
-                isMobileLike: window.innerWidth < DESKTOP_MIN_WIDTH,
+                width: window.innerWidth,
+                isMobileLike: window.innerWidth < WALL_MIN_WIDTH,
+                isWideWall: window.innerWidth >= WALL_MIN_WIDTH,
                 prefersReducedMotion: motionQuery?.matches ?? false,
                 saveData: Boolean((navigator as any)?.connection?.saveData),
             }
@@ -36,7 +40,9 @@ const SagaPosterWall = () => {
                 if (
                     prev.isMobileLike === next.isMobileLike &&
                     prev.prefersReducedMotion === next.prefersReducedMotion &&
-                    prev.saveData === next.saveData
+                    prev.saveData === next.saveData &&
+                    prev.isWideWall === next.isWideWall &&
+                    prev.width === next.width
                 ) {
                     return prev
                 }
@@ -65,7 +71,8 @@ const SagaPosterWall = () => {
     const posters = useMemo(() => {
         if (!events.length) return []
 
-        const simplify = viewport.isMobileLike || viewport.prefersReducedMotion || viewport.saveData
+        const useMarquee = viewport.isWideWall && !viewport.prefersReducedMotion && !viewport.saveData
+        const simplify = !useMarquee || viewport.prefersReducedMotion || viewport.saveData
         const limit = simplify ? MAX_POSTERS_MOBILE : MAX_POSTERS_DESKTOP
 
         // Filter events that have posters AND fall within the Saga range (Dec 26 - Jan 11)
@@ -103,7 +110,8 @@ const SagaPosterWall = () => {
 
     if (posters.length === 0) return <div className="fixed inset-0 bg-stone-950" />
 
-    const simplifyMotion = viewport.isMobileLike || viewport.prefersReducedMotion || viewport.saveData
+    const useMarquee = viewport.isWideWall && !viewport.prefersReducedMotion && !viewport.saveData
+    const simplifyMotion = !useMarquee
 
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-stone-950 pointer-events-none">

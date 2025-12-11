@@ -14,9 +14,9 @@ const SnowOverlay = () => {
 
     // Determine number of snowflakes based on screen width
     const getSnowflakeCount = (w: number) => {
-        if (w < 768) return 16 // Reduced further for mobile
-        if (w < 1024) return 50
-        return 90
+        if (w < 768) return 10 // Reduced further for mobile
+        if (w < 1280) return 24
+        return 45
     }
 
     useEffect(() => {
@@ -52,7 +52,7 @@ const SnowOverlay = () => {
 
         const allowAnimation = !prefersReducedMotion && !saveData
         const targetFps = allowAnimation
-            ? (window.innerWidth < 768 ? 24 : 45)
+            ? (window.innerWidth < 768 ? 20 : 28)
             : 0
 
         const maxSnowflakes = allowAnimation
