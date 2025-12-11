@@ -12,13 +12,11 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Seo
-        title="VNVNC | WINTER SAGA | 26.12 — 11.01"
-        description="ЗИМНЯЯ САГА в VNVNC. Серия вечеринок с 26 декабря по 11 января. Полярный экспресс, Вороний бал, Sleepover и многое другое."
+        title="VNVNC | Официальный портал"
+        description="Конюшенная 2В • Культовый клуб в центре Санкт-Петербурга • Здесь всегда атмосферно • Бронь столов и билеты онлайн."
         canonical="https://vnvnc.ru/"
         keywords={[
           'vnvnc',
-          'зимняя сага',
-          'новый год спб 2026',
           'ночной клуб санкт-петербург',
           'вечеринки спб',
           'конюшенная площадь 2в',
@@ -27,11 +25,11 @@ const HomePage = () => {
           buildLocalBusinessJsonLd(),
           buildBreadcrumbJsonLd(createBreadcrumbTrail([])),
           buildVideoObjectJsonLd({
-            name: 'VNVNC WINTER SAGA',
-            description: 'VNVNC — ночной клуб в центре Санкт-Петербурга. Зимняя Сага: серия вечеринок.',
+            name: 'VNVNC Concert Hall',
+            description: 'VNVNC — ночной клуб в центре Санкт-Петербурга. Погрузитесь в атмосферу вечеринки и бронируйте столы онлайн.',
             thumbnailUrl: 'https://vnvnc.ru/og-image.jpg',
             contentUrl: 'https://vnvnc.ru/herovideo-optimized.mp4',
-            uploadDate: '2025-12-11T00:00:00+03:00',
+            uploadDate: '2024-12-01T00:00:00+03:00',
             duration: 'PT1M',
           }),
         ]}
