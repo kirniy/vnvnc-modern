@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { WINTER_SAGA_DATA, type SagaEventConfig } from '../../data/winterSaga'
 import SagaCard from './SagaCard'

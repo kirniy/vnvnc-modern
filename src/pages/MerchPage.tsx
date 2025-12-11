@@ -129,7 +129,7 @@ const MerchPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white pt-24 pb-20 relative">
+        <div className="min-h-screen bg-transparent text-white pt-24 pb-20 relative">
             <Seo
                 title="VNVNC Merch Store"
                 description="Лимитированный дроп 2025: худи, футболки и аксессуары VNVNC. Бронируйте онлайн — забирайте в клубе."

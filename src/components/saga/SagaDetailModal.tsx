@@ -184,8 +184,8 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                                 className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center z-10 p-4 md:p-0 transition-transform duration-500 group-hover:scale-105"
                             />
 
-                            {/* Zoom Hint */}
-                            <div className="absolute top-4 right-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 p-2 rounded-full text-white">
+                            {/* Zoom Hint - Moved to Left to avoid Close Button overlap on Mobile */}
+                            <div className="absolute top-4 left-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 p-2 rounded-full text-white">
                                 <Maximize2 size={20} />
                             </div>
                         </>
