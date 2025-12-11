@@ -3,16 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ticketsCloudService } from '../../services/ticketsCloud'
 import { useEffect, useMemo, useState } from 'react'
 
-declare global {
-    interface Window {
-        __vnvncPosterWallReport?: () => void
-    }
-}
-
-const SCROLL_DURATION = 140 // Seconds for a full loop (slower for CPU)
-const SLIDE_DURATION = 9000 // ms for each poster in slideshow
-const MAX_POSTERS_MOBILE = 4
-const MAX_POSTERS_DESKTOP = 4
+const SCROLL_DURATION = 140 // Seconds for a full loop (kept for marquee fallback)
+const SLIDE_DURATION = 9500 // ms for each poster in slideshow
+const MAX_POSTERS = 3
 const WALL_MIN_WIDTH = 1600
 
 const SagaPosterWall = () => {
@@ -24,7 +17,6 @@ const SagaPosterWall = () => {
 
     const [viewport, setViewport] = useState({
         isMobileLike: false,
-        isWideWall: false,
         prefersReducedMotion: false,
         saveData: false,
         width: 0,
@@ -37,7 +29,6 @@ const SagaPosterWall = () => {
             const next = {
                 width: window.innerWidth,
                 isMobileLike: window.innerWidth < WALL_MIN_WIDTH,
-                isWideWall: window.innerWidth >= WALL_MIN_WIDTH,
                 prefersReducedMotion: motionQuery?.matches ?? false,
                 saveData: Boolean((navigator as any)?.connection?.saveData),
             }
@@ -47,7 +38,6 @@ const SagaPosterWall = () => {
                     prev.isMobileLike === next.isMobileLike &&
                     prev.prefersReducedMotion === next.prefersReducedMotion &&
                     prev.saveData === next.saveData &&
-                    prev.isWideWall === next.isWideWall &&
                     prev.width === next.width
                 ) {
                     return prev
@@ -77,8 +67,7 @@ const SagaPosterWall = () => {
     const posters = useMemo(() => {
         if (!events.length) return []
 
-        // Force slideshow everywhere to minimize memory/CPU
-        const limit = viewport.isMobileLike ? MAX_POSTERS_MOBILE : MAX_POSTERS_DESKTOP
+        const limit = MAX_POSTERS
 
         // Filter events that have posters AND fall within the Saga range (Dec 26 - Jan 11)
         const validPosters = events
@@ -97,8 +86,8 @@ const SagaPosterWall = () => {
             .map((e: any) => {
                 const posterSmall = e.poster_small || e.poster // fallback if API provides poster
                 const posterLarge = e.poster_original || posterSmall
-                // Use smaller asset everywhere for the wall to save bandwidth/ram
-                return posterSmall || posterLarge
+                // Desktop prefers large for clarity, mobile-like prefers small to stay light
+                return viewport.isMobileLike ? (posterSmall || posterLarge) : (posterLarge || posterSmall)
             })
             .filter(Boolean) as string[]
 
@@ -106,50 +95,6 @@ const SagaPosterWall = () => {
         const shuffled = [...unique].sort(() => 0.5 - Math.random())
         return shuffled.slice(0, limit)
     }, [events, viewport])
-
-    if (import.meta.env.DEV && posters.length) {
-        // Debug logging in dev to see wall footprint
-        console.log('[PosterWall] posters', {
-            count: posters.length,
-            width: viewport.width,
-            isMobileLike: viewport.isMobileLike,
-            prefersReducedMotion: viewport.prefersReducedMotion,
-            saveData: viewport.saveData,
-            sample: posters.slice(0, 3)
-        })
-    }
-
-    useEffect(() => {
-        if (!import.meta.env.DEV) return
-        window.__vnvncPosterWallReport = () => {
-            const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
-            const imgs = entries.filter((e) => e.initiatorType === 'img')
-            const totalKb = imgs.reduce((sum, e) => sum + (e.transferSize || 0), 0) / 1024
-            const largest = [...imgs]
-                .sort((a, b) => (b.transferSize || 0) - (a.transferSize || 0))
-                .slice(0, 5)
-                .map((e) => ({
-                    url: e.name.split('?')[0],
-                    kb: Math.round((e.transferSize || 0) / 1024),
-                }))
-
-            const msg = {
-                viewportWidth: viewport.width,
-                postersInUse: posters.length,
-                uniquePosterSample: posters.slice(0, 5),
-                imgRequests: imgs.length,
-                totalImgKB: Math.round(totalKb),
-                top5ImagesKB: largest,
-            }
-
-            console.log('[PosterWall Report]', msg)
-            return msg
-        }
-
-        return () => {
-            delete window.__vnvncPosterWallReport
-        }
-    }, [posters, viewport])
 
     if (posters.length === 0) return <div className="fixed inset-0 bg-stone-950" />
 
@@ -223,6 +168,7 @@ const PosterSlideshow = ({ posters, isLowMotion }: { posters: string[], isLowMot
                         loading="lazy"
                         decoding="async"
                         sizes="100vw"
+                        data-poster-wall="1"
                     />
                 </motion.div>
             </AnimatePresence>
@@ -264,6 +210,7 @@ const MarqueeRow = ({ posters, direction, speed, reduceMotion }: { posters: stri
                             loading="lazy"
                             decoding="async"
                             sizes="33vw"
+                            data-poster-wall="1"
                         />
                     </div>
                 ))}
