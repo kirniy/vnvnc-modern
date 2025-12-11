@@ -8,7 +8,8 @@ const FrostedTitle = () => {
             <svg width="0" height="0" className="absolute">
                 <defs>
                     <filter id="ice-texture" x="-20%" y="-20%" width="140%" height="140%">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
+                        {/* PERFORMANCE: Reduced octaves from 3 to 2. slight freq adjust to keep 'grit' */}
+                        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise" />
                         <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
                         <feGaussianBlur stdDeviation="0.5" />
                         <feComponentTransfer>

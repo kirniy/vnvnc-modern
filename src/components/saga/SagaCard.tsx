@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import type { SagaEventConfig } from '../../data/winterSaga'
 
 interface SagaCardProps {
@@ -11,32 +11,36 @@ interface SagaCardProps {
 const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
     const isLarge = event.gridSpan === '2x2'
     const isWide = event.gridSpan === '2x1'
+    const reduceMotion = useReducedMotion()
 
     const colSpan = isLarge ? 'lg:col-span-2' : isWide ? 'lg:col-span-2' : 'col-span-1'
     const rowSpan = isLarge ? 'lg:row-span-2' : 'row-span-1'
 
     // Stagger animation based on index
-    const variants = {
-        hidden: { opacity: 0, scale: 0.9, y: 20 },
-        visible: {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            transition: {
-                delay: index * 0.1,
-                type: 'spring' as const,
-                stiffness: 100
+    const variants = reduceMotion
+        ? undefined
+        : {
+            hidden: { opacity: 0, scale: 0.96, y: 14 },
+            visible: {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                transition: {
+                    delay: Math.min(index * 0.08, 0.4),
+                    type: 'tween' as const,
+                    duration: 0.25,
+                    ease: 'easeOut' as const
+                }
             }
         }
-    }
 
     return (
         <motion.div
             variants={variants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.02, y: -5 }}
-            whileTap={{ scale: 0.98 }}
+            initial={variants ? 'hidden' : false}
+            animate={variants ? 'visible' : false}
+            whileHover={reduceMotion ? undefined : { scale: 1.015, y: -4, transition: { duration: 0.2 } }}
+            whileTap={reduceMotion ? undefined : { scale: 0.985, transition: { duration: 0.1 } }}
             className={`relative group cursor-pointer overflow-hidden rounded-3xl ${colSpan} ${rowSpan} min-h-[260px] lg:min-h-[340px] border border-white/10`}
             onClick={() => onClick(event)}
             style={{

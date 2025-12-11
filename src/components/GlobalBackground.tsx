@@ -24,8 +24,8 @@ const GlobalBackground = memo(() => {
       {/* Creates a high-fidelity 'cracked ice' / 'frost' surface over the colors */}
       <svg className="absolute inset-0 w-full h-full opacity-[0.6] mix-blend-overlay z-10" preserveAspectRatio="none">
         <filter id="ice-fractal">
-          {/* Create organic noise */}
-          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" result="noise" />
+          {/* Create organic noise - Optimized Octaves */}
+          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" result="noise" />
           {/* Sharpen into 'crystals' */}
           <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" in="noise" result="crystals" />
           {/* Add 'shine' / specular highlights to the crystals */}
