@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
@@ -47,6 +47,7 @@ function App() {
   // Gallery re-enabled with fixed Yandex Cloud Function
   // Initialize Telegram WebApp features
   const { isInTelegram } = useTelegramWebApp()
+  const [showSnow, setShowSnow] = useState(false)
 
   useEffect(() => {
     // Add class to body when in Telegram - with safety checks
@@ -61,6 +62,31 @@ function App() {
       }
     }
   }, [isInTelegram])
+
+  useEffect(() => {
+    // Disable snow on desktop and when user prefers reduced motion
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => {
+      const width = window.innerWidth
+      const reduced = motionQuery?.matches ?? false
+      setShowSnow(!reduced && width < 1024)
+    }
+    update()
+    window.addEventListener('resize', update)
+    if (motionQuery?.addEventListener) {
+      motionQuery.addEventListener('change', update)
+    } else if (motionQuery?.addListener) {
+      motionQuery.addListener(update)
+    }
+    return () => {
+      window.removeEventListener('resize', update)
+      if (motionQuery?.removeEventListener) {
+        motionQuery.removeEventListener('change', update)
+      } else if (motionQuery?.removeListener) {
+        motionQuery.removeListener(update)
+      }
+    }
+  }, [])
 
   return (
     <>
@@ -94,7 +120,7 @@ function App() {
 
       <Footer />
       <TelegramButton />
-      <SnowOverlay />
+      {showSnow && <SnowOverlay />}
       <Analytics />
     </>
   )
