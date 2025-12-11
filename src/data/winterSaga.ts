@@ -25,9 +25,25 @@ export interface SagaEventConfig {
     visualTheme?: string
     dressCode?: string
     tags: string[]
+    // Updated: Twin dates can now override almost any field
     twinEventDates?: {
         date: string
         titleSuffix?: string
+        subtitle?: string
+        description?: string
+        hooks?: {
+            main: string
+            story: string
+            alternate?: string
+        }
+        visualTheme?: string
+        dressCode?: string
+        audience?: {
+            age: string
+            perfectFor: string[]
+            notFor?: string
+        }
+        vibeLabel?: string
     }[]
 }
 
@@ -63,8 +79,28 @@ export const WINTER_SAGA_DATA: SagaEventConfig[] = [
         },
         energyLevel: 3,
         twinEventDates: [
-            { date: '26.12', titleSuffix: 'Day 1' },
-            { date: '27.12', titleSuffix: 'Day 2' }
+            {
+                date: '26.12',
+                titleSuffix: 'Day 1',
+                subtitle: 'ОТПРАВЛЕНИЕ',
+                description: 'Первый гудок. Посадка на борт Полярного Экспресса. Начало большого зимнего путешествия.',
+                hooks: {
+                    main: 'первый день саги. официальное открытие зимнего сезона',
+                    story: 'старт ровно в 23:00. не опаздывай на перрон',
+                    alternate: 'начало легенды. будь первым, кто увидит это'
+                }
+            },
+            {
+                date: '27.12',
+                titleSuffix: 'Day 2',
+                subtitle: 'ПУТЬ НА СЕВЕР',
+                description: 'Экспресс набирает ход. Вторая ночь в пути — глубже в атмосферу севера и ледяных коктейлей.',
+                hooks: {
+                    main: 'билет в один конец. вторая ночь полярного путешествия',
+                    story: 'для тех, кто не успел на открытие — второй шанс попасть в сказку',
+                    alternate: 'вечеринка уже в разгаре. присоединяйся к маршруту'
+                }
+            }
         ]
     },
     {

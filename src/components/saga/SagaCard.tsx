@@ -44,9 +44,8 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
             className={`relative group cursor-pointer overflow-hidden rounded-3xl ${colSpan} ${rowSpan} min-h-[260px] lg:min-h-[340px] border border-white/10`}
             onClick={() => onClick(event)}
             style={{
-                background: 'rgba(0, 0, 0, 0.4)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                background: 'rgba(0, 0, 0, 0.6)',
+                // Removed backdrop-blur - too heavy on mobile Safari
             }}
         >
             {/* Background Image / Poster */}
@@ -79,7 +78,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
 
                 {/* Header: Date & Tag */}
                 <div className="flex justify-between items-start">
-                    <div className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg">
+                    <div className="bg-black/80 px-3 py-1 rounded-full border border-white/20 shadow-lg">
                         <span className="text-white font-display font-bold tracking-wider text-sm lg:text-base">
                             {event.date}
                         </span>
@@ -90,7 +89,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                 <div className="mt-auto">
                     {/* Unique Vibe Label (Replaces Energy Bars) */}
                     <div className="flex items-center gap-2 mb-1 opacity-90">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded bg-cyan-900/20 shadow-sm backdrop-blur-md">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded bg-cyan-900/50 shadow-sm">
                             {event.vibeLabel || (event.energyLevel && event.energyLevel >= 4 ? 'HIGH VOLTAGE' : 'CHILL VIBES')}
                         </span>
                     </div>
@@ -107,7 +106,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                     {/* Tags List - Cleaned & Compact on Mobile */}
                     <div className="flex flex-wrap gap-1.5 md:gap-2 mt-1 md:mt-0">
                         {event.tags.slice(0, 3).map((tag, i) => (
-                            <span key={i} className="text-[9px] md:text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 md:px-2 rounded-md bg-white/10 border border-white/20 text-white backdrop-blur-sm">
+                            <span key={i} className="text-[9px] md:text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 md:px-2 rounded-md bg-black/50 border border-white/20 text-white">
                                 {tag.replace(/[#_]/g, ' ')}
                             </span>
                         ))}

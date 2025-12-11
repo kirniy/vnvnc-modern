@@ -152,11 +152,14 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                className="absolute inset-0 bg-black/95"
             />
 
             <motion.div
-                layoutId={`card-${event.date}`}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                transition={{ type: 'tween', duration: 0.25 }}
                 className="relative w-full max-w-5xl bg-zinc-900 border-t md:border border-white/10 rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[100dvh] md:h-[85vh] mt-0 md:mt-0"
                 style={{
                     boxShadow: `0 0 50px ${event.accentColor}30`
@@ -176,7 +179,7 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                 </div>
                 <button
                     onClick={onClose}
-                    className="md:hidden absolute top-4 right-4 z-50 p-2 bg-black/50 backdrop-blur rounded-full text-white"
+                    className="md:hidden absolute top-4 right-4 z-50 p-2 bg-black/80 rounded-full text-white"
                 >
                     <X size={20} />
                 </button>
@@ -189,10 +192,7 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                 >
                     {matchedTcEvent?.poster_original ? (
                         <>
-                            <div
-                                className="absolute inset-0 bg-cover bg-center opacity-30 blur-xl scale-110"
-                                style={{ backgroundImage: `url(${matchedTcEvent.poster_original})` }}
-                            />
+                            {/* Removed blur-xl background - too heavy on mobile Safari */}
 
                             <motion.img
                                 initial={{ opacity: 0, scale: 1.05 }}
@@ -235,7 +235,7 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
 
                         {/* Twin Event Selector - STICKY & ENHANCED for Mobile */}
                         {event.twinEventDates && (
-                            <div className="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur-sm py-3 -mx-2 px-2 md:-mx-0 md:px-0 mb-6 border-b border-white/5 md:border-none shadow-xl md:shadow-none">
+                            <div className="sticky top-0 z-30 bg-zinc-900 py-3 -mx-2 px-2 md:-mx-0 md:px-0 mb-6 border-b border-white/5 md:border-none shadow-xl md:shadow-none">
                                 <div className="flex w-full bg-white/5 rounded-xl p-1 gap-1">
                                     {event.twinEventDates.map((twin) => {
                                         const expired = isDateExpired(twin.date)
