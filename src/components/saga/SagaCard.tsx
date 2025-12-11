@@ -12,8 +12,8 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
     const isLarge = event.gridSpan === '2x2'
     const isWide = event.gridSpan === '2x1'
 
-    const colSpan = isLarge ? 'md:col-span-2' : isWide ? 'md:col-span-2' : 'col-span-1'
-    const rowSpan = isLarge ? 'md:row-span-2' : 'row-span-1'
+    const colSpan = isLarge ? 'lg:col-span-2' : isWide ? 'lg:col-span-2' : 'col-span-1'
+    const rowSpan = isLarge ? 'lg:row-span-2' : 'row-span-1'
 
     // Stagger animation based on index
     const variants = {
@@ -37,7 +37,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
             animate="visible"
             whileHover={{ scale: 1.02, y: -5 }}
             whileTap={{ scale: 0.98 }}
-            className={`relative group cursor-pointer overflow-hidden rounded-3xl ${colSpan} ${rowSpan} min-h-[240px] md:min-h-[320px] border border-white/10`}
+            className={`relative group cursor-pointer overflow-hidden rounded-3xl ${colSpan} ${rowSpan} min-h-[260px] lg:min-h-[340px] border border-white/10`}
             onClick={() => onClick(event)}
             style={{
                 background: 'rgba(0, 0, 0, 0.4)',
@@ -71,12 +71,12 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
 
 
             {/* Content Container */}
-            <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between z-10">
+            <div className="absolute inset-0 p-4 lg:p-6 flex flex-col justify-between z-10">
 
                 {/* Header: Date & Tag */}
                 <div className="flex justify-between items-start">
                     <div className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg">
-                        <span className="text-white font-display font-bold tracking-wider text-sm md:text-base">
+                        <span className="text-white font-display font-bold tracking-wider text-sm lg:text-base">
                             {event.date}
                         </span>
                     </div>
@@ -91,12 +91,12 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                         </span>
                     </div>
 
-                    <h3 className={`text-white font-display font-black text-xl sm:text-2xl md:text-3xl uppercase leading-[1.05] mb-2 drop-shadow-xl break-words overflow-hidden [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
+                    <h3 className={`text-white font-display font-black text-[clamp(1.25rem,4vw,2.5rem)] uppercase leading-[1.05] mb-2 drop-shadow-xl break-words ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
                         {event.title}
                     </h3>
 
                     {/* Main Hook as Description - HIDDEN ON MOBILE */}
-                    <p className="hidden md:block text-white/90 text-sm font-medium leading-snug line-clamp-3 mb-3 text-shadow-sm">
+                    <p className="hidden lg:block text-white/90 text-sm font-medium leading-snug line-clamp-3 mb-3 text-shadow-sm">
                         {event.hooks?.main || event.description}
                     </p>
 

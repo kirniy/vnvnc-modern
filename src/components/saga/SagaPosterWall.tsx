@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState } from 'react'
 const SCROLL_DURATION = 120 // Seconds for a full loop
 const SLIDE_DURATION = 8000 // ms for each poster in slideshow
 const MAX_POSTERS_MOBILE = 8
-const MAX_POSTERS_DESKTOP = 18
+const MAX_POSTERS_DESKTOP = 12
+const DESKTOP_MIN_WIDTH = 1280
 
 const SagaPosterWall = () => {
     const { data: events = [] } = useQuery({
@@ -16,7 +17,7 @@ const SagaPosterWall = () => {
     })
 
     const [viewport, setViewport] = useState({
-        isMobile: false,
+        isMobileLike: false,
         prefersReducedMotion: false,
         saveData: false,
     })
@@ -26,14 +27,14 @@ const SagaPosterWall = () => {
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
         const checkViewport = () => {
             const next = {
-                isMobile: window.innerWidth < 768,
+                isMobileLike: window.innerWidth < DESKTOP_MIN_WIDTH,
                 prefersReducedMotion: motionQuery?.matches ?? false,
                 saveData: Boolean((navigator as any)?.connection?.saveData),
             }
 
             setViewport((prev) => {
                 if (
-                    prev.isMobile === next.isMobile &&
+                    prev.isMobileLike === next.isMobileLike &&
                     prev.prefersReducedMotion === next.prefersReducedMotion &&
                     prev.saveData === next.saveData
                 ) {
@@ -64,7 +65,7 @@ const SagaPosterWall = () => {
     const posters = useMemo(() => {
         if (!events.length) return []
 
-        const simplify = viewport.isMobile || viewport.prefersReducedMotion || viewport.saveData
+        const simplify = viewport.isMobileLike || viewport.prefersReducedMotion || viewport.saveData
         const limit = simplify ? MAX_POSTERS_MOBILE : MAX_POSTERS_DESKTOP
 
         // Filter events that have posters AND fall within the Saga range (Dec 26 - Jan 11)
@@ -83,9 +84,9 @@ const SagaPosterWall = () => {
             })
             .map((e: any) => {
                 const posterSmall = e.poster_small || e.poster // fallback if API provides poster
-                return viewport.isMobile
-                    ? (posterSmall || e.poster_original)
-                    : (e.poster_original || posterSmall)
+                const posterLarge = e.poster_original || posterSmall
+                // Use smaller asset everywhere for the wall to save bandwidth/ram
+                return posterSmall || posterLarge
             })
             .filter(Boolean) as string[]
 
@@ -97,12 +98,12 @@ const SagaPosterWall = () => {
     const postersForMarquee = useMemo(() => {
         if (!posters.length) return []
         // Duplicate for seamless loop but keep DOM weight low
-        return [...posters, ...posters, ...posters]
+        return [...posters, ...posters]
     }, [posters])
 
     if (posters.length === 0) return <div className="fixed inset-0 bg-stone-950" />
 
-    const simplifyMotion = viewport.isMobile || viewport.prefersReducedMotion || viewport.saveData
+    const simplifyMotion = viewport.isMobileLike || viewport.prefersReducedMotion || viewport.saveData
 
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-stone-950 pointer-events-none">
@@ -122,8 +123,6 @@ const SagaPosterWall = () => {
                 <PosterMarquee posters={postersForMarquee} reduceMotion={viewport.prefersReducedMotion} />
             )}
 
-            {/* Frost Overlay Texture - optional, using noise or gradient */}
-            <div className="absolute inset-0 z-40 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-200 pointer-events-none" />
         </div>
     )
 }
@@ -180,13 +179,12 @@ const PosterSlideshow = ({ posters, isLowMotion }: { posters: string[], isLowMot
     )
 }
 
-// Desktop: Full 3-Row Marquee
+// Desktop: 2-Row Marquee (reduced from 3 for performance)
 const PosterMarquee = ({ posters, reduceMotion }: { posters: string[], reduceMotion?: boolean }) => {
     return (
-        <div className="absolute inset-0 z-0 flex flex-col justify-between opacity-80 grayscale-[0.3] contrast-110">
+        <div className="absolute inset-0 z-0 flex flex-col justify-between opacity-70 grayscale-[0.3] contrast-110">
             <MarqueeRow posters={posters} direction={1} speed={SCROLL_DURATION} reduceMotion={reduceMotion} />
-            <MarqueeRow posters={posters} direction={-1} speed={SCROLL_DURATION * 1.5} reduceMotion={reduceMotion} />
-            <MarqueeRow posters={posters} direction={1} speed={SCROLL_DURATION * 1.2} reduceMotion={reduceMotion} />
+            <MarqueeRow posters={posters} direction={-1} speed={SCROLL_DURATION * 1.3} reduceMotion={reduceMotion} />
         </div>
     )
 }

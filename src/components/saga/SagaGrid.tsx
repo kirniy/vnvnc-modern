@@ -9,7 +9,7 @@ import FrostedTitle from './FrostedTitle'
 
 const SagaGrid = () => {
     const [selectedEvent, setSelectedEvent] = useState<SagaEventConfig | null>(null)
-    const [isMobile, setIsMobile] = useState(false)
+    const [isMobileLike, setIsMobileLike] = useState(false)
 
     const { data: tcEvents = [] } = useQuery({
         queryKey: ['events'],
@@ -18,7 +18,7 @@ const SagaGrid = () => {
     })
 
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        const checkMobile = () => setIsMobileLike(window.innerWidth < 1280) // treat medium as mobile
         checkMobile()
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
@@ -32,7 +32,7 @@ const SagaGrid = () => {
             const d = new Date(e.rawDate)
             const key = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`
             const posterSmall = e.poster_small || e.poster // fallback for API variance
-            const posterSrc = isMobile
+            const posterSrc = isMobileLike
                 ? (posterSmall || e.poster_original)
                 : (e.poster_original || posterSmall)
 
@@ -42,7 +42,7 @@ const SagaGrid = () => {
         })
 
         return posterMap
-    }, [tcEvents, isMobile])
+    }, [tcEvents, isMobileLike])
 
     const getPosterForEvent = useCallback((sagaEvent: SagaEventConfig) => {
         // Find matching TC event by date (simple match for now)
@@ -68,7 +68,7 @@ const SagaGrid = () => {
             <FrostedTitle />
 
             {/* The Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 auto-rows-fr">
                 {visibleEvents.map((event, index) => {
                     const posterUrl = getPosterForEvent(event)
                     return (
