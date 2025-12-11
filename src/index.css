@@ -22,12 +22,12 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    @apply bg-black;
+    background-color: #000;
   }
 
   body {
-    @apply bg-black text-white font-sans antialiased;
-    background-color: #000000;
+    @apply text-white font-sans antialiased;
+    background-color: transparent;
     min-height: 100vh;
     /* лёгкое вертикальное растяжение для всего body‑текста */
     font-variant-ligatures: none;

@@ -197,7 +197,7 @@ self.addEventListener('fetch', (event) => {
   // For cross-origin requests (analytics, Telegram, etc.) just try network and fail silently
   if (url.origin !== self.location.origin) {
     event.respondWith(
-      fetch(request).catch(() => new Response('', { status: 204 }))
+      fetch(request).catch(() => new Response(null, { status: 204 }))
     );
     return;
   }

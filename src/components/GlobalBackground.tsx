@@ -2,7 +2,7 @@ import { memo } from 'react'
 
 const GlobalBackground = memo(() => {
   return (
-    <div className="fixed inset-0 z-[-50] pointer-events-none bg-black">
+    <div className="fixed inset-0 z-0 pointer-events-none bg-black">
       {/* Subtle winter gradient - pure CSS, no animations */}
       <div
         className="absolute inset-0"
