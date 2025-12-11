@@ -137,54 +137,71 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
     }, [tcEvents, selectedDate, event])
 
 
+    // Toggle body class for nav hiding
+    useEffect(() => {
+        document.body.classList.add('modal-open-hide-nav')
+        return () => {
+            document.body.classList.remove('modal-open-hide-nav')
+        }
+    }, [])
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
+        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center md:p-8">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                className="absolute inset-0 bg-black/90 backdrop-blur-md"
             />
 
             <motion.div
                 layoutId={`card-${event.date}`}
-                className="relative w-full max-w-4xl bg-zinc-900/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
+                className="relative w-full max-w-5xl bg-zinc-900 border-t md:border border-white/10 rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[100dvh] md:h-[85vh] mt-0 md:mt-0"
                 style={{
                     boxShadow: `0 0 50px ${event.accentColor}30`
                 }}
             >
-                {/* Close Button */}
+                {/* Close Button - Desktop */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-20 p-2 bg-black/50 rounded-full hover:bg-white/20 transition-colors text-white"
+                    className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 transition-colors text-white hidden md:block"
                 >
                     <X size={20} />
                 </button>
 
-                {/* Left Side: Poster / Visual - Optimized for 3:4 */}
+                {/* Mobile Drag/Close Handle */}
+                <div className="md:hidden absolute top-0 inset-x-0 h-6 z-50 flex justify-center items-center pointer-events-none">
+                    <div className="w-12 h-1.5 bg-white/20 rounded-full mt-2" />
+                </div>
+                <button
+                    onClick={onClose}
+                    className="md:hidden absolute top-4 right-4 z-50 p-2 bg-black/50 backdrop-blur rounded-full text-white"
+                >
+                    <X size={20} />
+                </button>
+
+
+                {/* Left Side: Poster / Visual */}
                 <div
-                    className="w-full md:w-2/5 relative min-h-[300px] md:min-h-full bg-black overflow-hidden group cursor-zoom-in"
+                    className="w-full md:w-5/12 relative h-[35vh] md:h-full bg-black overflow-hidden group cursor-zoom-in shrink-0"
                     onClick={() => setLightboxOpen(true)}
                 >
                     {matchedTcEvent?.poster_original ? (
                         <>
-                            {/* Blurred Background for Fill */}
                             <div
                                 className="absolute inset-0 bg-cover bg-center opacity-30 blur-xl scale-110"
                                 style={{ backgroundImage: `url(${matchedTcEvent.poster_original})` }}
                             />
 
-                            {/* Main Image - Contain/Cover hybrid to respect 3:4 */}
                             <motion.img
                                 initial={{ opacity: 0, scale: 1.05 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 src={matchedTcEvent.poster_original}
                                 alt={event.title}
-                                className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center z-10 p-4 md:p-0 transition-transform duration-500 group-hover:scale-105"
+                                className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center z-10 transition-transform duration-500 group-hover:scale-105"
                             />
 
-                            {/* Zoom Hint - Moved to Left to avoid Close Button overlap on Mobile */}
                             <div className="absolute top-4 left-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 p-2 rounded-full text-white">
                                 <Maximize2 size={20} />
                             </div>
@@ -195,159 +212,152 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                         </div>
                     )}
 
-                    {/* Mobile Title Overlay */}
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 md:hidden z-20">
-                        <h2 className="text-3xl font-display font-bold text-white mb-2">{event.title}</h2>
-                        <p className="text-cyan-300 font-mono tracking-widest">{selectedDate}</p>
+                    {/* Mobile Title Overlay - Gradient */}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent pt-12 pb-4 px-6 md:hidden z-20">
+                        <h2 className="text-2xl font-display font-bold text-white leading-none shadow-black drop-shadow-lg">{event.title}</h2>
+                        <p className="text-cyan-300 font-mono text-sm tracking-widest mt-1 opacity-90">{selectedDate}</p>
                     </div>
                 </div>
 
                 {/* Right Side: Content */}
-                <div className="w-full md:w-3/5 p-6 md:p-8 overflow-y-auto custom-scrollbar bg-black/5">
+                <div className="w-full md:w-7/12 flex flex-col flex-1 md:h-full bg-zinc-900 relative min-h-0 overflow-hidden">
 
-                    {/* Header (Desktop) */}
-                    <div className="hidden md:block mb-8">
-                        <div className="flex items-baseline gap-4 mb-2">
-                            <h2 className="text-4xl lg:text-5xl font-display font-black text-white uppercase tracking-tight leading-none">
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 md:p-8 pb-32"> {/* Increased bottom padding */}
+
+                        {/* Desktop Header */}
+                        <div className="hidden md:block mb-6">
+                            <h2 className="text-4xl lg:text-5xl font-display font-black text-white uppercase tracking-tight leading-none mb-2">
                                 {event.title}
                             </h2>
-                        </div>
-                        <p className="text-2xl text-white/60 font-light">{event.subtitle}</p>
-                    </div>
-
-                    {/* Twin Event Selector */}
-                    {event.twinEventDates && (
-                        <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white/5 rounded-xl w-fit">
-                            {event.twinEventDates.map((twin) => {
-                                const expired = isDateExpired(twin.date)
-                                return (
-                                    <button
-                                        key={twin.date}
-                                        onClick={() => setSelectedDate(twin.date)}
-                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedDate === twin.date
-                                            ? 'bg-white text-black shadow-lg'
-                                            : expired
-                                                ? 'text-white/20 hover:text-white/40 bg-transparent' // Expired styling
-                                                : 'text-white/60 hover:text-white hover:bg-white/10'
-                                            }`}
-                                    >
-                                        {twin.date}
-                                        {twin.titleSuffix && <span className="ml-2 opacity-60 font-normal">{twin.titleSuffix}</span>}
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    )}
-
-                    {/* Hooks / Description - Prevent cutting */}
-                    <div className="space-y-6 mb-8">
-                        <div className="border-l-2 border-cyan-500/50 pl-4 py-1">
-                            <p className="text-lg md:text-xl text-white font-medium italic leading-relaxed break-words">
-                                {event.hooks?.main || event.description}
-                            </p>
+                            <p className="text-xl text-white/60 font-light">{event.subtitle}</p>
                         </div>
 
-                        {event.hooks?.story && (
-                            <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">
-                                {event.hooks.story}
+                        {/* Twin Event Selector - STICKY & ENHANCED for Mobile */}
+                        {event.twinEventDates && (
+                            <div className="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur-sm py-3 -mx-2 px-2 md:-mx-0 md:px-0 mb-6 border-b border-white/5 md:border-none shadow-xl md:shadow-none">
+                                <div className="flex w-full bg-white/5 rounded-xl p-1 gap-1">
+                                    {event.twinEventDates.map((twin) => {
+                                        const expired = isDateExpired(twin.date)
+                                        return (
+                                            <button
+                                                key={twin.date}
+                                                onClick={() => setSelectedDate(twin.date)}
+                                                className={`flex-1 py-3 md:py-2 rounded-lg text-base md:text-sm font-bold uppercase tracking-widest transition-all ${selectedDate === twin.date
+                                                    ? 'bg-white text-black shadow-lg scale-[1.02]'
+                                                    : expired
+                                                        ? 'text-white/20 cursor-not-allowed'
+                                                        : 'text-white/40 hover:text-white hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {twin.date}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Description */}
+                        <div className="space-y-4 mb-6 md:mb-8">
+                            <div className="border-l-2 border-cyan-500/50 pl-4 py-1">
+                                <p className="text-base md:text-lg text-white font-medium italic leading-relaxed break-words">
+                                    {event.hooks?.main || event.description}
+                                </p>
+                            </div>
+                            {event.hooks?.story && (
+                                <p className="text-gray-400 font-light leading-relaxed text-sm">
+                                    {event.hooks.story}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
+                            {/* Icons - Flex Wrap Fix */}
+                            <div className="bg-white/5 rounded-xl p-3 md:p-4 flex flex-col gap-2">
+                                <div className="flex items-center gap-2 text-[10px] md:text-xs text-white/50 uppercase tracking-widest">
+                                    <Flame size={12} /> СИМВОЛЫ
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {event.vibeIcons ? (
+                                        event.vibeIcons.map((iconName, i) => {
+                                            const IconComponent = getIconByName(iconName)
+                                            return (
+                                                <IconComponent
+                                                    key={i}
+                                                    size={22}
+                                                    className="text-white/90"
+                                                    style={{ color: event.accentColor }}
+                                                />
+                                            )
+                                        })
+                                    ) : (
+                                        <Star size={20} className="text-cyan-400" />
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Audience */}
+                            <div className="bg-white/5 rounded-xl p-3 md:p-4 flex flex-col gap-2 relative overflow-hidden">
+                                <div className="flex items-center gap-2 text-[10px] md:text-xs text-white/50 uppercase tracking-widest z-10">
+                                    <Users size={12} /> ДЛЯ КОГО
+                                </div>
+                                <div className="h-[30px] relative z-10 flex items-center">
+                                    <CyclingText texts={Array.isArray(event.audience?.perfectFor) ? event.audience!.perfectFor : [event.audience?.perfectFor || '']} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="space-y-4 mb-8">
+                            <div className="flex gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 text-cyan-400">
+                                    <Music size={16} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs md:text-sm font-bold text-white">Визуал & Атмосфера</h4>
+                                    <p className="text-white/60 text-xs md:text-sm leading-snug">{event.visualTheme}</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0" style={{ color: event.accentColor }}>
+                                    <Shirt size={16} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs md:text-sm font-bold text-white">Дресс-код</h4>
+                                    <p className="text-white/60 text-xs md:text-sm leading-snug">{event.dressCode}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {event.hooks?.alternate && (
+                            <p className="text-center text-xs text-white/50 italic mb-4">
+                                "{event.hooks.alternate}"
                             </p>
                         )}
                     </div>
 
-                    {/* Stats / Info Grid */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        {/* Energy / Vibe Icons - ENLARGED */}
-                        <div className="bg-white/5 rounded-xl p-3 flex flex-col gap-1 justify-center">
-                            <div className="flex items-center gap-2 text-xs text-white/50 uppercase tracking-widest">
-                                <Flame size={14} /> СИМВОЛЫ
-                            </div>
-                            <div className="flex gap-2.5 mt-2">
-                                {event.vibeIcons ? (
-                                    event.vibeIcons.map((iconName, i) => {
-                                        const IconComponent = getIconByName(iconName)
-                                        return (
-                                            <div key={i} className="" title={iconName}>
-                                                <IconComponent
-                                                    size={26} // Increased size from 22 to 26
-                                                    className="transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
-                                                    style={{ color: event.accentColor }}
-                                                />
-                                            </div>
-                                        )
-                                    })
-                                ) : (
-                                    // Fallback to stars if no vibeIcons defined
-                                    [1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                            key={star}
-                                            size={22}
-                                            className={star <= (event.energyLevel || 3) ? "text-cyan-400 fill-cyan-400" : "text-white/10"}
-                                        />
-                                    ))
-                                )}
-                            </div>
-                        </div>
+                    {/* Fixed/Sticky Action Bar - Fixed to Viewport on Mobile - LIFTED UP */}
+                    <div className="fixed md:absolute bottom-4 md:bottom-0 left-0 right-0 px-4 md:p-6 pb-safe md:pb-6 z-[210] md:z-40">
+                        {/* Gradient Backing for readability/separation on mobile */}
+                        <div className="absolute inset-x-0 bottom-[-20px] h-[140px] bg-gradient-to-t from-black via-zinc-900 to-transparent md:hidden -z-10 pointer-events-none" />
 
-                        {/* Audience - CYCLING TEXT */}
-                        <div className="bg-white/5 rounded-xl p-3 flex flex-col gap-1 col-span-2 sm:col-span-1 relative overflow-hidden">
-                            {/* Renamed Header */}
-                            <div className="flex items-center gap-2 text-xs text-white/50 uppercase tracking-widest z-10">
-                                <Users size={14} /> ДЛЯ КОГО
-                            </div>
-
-                            {/* Cycling Text Component */}
-                            <div className="h-[40px] relative z-10 flex items-center">
-                                <CyclingText texts={Array.isArray(event.audience?.perfectFor) ? event.audience!.perfectFor : [event.audience?.perfectFor || '']} />
-                            </div>
-                        </div>
+                        <motion.a
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            href="#"
+                            className={`ticketscloud-widget w-full py-4 md:py-4 rounded-2xl md:rounded-xl flex items-center justify-center gap-2 font-black text-xl md:text-lg uppercase shadow-2xl transition-all ${matchedTcEvent
+                                ? 'bg-white text-black hover:bg-cyan-50 border-2 border-white'
+                                : 'bg-white/10 text-white/50 cursor-not-allowed'
+                                }`}
+                            data-tc-event={matchedTcEvent?.id}
+                            data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
+                        >
+                            <Ticket size={24} className="mb-0.5" />
+                            <span>{matchedTcEvent ? 'Купить Билет' : 'Скоро в продаже'}</span>
+                        </motion.a>
                     </div>
-
-                    {/* Details List */}
-                    <div className="space-y-4 mb-8">
-                        {/* Visual */}
-                        <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 text-cyan-400">
-                                <Music size={16} />
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-bold text-white mb-1">Визуал & Атмосфера</h4>
-                                <p className="text-white/60 text-sm">{event.visualTheme}</p>
-                            </div>
-                        </div>
-
-                        {/* Dress Code */}
-                        <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0" style={{ color: event.accentColor }}>
-                                <Shirt size={16} />
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-bold text-white mb-1">Дресс-код</h4>
-                                <p className="text-white/60 text-sm">{event.dressCode}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Ticket Button - Official Widget Implementation */}
-                    <motion.a
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        href="#"
-                        className={`ticketscloud-widget w-full py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-lg uppercase transition-all ${matchedTcEvent
-                            ? 'bg-white text-black hover:bg-cyan-50 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
-                            : 'bg-white/10 text-white/50 cursor-not-allowed'
-                            }`}
-                        data-tc-event={matchedTcEvent?.id}
-                        data-tc-token={import.meta.env.VITE_TC_WIDGET_TOKEN}
-                    >
-                        <Ticket size={20} />
-                        {matchedTcEvent ? 'Купить Билет' : 'Скоро в продаже'}
-                    </motion.a>
-
-                    {event.hooks?.alternate && (
-                        <p className="text-center text-sm text-white/60 mt-6 italic max-w-md mx-auto leading-relaxed">
-                            "{event.hooks.alternate}"
-                        </p>
-                    )}
 
                 </div>
             </motion.div>

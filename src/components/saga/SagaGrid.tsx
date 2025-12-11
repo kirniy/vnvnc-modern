@@ -41,7 +41,7 @@ const SagaGrid = () => {
             <FrostedTitle />
 
             {/* The Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
                 {WINTER_SAGA_DATA.filter(event => getPosterForEvent(event)).map((event, index) => (
                     <SagaCard
                         key={index}

@@ -706,3 +706,13 @@ select option {
 .react-datepicker__triangle {
   display: none !important;
 }
+
+/* CSS to hide navigation when modal is open */
+body.modal-open-hide-nav #main-navigation,
+body.modal-open-hide-nav .telegram-float-button {
+  display: none !important;
+}
+
+body.modal-open-hide-nav {
+  overflow: hidden !important;
+}

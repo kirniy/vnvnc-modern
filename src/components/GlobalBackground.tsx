@@ -2,52 +2,49 @@ import { motion } from 'framer-motion'
 import { memo } from 'react'
 
 const GlobalBackground = memo(() => {
+
   return (
-    <div className="fixed inset-0 -z-50 bg-black overflow-hidden pointer-events-none">
-      {/* Deep dark base with subtle gradient */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(circle at center, #050a14 0%, #000000 100%)'
-        }}
-      />
+    <div className="fixed inset-0 z-[-50] overflow-hidden pointer-events-none bg-black">
+      {/* Base gradient - Static on mobile */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#0a0f1e] to-[#051020]" />
 
-      {/* Animated ICE BLUE Gradient (Primary) - Was Red */}
+      {/* Animated Orbs - Disabled animation on mobile for performance */}
       <motion.div
-        className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-30 will-change-transform"
-        style={{ background: '#0891b2' }} // Cyan-600
-        animate={{
-          scale: [1, 1.1, 1],
-          x: [0, 20, 0],
-          y: [0, 15, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-
-      {/* Animated DEEP WINTER BLUE Gradient (Secondary) - Was Purple */}
-      <motion.div
-        className="absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] rounded-full blur-[140px] opacity-20 will-change-transform"
-        style={{ background: '#172554' }} // Blue-950
+        className="hidden md:block absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full blur-[80px] opacity-30 should-accelerate"
+        style={{ background: '#0891b2' }}
         animate={{
           scale: [1, 1.2, 1],
-          x: [0, -30, 0],
-          y: [0, -20, 0],
+          opacity: [0.2, 0.3, 0.2],
+          x: [0, 30, 0],
+          y: [0, -30, 0],
         }}
         transition={{
-          duration: 25,
+          duration: 15, // Slower
           repeat: Infinity,
-          ease: "linear",
+          ease: "easeInOut"
+        }}
+      />
+
+      <motion.div
+        className="hidden md:block absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] rounded-full blur-[100px] opacity-20 should-accelerate"
+        style={{ background: '#1e3a8a' }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.15, 0.25, 0.15],
+          x: [0, -40, 0],
+          y: [0, 40, 0],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
           delay: 2
         }}
       />
 
       {/* Subtle White/Silver Highlight (Lighting) */}
       <motion.div
-        className="absolute top-[40%] right-[20%] w-[30vw] h-[30vw] rounded-full blur-[100px] opacity-10 will-change-[opacity,transform]"
+        className="hidden md:block absolute top-[40%] right-[20%] w-[30vw] h-[30vw] rounded-full blur-[100px] opacity-10 will-change-[opacity,transform]"
         style={{ background: '#ffffff' }}
         animate={{
           opacity: [0.03, 0.08, 0.03],

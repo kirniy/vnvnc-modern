@@ -1,18 +1,23 @@
 import { useEffect, useRef } from 'react'
 
-interface Particle {
+interface Snowflake {
     x: number
     y: number
     radius: number
-    speedY: number
-    speedX: number
+    speed: number
+    wind: number
     opacity: number
-    swing: number
-    swingStep: number
 }
 
 const SnowOverlay = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
+
+    // Determine number of snowflakes based on screen width
+    const getSnowflakeCount = (w: number) => {
+        if (w < 768) return 20 // Significantly reduced for mobile
+        if (w < 1024) return 60
+        return 100
+    }
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -21,94 +26,84 @@ const SnowOverlay = () => {
         const ctx = canvas.getContext('2d')
         if (!ctx) return
 
-        let animationFrameId: number
-        let particles: Particle[] = []
-
-        // Configuration for "stylish" snow
-        const particleCount = window.innerWidth < 768 ? 50 : 150 // Fewer particles on mobile
-
-        const resizeCanvas = () => {
-            canvas.width = window.innerWidth
-            canvas.height = window.innerHeight
-        }
-
-        const createParticles = () => {
-            particles = []
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    // Varied sizes for depth: 0.5 to 2.5px
-                    radius: Math.random() * 2 + 0.5,
-                    // Varied speeds: faster for larger (closer) particles
-                    speedY: Math.random() * 1 + 0.5,
-                    speedX: Math.random() * 0.5 - 0.25,
-                    // Varied opacity for depth
-                    opacity: Math.random() * 0.5 + 0.1,
-                    swing: Math.random() * 3,
-                    swingStep: Math.random() * 0.02
-                })
+        // helper to set size
+        const handleResize = () => {
+            if (canvas) {
+                const vw = window.visualViewport?.width || window.innerWidth
+                const vh = window.visualViewport?.height || window.innerHeight
+                canvas.width = vw
+                canvas.height = vh
             }
         }
 
-        const draw = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // Initial size
+        handleResize()
+        window.addEventListener('resize', handleResize)
 
-            particles.forEach((p) => {
-                ctx.beginPath()
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`
-                ctx.fill()
-            })
-        }
+        const maxSnowflakes = getSnowflakeCount(window.innerWidth)
+        const snowflakes: Snowflake[] = []
 
-        const update = () => {
-            particles.forEach((p) => {
-                p.y += p.speedY
-                p.x += Math.sin(p.swing) * 0.5 + p.speedX
-                p.swing += p.swingStep
-
-                // Reset if out of view
-                if (p.y > canvas.height) {
-                    p.y = -10
-                    p.x = Math.random() * canvas.width
-                }
-                if (p.x > canvas.width) {
-                    p.x = 0
-                } else if (p.x < 0) {
-                    p.x = canvas.width
-                }
-            })
-        }
-
-        const loop = () => {
-            update()
-            draw()
-            animationFrameId = requestAnimationFrame(loop)
-        }
-
-        // Initialize
-        resizeCanvas()
-        createParticles()
-        loop()
-
-        // Event listeners
-        window.addEventListener('resize', () => {
-            resizeCanvas()
-            createParticles() // Re-create to fill new area
+        const createSnowflake = (): Snowflake => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 2 + 0.5,
+            speed: Math.random() * 1 + 0.2,
+            wind: Math.random() * 0.5 - 0.25,
+            opacity: Math.random() * 0.4 + 0.1
         })
 
+        // Populate
+        for (let i = 0; i < maxSnowflakes; i++) {
+            snowflakes.push(createSnowflake())
+        }
+
+        let animationFrameId: number
+
+        const render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            snowflakes.forEach((flake) => {
+                flake.y += flake.speed
+                flake.x += flake.wind
+
+                // Wrap around
+                if (flake.y > canvas.height) {
+                    flake.y = -5
+                    flake.x = Math.random() * canvas.width
+                }
+                if (flake.x > canvas.width) {
+                    flake.x = 0
+                } else if (flake.x < 0) {
+                    flake.x = canvas.width
+                }
+
+                ctx.beginPath()
+                ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2)
+                ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`
+                ctx.fill()
+            })
+
+            // Adjust snowflake count dynamically if width changes significantly in a way that matters,
+            // but simpler to just keep current set for smooth resize usually.
+            // If we really want dynamic count on resize, we'd need to re-init arrays. 
+            // For now constant set based on init width is safer for perf.
+
+            animationFrameId = requestAnimationFrame(render)
+        }
+
+        render()
+
         return () => {
-            window.removeEventListener('resize', resizeCanvas)
+            window.removeEventListener('resize', handleResize)
             cancelAnimationFrame(animationFrameId)
         }
-    }, [])
+    }, []) // Run once on mount, internal resize listener handles dimension updates
 
     return (
         <canvas
             ref={canvasRef}
-            className="fixed inset-0 pointer-events-none z-50"
-            style={{ mixBlendMode: 'screen' }} // Adds to the "stylish" feel by blending nicely
+            className="fixed inset-0 pointer-events-none z-[9999]"
+            style={{ mixBlendMode: 'screen' }}
         />
     )
 }

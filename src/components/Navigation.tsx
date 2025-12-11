@@ -60,7 +60,7 @@ const Navigation = () => {
   }, [])
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 pt-safe pr-safe pl-safe ${scrolled ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-transparent'}`}>
+    <nav id="main-navigation" className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/50 backdrop-blur-md border-b border-white/10' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Always visible for symmetry with hamburger menu */}

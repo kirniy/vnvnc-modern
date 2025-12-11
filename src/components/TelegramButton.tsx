@@ -14,8 +14,8 @@ const TelegramButton = () => {
       href={telegramUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-[80] md:bottom-8 md:right-8"
-      initial={{ scale: 0, opacity: 0 }}
+      className="telegram-float-button fixed bottom-8 right-8 z-40 flex items-center justify-center group"
+      initial={{ scale: 0, rotate: -180 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1, type: "spring", stiffness: 200 }}
       whileHover={{ scale: 1.1 }}

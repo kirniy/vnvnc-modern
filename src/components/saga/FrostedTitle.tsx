@@ -64,16 +64,22 @@ const FrostedTitle = () => {
 
             {/* Subtitle / Dates */}
             <motion.div
-                initial={{ opacity: 0, letterSpacing: '0.1em' }}
-                animate={{ opacity: 1, letterSpacing: '0.3em' }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5, delay: 1 }}
-                className="mt-4 flex items-center gap-4"
+                className="mt-2 md:mt-4 flex flex-col items-center gap-2"
             >
-                <div className="h-[1px] w-12 md:w-24 bg-gradient-to-r from-transparent to-cyan-300" />
-                <p className="text-cyan-100 font-light text-lg md:text-2xl uppercase tracking-[0.3em] font-mono text-shadow-glow">
-                    26.12 — 11.01
-                </p>
-                <div className="h-[1px] w-12 md:w-24 bg-gradient-to-l from-transparent to-cyan-300" />
+                <div className="font-display font-bold text-xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 to-blue-400 tracking-[0.1em] md:tracking-[0.2em] uppercase drop-shadow-[0_0_15px_rgba(8,145,178,0.6)] text-center px-4 leading-tight">
+                    НОВОГОДНИЙ МАРАФОН
+                </div>
+
+                <div className="flex items-center gap-4 mt-1">
+                    <div className="h-[1px] w-8 md:w-24 bg-gradient-to-r from-transparent to-cyan-300" />
+                    <p className="text-cyan-100 font-light text-sm md:text-xl uppercase tracking-[0.2em] font-mono text-shadow-glow">
+                        26.12 — 11.01
+                    </p>
+                    <div className="h-[1px] w-8 md:w-24 bg-gradient-to-l from-transparent to-cyan-300" />
+                </div>
             </motion.div>
         </div>
     )

@@ -89,7 +89,7 @@ const SagaCard = ({ event, onClick, index, posterUrl }: SagaCardProps) => {
                         </span>
                     </div>
 
-                    <h3 className={`text-white font-display font-black text-2xl md:text-3xl uppercase leading-none mb-2 drop-shadow-xl ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
+                    <h3 className={`text-white font-display font-black text-2xl md:text-3xl uppercase leading-none mb-2 drop-shadow-xl text-wrap break-words ${event.date.includes('31.12') ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100 animate-shine' : ''}`}>
                         {event.title}
                     </h3>
 
