@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion'
 import { FaTelegram } from 'react-icons/fa'
 import { Snowflake } from 'lucide-react' // Winter accent
-import { colors } from '../utils/colors'
 
 // Winter Telegram Color (Icy Blue)
-const TELEGRAM_WINTER_COLOR = '#38bdf8' // sky-400
 
 const TelegramButton = () => {
   // Telegram direct message link to @vnvnc_spb

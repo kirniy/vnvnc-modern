@@ -1,7 +1,6 @@
 
 import { motion } from 'framer-motion'
 import type { SagaEventConfig } from '../../data/winterSaga'
-import { Star } from 'lucide-react'
 
 interface SagaCardProps {
     event: SagaEventConfig

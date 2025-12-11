@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { colors } from '../utils/colors'
 import { memo } from 'react'
 
 const GlobalBackground = memo(() => {

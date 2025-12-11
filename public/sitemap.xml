@@ -41,8 +41,62 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://vnvnc.ru/events/69386c5b313569594cf890cc</loc>
+    <lastmod>2026-01-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/69386bb99802fa0e6588a9ed</loc>
+    <lastmod>2026-01-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/693866fcda0984dabab19e17</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/693725b5057f3d4901b8f10f</loc>
+    <lastmod>2026-01-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/693866661ae27ba214625b3e</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/69372525871f80695a8950ac</loc>
+    <lastmod>2026-01-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/69372583871f80695a89514d</loc>
+    <lastmod>2026-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://vnvnc.ru/events/6924c3a13e6ed88d64c68b7c</loc>
     <lastmod>2025-12-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/6937246f272e4beb401426c6</loc>
+    <lastmod>2025-12-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vnvnc.ru/events/693723e0db6c2d8779f80eb7</loc>
+    <lastmod>2025-12-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -73,20 +127,20 @@
   <url>
     <loc>https://vnvnc.ru/events/6931b7cb5f6fe34749b2bfd1</loc>
     <lastmod>2025-12-07</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://vnvnc.ru/events/692df49cd3fd299fbb3b52d0</loc>
     <lastmod>2025-12-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://vnvnc.ru/events/692df3be9ae405e73575ba60</loc>
     <lastmod>2025-12-05</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://vnvnc.ru/events/6924e2243830a45e1e3327df</loc>
@@ -283,60 +337,6 @@
   <url>
     <loc>https://vnvnc.ru/events/68a6421798e9b64e7cad23ed</loc>
     <lastmod>2025-09-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/68ac6abce06a0db728a00e54</loc>
-    <lastmod>2025-09-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/68c2b7c7858816acf4404049</loc>
-    <lastmod>2025-09-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/68a6478d455d116ca0e47262</loc>
-    <lastmod>2025-09-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/68a644e4d103ac0a7ccf81dc</loc>
-    <lastmod>2025-09-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/688e10fadfecc4593a46185e</loc>
-    <lastmod>2025-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/688e104ddc1674ac983de8d6</loc>
-    <lastmod>2025-09-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/688a309f306e552abb48b651</loc>
-    <lastmod>2025-08-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/688a2f4c08e784a1071d5a24</loc>
-    <lastmod>2025-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://vnvnc.ru/events/688fbb2a298f25bce13d42e8</loc>
-    <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
