@@ -12,11 +12,11 @@ const GlobalBackground = memo(() => {
             background: 'linear-gradient(to bottom, #0f172a 0%, #020617 100%)'
           }}
         />
-        {/* Soft blobs of color - pure CSS animation, no SVG */}
-        <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] animate-aurora-pulse opacity-45 mix-blend-screen">
-          <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-cyan-900 blur-[150px]" />
-          <div className="absolute bottom-[20%] right-[20%] w-[60%] h-[60%] rounded-full bg-blue-900 blur-[130px]" />
-          <div className="absolute top-[40%] right-[30%] w-[40%] h-[40%] rounded-full bg-indigo-900 blur-[100px]" />
+        {/* Soft blobs of color - Optimized for performance (lower blur radius) */}
+        <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] animate-aurora-pulse opacity-30 mix-blend-screen">
+          <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-cyan-900 blur-[80px]" />
+          <div className="absolute bottom-[20%] right-[20%] w-[60%] h-[60%] rounded-full bg-blue-900 blur-[60px]" />
+          <div className="absolute top-[40%] right-[30%] w-[40%] h-[40%] rounded-full bg-indigo-900 blur-[50px]" />
         </div>
       </div>
 
