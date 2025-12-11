@@ -5,6 +5,7 @@ import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
 import LoadingSpinner from './components/LoadingSpinner'
+import CinematicLoader from './components/CinematicLoader'
 import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
 // TEMPORARILY DISABLED - MinimalCursor causing DOM errors
@@ -29,19 +30,8 @@ const RentalPage = lazy(() => import('./pages/RentalPage'))
 const MerchPage = lazy(() => import('./pages/MerchPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
-// Custom loading component that hides the footer
-const LoadingWithHiddenFooter = () => {
-  return (
-    <>
-      <style>{`
-        footer {
-          display: none !important;
-        }
-      `}</style>
-      <LoadingSpinner />
-    </>
-  )
-}
+// Custom loading fallback (just deep red to prevent flash)
+const SimpleBlackFallback = () => <div className="fixed inset-0 bg-[#2a0404] z-50" />
 
 function App() {
   // Gallery re-enabled with fixed Yandex Cloud Function
@@ -90,6 +80,7 @@ function App() {
 
   return (
     <>
+      <CinematicLoader /> {/* Intro acts as top-level curtain */}
       <GlobalBackground />
       <AgeGate />
       {/* <AnnouncementBanner /> - Disabled for now */}
@@ -101,7 +92,7 @@ function App() {
       <AnalyticsTracker />
 
       <main className="relative">
-        <Suspense fallback={<LoadingWithHiddenFooter />}>
+        <Suspense fallback={<SimpleBlackFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/merch" element={<MerchPage />} />
