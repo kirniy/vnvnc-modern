@@ -13,10 +13,11 @@ const SnowOverlay = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
     // Determine number of snowflakes based on screen width
+    // Mobile: lighter snow for performance, Desktop: full snow effect
     const getSnowflakeCount = (w: number) => {
-        if (w < 768) return 35 // Increased significantly for visibility (was 10)
-        if (w < 1280) return 60
-        return 100 // Richer snow on desktop (was 45)
+        if (w < 768) return 20  // Light mobile snow (resource-friendly)
+        if (w < 1280) return 50 // Medium tablet snow
+        return 80               // Rich desktop snow
     }
 
     useEffect(() => {

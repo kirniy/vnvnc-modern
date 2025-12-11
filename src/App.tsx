@@ -53,12 +53,12 @@ function App() {
   }, [isInTelegram])
 
   useEffect(() => {
-    // Disable snow on desktop and when user prefers reduced motion
+    // Show snow on all devices when user doesn't prefer reduced motion
+    // SnowOverlay handles different flake counts: mobile=35, tablet=60, desktop=100
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     const update = () => {
-      const width = window.innerWidth
       const reduced = motionQuery?.matches ?? false
-      setShowSnow(!reduced && width < 1024)
+      setShowSnow(!reduced) // Snow for everyone!
     }
     update()
     window.addEventListener('resize', update)
