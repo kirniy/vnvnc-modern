@@ -5,6 +5,7 @@ import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 // import AnnouncementBanner from './components/AnnouncementBanner' // Disabled for now
 import CinematicLoader from './components/CinematicLoader'
+import LoadingSpinner from './components/LoadingSpinner'
 import AgeGate from './components/AgeGate'
 import TelegramButton from './components/TelegramButton'
 // TEMPORARILY DISABLED - MinimalCursor causing DOM errors
@@ -29,8 +30,7 @@ const RentalPage = lazy(() => import('./pages/RentalPage'))
 const MerchPage = lazy(() => import('./pages/MerchPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
 
-// Custom loading fallback (just deep red to prevent flash)
-const SimpleBlackFallback = () => <div className="fixed inset-0 bg-[#2a0404] z-50" />
+
 
 function App() {
   // Gallery re-enabled with fixed Yandex Cloud Function
@@ -103,7 +103,7 @@ function App() {
       <AnalyticsTracker />
 
       <main className="relative">
-        <Suspense fallback={<SimpleBlackFallback />}>
+        <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/merch" element={<MerchPage />} />

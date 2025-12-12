@@ -18,8 +18,8 @@ import { buildLocalBusinessJsonLd, buildBreadcrumbJsonLd, createBreadcrumbTrail 
 
 // Fallback images - used when Yandex Disk is unavailable
 const fallbackImages = [
-  { 
-    id: '1', 
+  {
+    id: '1',
     src: '/photos/IMG_5014_resized.jpg',
     title: 'Night Vibes',
     category: 'party',
@@ -27,8 +27,8 @@ const fallbackImages = [
     name: 'IMG_5014_resized.jpg',
     path: '/photos/IMG_5014_resized.jpg'
   },
-  { 
-    id: '2', 
+  {
+    id: '2',
     src: '/photos/IMG_5036_resized.jpg',
     title: 'Dance Floor',
     category: 'party',
@@ -36,8 +36,8 @@ const fallbackImages = [
     name: 'IMG_5036_resized.jpg',
     path: '/photos/IMG_5036_resized.jpg'
   },
-  { 
-    id: '3', 
+  {
+    id: '3',
     src: '/photos/IMG_5094_resized.jpg',
     title: 'DJ Set',
     category: 'performance',
@@ -45,8 +45,8 @@ const fallbackImages = [
     name: 'IMG_5094_resized.jpg',
     path: '/photos/IMG_5094_resized.jpg'
   },
-  { 
-    id: '4', 
+  {
+    id: '4',
     src: '/photos/IMG_5126_resized.jpg',
     title: 'Crowd Energy',
     category: 'party',
@@ -54,8 +54,8 @@ const fallbackImages = [
     name: 'IMG_5126_resized.jpg',
     path: '/photos/IMG_5126_resized.jpg'
   },
-  { 
-    id: '5', 
+  {
+    id: '5',
     src: '/photos/IMG_5730_resized.jpg',
     title: 'Light Show',
     category: 'atmosphere',
@@ -63,8 +63,8 @@ const fallbackImages = [
     name: 'IMG_5730_resized.jpg',
     path: '/photos/IMG_5730_resized.jpg'
   },
-  { 
-    id: '6', 
+  {
+    id: '6',
     src: '/photos/IMG_5765_resized.jpg',
     title: 'VIP Lounge',
     category: 'interior',
@@ -72,8 +72,8 @@ const fallbackImages = [
     name: 'IMG_5765_resized.jpg',
     path: '/photos/IMG_5765_resized.jpg'
   },
-  { 
-    id: '7', 
+  {
+    id: '7',
     src: '/photos/IMG_5818_resized.jpg',
     title: 'Concert Night',
     category: 'performance',
@@ -81,8 +81,8 @@ const fallbackImages = [
     name: 'IMG_5818_resized.jpg',
     path: '/photos/IMG_5818_resized.jpg'
   },
-  { 
-    id: '8', 
+  {
+    id: '8',
     src: '/photos/IMG_5903_resized.jpg',
     title: 'Weekend Vibes',
     category: 'party',
@@ -188,12 +188,12 @@ const GalleryPage = () => {
   }, [isError])
 
   // Combine all pages of photos or use fallback
-  const allPhotos = useFallback 
-    ? fallbackImages 
+  const allPhotos = useFallback
+    ? fallbackImages
     : data?.pages.flatMap(page => page.photos) || []
 
   // Use all dates fetched from the API (already sorted newest first)
-  const uniqueDates = allDates;
+  const uniqueDates = Array.from(new Set(allDates));
 
   // Filter and sort images based on date
   const filteredImages = useMemo(() => {
@@ -418,198 +418,197 @@ const GalleryPage = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-        {/* Compact Date Selector */}
-        {uniqueDates.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 relative"
-          >
-            <div className="flex items-center gap-2">
-              {/* Scroll Left Button */}
-              <button
-                onClick={() => scrollDates('left')}
-                className="p-2 radius bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              {/* Scrollable Date Container */}
-              <div
-                ref={scrollContainerRef}
-                className="flex gap-2 overflow-x-auto overflow-y-hidden scrollbar-hide flex-1 whitespace-nowrap snap-x snap-mandatory py-1"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' as any }}
-              >
-                {/* Date Buttons */}
-                {uniqueDates.map((date, index) => {
-                  const [year, month, day] = date.split('-');
-                  const shortYear = year.slice(-2);
-                  const isSelected = selectedDate === date;
-                  const isLatest = index === 0;
-                  
-                  return (
+              {/* Compact Date Selector */}
+              {uniqueDates.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="mb-8 relative"
+                >
+                  <div className="flex items-center gap-2">
+                    {/* Scroll Left Button */}
                     <button
-                      key={date}
-                      onClick={() => {
-                        setSelectedDate(date)
-                        // Update URL without triggering re-renders
-                        const newParams = new URLSearchParams(searchParams)
-                        newParams.set('date', date)
-                        setSearchParams(newParams, { replace: true })
-                      }}
-                      className={`inline-flex items-center gap-2 h-10 leading-none px-4 radius text-sm font-medium transition-colors duration-200 flex-shrink-0 snap-start ${
-                        isSelected
-                          ? ''
-                          : 'bg-white/10 hover:bg-white/20 text-white'
-                      }`}
-                      style={isSelected ? {
-                        backgroundColor: colors.neon.red,
-                        color: 'white',
-                        boxShadow: `0 2px 10px ${colors.neon.red}66`
-                      } : {}}
+                      onClick={() => scrollDates('left')}
+                      className="p-2 radius bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0"
+                      aria-label="Scroll left"
                     >
-                      {isLatest && <Sparkles size={14} className="flex-shrink-0" />}
-                      <span className="font-bold">{day}</span>
-                      <span className="mx-1 opacity-60">{getShortMonthName(month)}</span>
-                      <span className="opacity-40">{shortYear}</span>
+                      <ChevronLeft size={20} />
                     </button>
-                  );
-                })}
-              </div>
 
-              {/* Scroll Right Button */}
-              <button
-                onClick={() => scrollDates('right')}
-                className="p-2 radius bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0"
-                aria-label="Scroll right"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
+                    {/* Scrollable Date Container */}
+                    <div
+                      ref={scrollContainerRef}
+                      className="flex gap-2 overflow-x-auto overflow-y-hidden scrollbar-hide flex-1 whitespace-nowrap snap-x snap-mandatory py-1"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' as any }}
+                    >
+                      {/* Date Buttons */}
+                      {uniqueDates.map((date, index) => {
+                        const [year, month, day] = date.split('-');
+                        const shortYear = year.slice(-2);
+                        const isSelected = selectedDate === date;
+                        const isLatest = index === 0;
 
-            {/* Selected Date Info */}
-            {selectedDate && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mt-4 text-white/60 text-sm"
-              >
-                <Calendar size={14} className="inline mr-2" />
-                Показаны фото за {formatDateForDisplay(selectedDate)}
-              </motion.div>
-            )}
-          </motion.div>
-        )}
+                        return (
+                          <button
+                            key={date}
+                            onClick={() => {
+                              setSelectedDate(date)
+                              // Update URL without triggering re-renders
+                              const newParams = new URLSearchParams(searchParams)
+                              newParams.set('date', date)
+                              setSearchParams(newParams, { replace: true })
+                            }}
+                            className={`inline-flex items-center gap-2 h-10 leading-none px-4 radius text-sm font-medium transition-colors duration-200 flex-shrink-0 snap-start ${isSelected
+                              ? ''
+                              : 'bg-white/10 hover:bg-white/20 text-white'
+                              }`}
+                            style={isSelected ? {
+                              backgroundColor: colors.neon.red,
+                              color: 'white',
+                              boxShadow: `0 2px 10px ${colors.neon.red}66`
+                            } : {}}
+                          >
+                            {isLatest && <Sparkles size={14} className="flex-shrink-0" />}
+                            <span className="font-bold">{day}</span>
+                            <span className="mx-1 opacity-60">{getShortMonthName(month)}</span>
+                            <span className="opacity-40">{shortYear}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
 
-        {/* Loading State */}
-        {isLoading && !useFallback && (
-          <div className="fixed inset-0 z-[95] flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        )}
-
-        {/* Error State with Retry */}
-        {useFallback && (
-          <div className="mb-6 p-4 radius backdrop-blur-md" style={{ backgroundColor: colors.glass.white }}>
-            <div className="flex items-center justify-between">
-              <p className="text-white/70">Используются локальные фотографии</p>
-              <button
-                onClick={handleRetry}
-                className="flex items-center gap-2 px-4 py-2 radius text-white hover:bg-white/10 transition-colors"
-              >
-                <RefreshCw size={16} />
-                Повторить
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Gallery Grid - Mobile‑first 2‑col grid; сохраняем 3:4 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-          {filteredImages.map((image, index) => (
-            <motion.div
-              key={getImageStableKey(image)}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.2) }}  // Reduced delays
-              className="relative group cursor-pointer"
-              onClick={() => openLightbox(index)}
-            >
-              <div className="relative overflow-hidden radius aspect-[3/4]">
-                <img 
-                  src={image.src}
-                  srcSet={[
-                    image.thumbnailSrc ? `${image.thumbnailSrc} 300w` : '',
-                    `${image.src} 800w`,
-                    (image as any).fullSrc ? `${(image as any).fullSrc} 1280w` : ''
-                  ].filter(Boolean).join(', ')}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  alt={image.title || image.name || 'Фото VNVNC'}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-                
-                {/* Hover Overlay */}
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    {image.date && (
-                      <p className="text-white/90 text-sm font-medium">{formatDateForDisplay(image.date)}</p>
-                    )}
+                    {/* Scroll Right Button */}
+                    <button
+                      onClick={() => scrollDates('right')}
+                      className="p-2 radius bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0"
+                      aria-label="Scroll right"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
                   </div>
-                  
-                  <div className="absolute top-4 right-4 p-2 rounded-full backdrop-blur-md"
-                       style={{ backgroundColor: colors.glass.white }}>
-                    <Maximize2 size={20} className="text-white" />
+
+                  {/* Selected Date Info */}
+                  {selectedDate && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center mt-4 text-white/60 text-sm"
+                    >
+                      <Calendar size={14} className="inline mr-2" />
+                      Показаны фото за {formatDateForDisplay(selectedDate)}
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Loading State */}
+              {isLoading && !useFallback && (
+                <div className="fixed inset-0 z-[95] flex items-center justify-center">
+                  <LoadingSpinner />
+                </div>
+              )}
+
+              {/* Error State with Retry */}
+              {useFallback && (
+                <div className="mb-6 p-4 radius backdrop-blur-md" style={{ backgroundColor: colors.glass.white }}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-white/70">Используются локальные фотографии</p>
+                    <button
+                      onClick={handleRetry}
+                      className="flex items-center gap-2 px-4 py-2 radius text-white hover:bg-white/10 transition-colors"
+                    >
+                      <RefreshCw size={16} />
+                      Повторить
+                    </button>
                   </div>
                 </div>
-                
-                {/* Glow Effect */}
-                <div className="absolute inset-0 radius opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
-                     style={{ 
-                       boxShadow: `0 0 30px ${colors.neon.red}44, inset 0 0 30px ${colors.neon.red}22`
-                     }} />
+              )}
+
+              {/* Gallery Grid - Mobile‑first 2‑col grid; сохраняем 3:4 */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                {filteredImages.map((image, index) => (
+                  <motion.div
+                    key={getImageStableKey(image)}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.2) }}  // Reduced delays
+                    className="relative group cursor-pointer"
+                    onClick={() => openLightbox(index)}
+                  >
+                    <div className="relative overflow-hidden radius aspect-[3/4]">
+                      <img
+                        src={image.src}
+                        srcSet={[
+                          image.thumbnailSrc ? `${image.thumbnailSrc} 300w` : '',
+                          `${image.src} 800w`,
+                          (image as any).fullSrc ? `${(image as any).fullSrc} 1280w` : ''
+                        ].filter(Boolean).join(', ')}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        alt={image.title || image.name || 'Фото VNVNC'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          {image.date && (
+                            <p className="text-white/90 text-sm font-medium">{formatDateForDisplay(image.date)}</p>
+                          )}
+                        </div>
+
+                        <div className="absolute top-4 right-4 p-2 rounded-full backdrop-blur-md"
+                          style={{ backgroundColor: colors.glass.white }}>
+                          <Maximize2 size={20} className="text-white" />
+                        </div>
+                      </div>
+
+                      {/* Glow Effect */}
+                      <div className="absolute inset-0 radius opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
+                        style={{
+                          boxShadow: `0 0 30px ${colors.neon.red}44, inset 0 0 30px ${colors.neon.red}22`
+                        }} />
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
-          ))}
-        </div>
 
-        {/* Load More Trigger for Infinite Scrolling */}
-        {!useFallback && hasNextPage && (
-          <div ref={loadMoreRef} className="flex justify-center py-8">
-            {isFetchingNextPage ? (
-              <LoadingSpinner />
-            ) : (
-              <button
-                onClick={() => fetchNextPage()}
-                className="px-6 py-3 radius text-white backdrop-blur-md hover:bg-white/10 transition-colors"
-                style={{ backgroundColor: colors.glass.white }}
+              {/* Load More Trigger for Infinite Scrolling */}
+              {!useFallback && hasNextPage && (
+                <div ref={loadMoreRef} className="flex justify-center py-8">
+                  {isFetchingNextPage ? (
+                    <LoadingSpinner />
+                  ) : (
+                    <button
+                      onClick={() => fetchNextPage()}
+                      className="px-6 py-3 radius text-white backdrop-blur-md hover:bg-white/10 transition-colors"
+                      style={{ backgroundColor: colors.glass.white }}
+                    >
+                      Загрузить ещё
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Instagram CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="mt-12 sm:mt-16 text-center"
               >
-                Загрузить ещё
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Instagram CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-12 sm:mt-16 text-center"
-        >
-          <a
-            href="https://www.instagram.com/vnvnc_spb"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 radius border-2 border-white text-white font-display font-extrabold lowercase hover:bg-white hover:text-black transition-colors"
-          >
-            <Camera size={20} />
-            <span>больше фото в insta</span>
-          </a>
-        </motion.div>
+                <a
+                  href="https://www.instagram.com/vnvnc_spb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 radius border-2 border-white text-white font-display font-extrabold lowercase hover:bg-white hover:text-black transition-colors"
+                >
+                  <Camera size={20} />
+                  <span>больше фото в insta</span>
+                </a>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

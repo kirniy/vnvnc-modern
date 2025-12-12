@@ -39,35 +39,7 @@ interface SagaDetailModalProps {
     onClose: () => void
 }
 
-// Cycling Text Component with AnimatePresence
-const CyclingText = ({ texts }: { texts: string[] }) => {
-    const [index, setIndex] = useState(0)
 
-    useEffect(() => {
-        if (texts.length <= 1) return
-        const timer = setInterval(() => {
-            setIndex((prev) => (prev + 1) % texts.length)
-        }, 3000) // Cycle every 3 seconds
-        return () => clearInterval(timer)
-    }, [texts.length])
-
-    return (
-        <div className="relative w-full h-full flex items-center">
-            <AnimatePresence mode="wait">
-                <motion.p
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-white leading-snug absolute w-full truncate"
-                >
-                    {texts[index]}
-                </motion.p>
-            </AnimatePresence>
-        </div>
-    )
-}
 
 const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
     const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -299,8 +271,18 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
                                 <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
                                     <Users size={12} /> Для Кого
                                 </div>
-                                <div className="h-[40px] flex items-center">
-                                    <CyclingText texts={Array.isArray(currentData.audience?.perfectFor) ? currentData.audience!.perfectFor : [currentData.audience?.perfectFor || '']} />
+                                <div className="flex flex-wrap gap-2">
+                                    {Array.isArray(currentData.audience?.perfectFor) ? (
+                                        currentData.audience!.perfectFor.map((text, idx) => (
+                                            <span key={idx} className="text-white/90 text-sm leading-snug bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                                {text}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-white/90 text-sm leading-snug">
+                                            {currentData.audience?.perfectFor}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
