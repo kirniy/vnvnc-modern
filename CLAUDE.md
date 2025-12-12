@@ -89,10 +89,64 @@ npm run lint         # Check code quality
 
 ### Production URLs
 - **Main Site**: https://vnvnc.ru (via Yandex Cloud CDN)
-- **CDN Provider CNAME**: bf1cb789559b3dc5.a.yccdn.cloud.yandex.net
-- **CDN Resource ID**: bc8rilebboch3mrd3uds
-- **Origin (Selectel S3)**: https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
-- **Certificate (YC Certificate Manager)**: fpq6ebsc38egmpblgvq6 (Let's Encrypt R12)
+- **WWW Site**: https://www.vnvnc.ru (also via CDN)
+- **CDN Provider CNAME**: `bf1cb789559b3dc5.a.yccdn.cloud.yandex.net`
+- **CDN Resource ID**: `bc8rilebboch3mrd3uds`
+- **CDN Internal CNAME**: `vnvnc-cdn.gcdn.co` (internal identifier, do NOT use for DNS)
+- **Origin (Selectel S3)**: `https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru`
+
+### SSL Certificates (as of December 2025)
+
+#### ⚠️ ACTION REQUIRED BY LATE JANUARY 2026
+
+The certificate currently being served expires **Feb 10, 2026** and does NOT auto-renew. You must either:
+1. **Switch to managed cert** (recommended - enables auto-renewal), OR
+2. **Re-import Selectel cert** when it renews
+
+See "Switching to Managed Certificate" section below for instructions.
+
+#### Yandex Cloud Certificate Manager (for CDN)
+| Certificate ID | Name | Type | Issuer | Domains | Expires | Status |
+|----------------|------|------|--------|---------|---------|--------|
+| `fpqlba7na3fmq91td97k` | vnvnc-fullchain | IMPORTED | R13 | vnvnc.ru, www.vnvnc.ru | **Feb 10, 2026** | ✅ ACTIVE (served at edge) |
+| `fpq6d47g0r1b4eltjah1` | vnvnc-managed-dns | MANAGED | R12 | vnvnc.ru, www.vnvnc.ru | Mar 12, 2026 | Issued (configured but NOT served) |
+
+**Currently presented to users**: `fpqlba7na3fmq91td97k` (imported R13, incomplete_chain=true).
+**Configured/backup**: `fpq6d47g0r1b4eltjah1` (managed R12 via DNS challenge, ready to switch if needed).
+
+#### Switching to Managed Certificate (Recommended)
+
+To enable auto-renewal and avoid manual cert imports, switch the CDN to actually serve the managed certificate:
+
+```bash
+# 1. Update CDN to use managed cert (include ALL options to prevent reset!)
+yc cdn resource update bc8rilebboch3mrd3uds \
+  --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru \
+  --host-header "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru" \
+  --origin-protocol https \
+  --redirect-http-to-https \
+  --cert-manager-ssl-cert-id fpq6d47g0r1b4eltjah1
+
+# 2. Purge cache
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+
+# 3. Wait 5-15 minutes for edge propagation, then verify:
+openssl s_client -connect vnvnc.ru:443 -servername vnvnc.ru </dev/null 2>/dev/null | \
+  openssl x509 -noout -issuer -dates
+# Should show R12 issuer and Mar 2026 expiry
+
+# 4. Test site
+curl -I https://vnvnc.ru/
+# Should return 200 OK
+```
+
+**Why this matters**: The managed cert auto-renews via DNS challenge. The imported cert requires manual re-import every ~90 days.
+
+#### Selectel S3 Bucket Certificate
+- **Issuer**: Let's Encrypt R13
+- **Domains**: vnvnc.ru, www.vnvnc.ru
+- **Expires**: Feb 10, 2026
+- **Location**: Selectel Control Panel → Object Storage → Container Settings → SSL
 
 ## Development Patterns
 
@@ -301,53 +355,351 @@ Before deploying:
 
 #### Current Setup (Yandex CDN + Selectel S3)
 ```
-[User] → [vnvnc.ru DNS] → [Yandex Cloud CDN] → [Selectel S3 Origin]
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           VNVNC.RU INFRASTRUCTURE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   [User Browser]                                                            │
+│         │                                                                   │
+│         ▼                                                                   │
+│   [DNS: Selectel DNS]                                                       │
+│   vnvnc.ru      ALIAS → bf1cb789559b3dc5.a.yccdn.cloud.yandex.net          │
+│   www.vnvnc.ru  CNAME → bf1cb789559b3dc5.a.yccdn.cloud.yandex.net          │
+│         │                                                                   │
+│         ▼                                                                   │
+│   [Yandex Cloud CDN]  ◄─── SSL: Let's Encrypt R13 (Feb 2026)               │
+│   Resource: bc8rilebboch3mrd3uds                                           │
+│   Settings:                                                                 │
+│   - Secondary hostnames: vnvnc.ru, www.vnvnc.ru                            │
+│   - Host header: e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru        │
+│   - Origin protocol: HTTPS                                                  │
+│   - HTTP→HTTPS redirect: ON                                                 │
+│         │                                                                   │
+│         ▼                                                                   │
+│   [Selectel S3 Bucket]  ◄─── SSL: Let's Encrypt R13 (Feb 2026)             │
+│   Bucket: e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru               │
+│   Region: ru-7                                                              │
+│   Contains: Built React app (dist/)                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **DNS**: `vnvnc.ru` ALIAS and `www.vnvnc.ru` CNAME to provider CNAME
-- **CDN**: Yandex Cloud CDN (ID: bc8rilebboch3mrd3uds)
-- **Origin**: Selectel S3 bucket (e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru)
-- **Origin protocol**: HTTPS, Host Header fixed to bucket hostname
-- **SSL**: Yandex Certificate Manager (ID: fpq6ebsc38egmpblgvq6)
+### Component Details
 
-### Selectel Deployment
+#### 1. DNS (Selectel DNS Management)
+**Location**: https://my.selectel.ru/vpc/domains
+
+| Record | Type | Value | TTL |
+|--------|------|-------|-----|
+| `vnvnc.ru` | ALIAS | `bf1cb789559b3dc5.a.yccdn.cloud.yandex.net` | 3600 |
+| `www.vnvnc.ru` | CNAME | `bf1cb789559b3dc5.a.yccdn.cloud.yandex.net` | 3600 |
+| `_acme-challenge.vnvnc.ru` | CNAME | `fpq6d47g0r1b4eltjah1.cm.yandexcloud.net` | 3600 |
+| `_acme-challenge.www.vnvnc.ru` | CNAME | `fpq6d47g0r1b4eltjah1.cm.yandexcloud.net` | 3600 |
+
+**⚠️ Important**:
+- NEVER point DNS to `vnvnc-cdn.gcdn.co` - this is an internal CDN identifier
+- ALWAYS use the provider CNAME: `bf1cb789559b3dc5.a.yccdn.cloud.yandex.net`
+- The `_acme-challenge` records are for Yandex managed certificate renewal
+
+#### 2. Yandex Cloud CDN
+**Location**: https://console.yandex.cloud → Cloud CDN → Resources
+
+**Resource Configuration**:
+```yaml
+Resource ID: bc8rilebboch3mrd3uds
+CNAME (internal): vnvnc-cdn.gcdn.co  # DO NOT USE FOR DNS
+Provider CNAME: bf1cb789559b3dc5.a.yccdn.cloud.yandex.net  # USE THIS FOR DNS
+
+Secondary Hostnames:
+  - vnvnc.ru
+  - www.vnvnc.ru
+
+Origin:
+  Group: vnvnc-s3-origin (ID: 3400233002361363975)
+  Source: e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
+  Protocol: HTTPS
+
+Options:
+  Host Header: e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru  # CRITICAL!
+  HTTP→HTTPS Redirect: Enabled
+  Edge Cache: 86400 seconds (24 hours)
+  Slice: Enabled
+
+SSL Certificate:
+  Type: Certificate Manager
+  Configured: fpq6d47g0r1b4eltjah1 (managed R12, READY)
+  Edge currently serves: fpqlba7na3fmq91td97k (imported R13, expires Feb 10 2026, incomplete_chain=true)
+```
+
+**⚠️ CRITICAL CDN Settings**:
+1. **Host Header** MUST be set to Selectel bucket hostname, NOT "Primary domain"
+2. **Origin Protocol** MUST be HTTPS (Selectel redirects HTTP→HTTPS)
+3. **Secondary Hostnames** MUST include both vnvnc.ru AND www.vnvnc.ru
+4. Changes take up to 15 minutes to propagate to edge nodes!
+
+#### 3. Selectel S3 Object Storage
+**Location**: https://my.selectel.ru/storage/containers
+
+**Bucket Configuration**:
+```yaml
+Container Name: vnvnc
+Bucket URL: e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
+Region: ru-7
+Endpoint: https://s3.ru-7.storage.selcloud.ru
+Access: Public read
+
+SSL Certificate:
+  Type: Custom (Let's Encrypt)
+  Domains: vnvnc.ru, www.vnvnc.ru
+  Expires: Feb 10, 2026
+  Auto-renewal: YES (via Selectel)
+```
+
+**⚠️ Important**: Selectel S3 ALWAYS uses HTTPS. HTTP requests get 301 redirected to HTTPS.
+
+#### 4. Yandex Certificate Manager
+**Location**: https://console.yandex.cloud → Certificate Manager
+
+**Available Certificates**:
+| ID | Name | Type | Expires | Use Case |
+|----|------|------|---------|----------|
+| `fpqlba7na3fmq91td97k` | vnvnc-fullchain | IMPORTED | Feb 10, 2026 | **CDN (served at edge)** |
+| `fpq6d47g0r1b4eltjah1` | vnvnc-managed-dns | MANAGED | Mar 12, 2026 | Configured backup (DNS-challenge) |
+
+**Managed vs Imported**:
+- **MANAGED**: Yandex auto-renews via DNS challenge (requires ACME CNAME records)
+- **IMPORTED**: Manual import from Selectel, must re-import when Selectel renews
+
+---
+
+## 🔧 Operations & Maintenance
+
+### Deploying Code Changes
+
 ```bash
-# Build the project
+# 1. Build the project
 npm run build
 
-# Deploy to Selectel using the deployment script
+# 2. Deploy to Selectel (use deployment script)
 ./deploy-to-selectel.sh
-```
 
-### Manual Selectel Deployment (if needed)
-```bash
-# Build the project
-npm run build
+# OR manual deployment:
+aws s3 sync dist/ s3://vnvnc/ \
+  --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+  --delete
 
-# Upload to Selectel S3 bucket
-aws s3 sync dist/ s3://vnvnc/ --endpoint-url=https://s3.ru-7.storage.selcloud.ru --delete
-```
-
-**Note**: After deploying to Selectel, purge CDN cache to propagate HTML changes.
-
-```bash
+# 3. Purge CDN cache (REQUIRED for HTML/JS changes!)
 yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
 ```
 
-### Operations Runbook
-- Purge CDN cache after deploy: see command above
-- Rotate/attach certificate: import fullchain + key to YC CM → update CDN resource `--cert-manager-ssl-cert-id`
-- Add/verify hostnames: `yc cdn resource update <id> --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru`
-- Set origin+Host header: `yc cdn resource update <id> --origin-protocol https --host-header <bucket-hostname>`
+**Note**: Cache purge has a rate limit of ~1 per minute. If you get an error, wait and retry.
 
-### Services & Balances
-- **Yandex Cloud**: CDN + Certificate Manager + API Gateway (keep a positive balance; monitor monthly traffic)
-- **Selectel Object Storage**: storage + egress (ensure funds for storage and outbound traffic)
-- **Domain (REG.RU)**: maintain domain renewal
+### Checking CDN Status
 
-### Cloudflare Workers
 ```bash
-# For CORS proxy
+# View current CDN configuration
+yc cdn resource get bc8rilebboch3mrd3uds
+
+# Check SSL certificate being served
+openssl s_client -connect vnvnc.ru:443 -servername vnvnc.ru </dev/null 2>/dev/null | \
+  openssl x509 -noout -subject -issuer -dates
+
+# Test HTTP response
+curl -I https://vnvnc.ru/
+
+# Test with cache bypass
+curl -I "https://vnvnc.ru/?nocache=$(date +%s)"
+```
+
+### Purging CDN Cache
+
+```bash
+# Purge entire cache
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+
+# Purge specific path
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/index.html"
+```
+
+---
+
+## 🔐 SSL Certificate Management
+
+### Certificate Expiration Timeline
+- **Current CDN Certificate (served)**: Feb 10, 2026 (IMPORTED, R13, incomplete_chain=true)
+- **Managed Certificate (configured)**: Mar 12, 2026 (R12, auto-renews via DNS challenge)
+- **Selectel S3 Certificate**: Feb 10, 2026 (auto-renews via Selectel)
+
+### When Certificates Expire - Renewal Process
+
+#### Option A: Import Selectel Certificate (Backup Procedure)
+
+If the managed certificate fails, import the Selectel certificate. Selectel auto-renews their Let's Encrypt certificate. After renewal:
+
+```bash
+# 1. Download new certificate from Selectel
+#    Go to: Selectel → Object Storage → Container → SSL → Download
+
+# 2. Import to Yandex Certificate Manager
+yc certificate-manager certificate create \
+  --name vnvnc-selectel-YYYY-MM \
+  --domains vnvnc.ru --domains www.vnvnc.ru \
+  --chain /path/to/fullchain.pem \
+  --key /path/to/privkey.pem
+
+# 3. Note the new certificate ID from output
+
+# 4. Update CDN to use new certificate
+yc cdn resource update bc8rilebboch3mrd3uds \
+  --cert-manager-ssl-cert-id <NEW_CERT_ID>
+
+# 5. IMPORTANT: Re-apply other settings (they may reset!)
+yc cdn resource update bc8rilebboch3mrd3uds \
+  --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru \
+  --host-header "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru" \
+  --origin-protocol https \
+  --redirect-http-to-https
+
+# 6. Purge cache
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+
+# 7. Verify
+curl -I https://vnvnc.ru/
+```
+
+#### Option B: Yandex Managed Certificate (Configured - Auto-Renewal)
+
+The managed certificate `fpq6d47g0r1b4eltjah1` is ISSUED/READY and auto-renews via DNS challenge, but the edge is currently serving the imported `fpqlba7na3fmq91td97k`. Switch to the managed one if you want a fully chained cert without the incomplete_chain flag.
+
+**Prerequisites** (already configured):
+- `_acme-challenge.vnvnc.ru` CNAME → `fpq6d47g0r1b4eltjah1.cm.yandexcloud.net`
+- `_acme-challenge.www.vnvnc.ru` CNAME → `fpq6d47g0r1b4eltjah1.cm.yandexcloud.net`
+
+**Current state**: Managed cert is configured as backup; edge serves imported cert. No action needed unless you want to swap to managed.
+
+### Checking Certificate Status
+
+```bash
+# List all certificates
+yc certificate-manager certificate list
+
+# Check specific certificate
+yc certificate-manager certificate get <CERT_ID>
+
+# Check what CDN is using
+yc cdn resource get bc8rilebboch3mrd3uds | grep -A5 ssl_certificate
+```
+
+---
+
+## 🚨 Incident Response: December 12, 2025
+
+### What Happened
+1. SSL certificate `fpq6ebsc38egmpblgvq6` (Let's Encrypt R12) expired on Dec 12, 2025
+2. Site became inaccessible with SSL errors
+3. During troubleshooting, CDN started redirecting to `vnvnc-cdn.gcdn.co` (internal CNAME)
+
+### Root Cause
+When updating CDN settings via CLI, certain options (especially `--cert-manager-ssl-cert-id`) can **silently reset** other critical options:
+- `host_options` (Host Header)
+- `redirect_options` (HTTP→HTTPS redirect)
+
+Without the correct Host Header, CDN redirected all requests to its internal CNAME.
+
+### Resolution
+1. Created new managed certificate via DNS challenge
+2. Imported Selectel certificate (currently served at edge)
+3. Re-applied ALL CDN settings in one command
+4. Purged cache
+
+### Prevention Checklist
+- [ ] Set calendar reminder 2 weeks before certificate expiration
+- [ ] When updating ANY CDN setting, always include ALL critical options:
+  ```bash
+  yc cdn resource update bc8rilebboch3mrd3uds \
+    --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru \
+    --host-header "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru" \
+    --origin-protocol https \
+    --redirect-http-to-https \
+    --cert-manager-ssl-cert-id fpq6d47g0r1b4eltjah1
+  ```
+- [ ] After ANY CDN change, verify with:
+  ```bash
+  curl -I https://vnvnc.ru/
+  # Should return 200 OK, NOT 301 redirect
+  ```
+- [ ] Keep the managed certificate DNS records in place for auto-renewal backup
+
+---
+
+## 📋 Quick Reference Commands
+
+### CDN Operations
+```bash
+# Full CDN config update (safe - includes all options)
+yc cdn resource update bc8rilebboch3mrd3uds \
+  --secondary-hostnames vnvnc.ru --secondary-hostnames www.vnvnc.ru \
+  --host-header "e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru" \
+  --origin-protocol https \
+  --redirect-http-to-https \
+  --cert-manager-ssl-cert-id fpq6d47g0r1b4eltjah1  # attaches managed R12; edge currently serves imported R13
+
+# Purge cache
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+
+# Check CDN config
+yc cdn resource get bc8rilebboch3mrd3uds
+
+# Check SSL
+curl -I https://vnvnc.ru/
+openssl s_client -connect vnvnc.ru:443 -servername vnvnc.ru </dev/null 2>/dev/null | openssl x509 -noout -dates
+```
+
+### Certificate Operations
+```bash
+# List certificates
+yc certificate-manager certificate list
+
+# Import new certificate
+yc certificate-manager certificate create \
+  --name vnvnc-YYYY-MM \
+  --domains vnvnc.ru --domains www.vnvnc.ru \
+  --chain /path/to/fullchain.pem \
+  --key /path/to/privkey.pem
+
+# Check certificate details
+yc certificate-manager certificate get <CERT_ID>
+```
+
+### Deployment
+```bash
+# Build and deploy
+npm run build && ./deploy-to-selectel.sh
+
+# Or manual
+npm run build
+aws s3 sync dist/ s3://vnvnc/ --endpoint-url=https://s3.ru-7.storage.selcloud.ru --delete
+yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+```
+
+---
+
+## 💰 Services & Billing
+
+| Service | Provider | What It Does | Cost Estimate |
+|---------|----------|--------------|---------------|
+| CDN | Yandex Cloud | SSL termination, caching, edge delivery | ~$5-10/month |
+| Certificate Manager | Yandex Cloud | SSL certificate storage | Free |
+| API Gateway | Yandex Cloud | CORS proxy for TicketsCloud | ~$1-2/month |
+| Object Storage | Selectel | Static file hosting (origin) | ~$2-5/month |
+| DNS | Selectel | Domain DNS management | Free with storage |
+| Domain | REG.RU | vnvnc.ru registration | ~$10/year |
+
+**Keep positive balances on both Yandex Cloud and Selectel accounts!**
+
+### Cloudflare Workers (Legacy/Optional)
+```bash
+# For CORS proxy (if needed)
 cd cloudflare-worker-yandex-final.js
 wrangler deploy
 
@@ -512,10 +864,10 @@ localStorage.setItem('debug', 'true')
 - **CDN**: Yandex Cloud CDN (handles SSL and root domain)
 - **Storage**: Selectel Object Storage S3 (origin)
 - **DNS**: Selectel DNS Management
-- **SSL Certificate**: Yandex Certificate Manager (LE R12, SAN: vnvnc.ru, www.vnvnc.ru)
+- **SSL Certificate**: Yandex Certificate Manager (serving imported LE R13, expires Feb 2026; managed LE R12 is configured/ready)
 **APIs**: TicketsCloud, Yandex Disk
 
 ---
 
-*Last updated: September 2025*
-*Ready for production deployment with noted improvements needed*
+*Last updated: December 2025*
+*Infrastructure documentation updated after December 12, 2025 certificate incident*
