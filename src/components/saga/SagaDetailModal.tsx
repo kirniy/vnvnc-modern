@@ -49,16 +49,18 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
         staleTime: 1000 * 60 * 5
     })
 
-    // Helper: Verify if a specific date string (DD.MM) is "expired" (past 8AM next day)
+    // Helper: Verify if a specific date string (DD.MM) is "expired" (past 8AM next day in Moscow time)
     const isDateExpired = (dateStr: string) => {
         const [day, month] = dateStr.trim().split('.').map(Number)
-        const now = new Date()
-        const currentYear = now.getFullYear()
-        const currentMonth = now.getMonth() + 1
+        // Get current time in Moscow timezone
+        const nowMsk = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+        const currentYear = nowMsk.getFullYear()
+        const currentMonth = nowMsk.getMonth() + 1
         const seasonStartYear = currentMonth >= 9 ? currentYear : currentYear - 1
         const eventYear = month === 12 ? seasonStartYear : seasonStartYear + 1
+        // Create expiry date (8AM next day) in Moscow time
         const expiryDate = new Date(eventYear, month - 1, day + 1, 8, 0, 0)
-        return now > expiryDate
+        return nowMsk > expiryDate
     }
 
     // Determine default date
@@ -103,7 +105,10 @@ const SagaDetailModal = ({ event, onClose }: SagaDetailModalProps) => {
         return tcEvents.find((tcEvent: any) => {
             if (!tcEvent.rawDate) return false
             const date = new Date(tcEvent.rawDate)
-            return date.getDate() === targetDay && date.getMonth() === (targetMonth - 1)
+            // Convert to Moscow timezone to get correct day/month
+            const mskDay = parseInt(date.toLocaleDateString('en-GB', { day: '2-digit', timeZone: 'Europe/Moscow' }))
+            const mskMonth = parseInt(date.toLocaleDateString('en-GB', { month: '2-digit', timeZone: 'Europe/Moscow' }))
+            return mskDay === targetDay && mskMonth === targetMonth
         })
     }, [tcEvents, selectedDate, event])
 

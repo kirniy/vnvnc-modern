@@ -40,16 +40,19 @@ const SagaPosterWall = () => {
     const posterUrls = useMemo(() => {
         if (!events.length) return []
 
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+        // Get today's date in Moscow timezone
+        const nowMsk = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+        nowMsk.setHours(0, 0, 0, 0)
 
-        // 1. Filter relevant upcoming events (Dec 26 - Jan 11)
+        // 1. Filter relevant upcoming events (Dec 26 - Jan 11) in Moscow time
         const validEvents = events.filter((e: any) => {
             if (!e.rawDate) return false
             const date = new Date(e.rawDate)
-            if (date < today) return false
-            const month = date.getMonth()
-            const day = date.getDate()
+            // Convert to Moscow timezone for comparison
+            const mskDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+            if (mskDate < nowMsk) return false
+            const month = mskDate.getMonth()
+            const day = mskDate.getDate()
             const isDec = month === 11 && day >= 26
             const isJan = month === 0 && day <= 11
             return isDec || isJan

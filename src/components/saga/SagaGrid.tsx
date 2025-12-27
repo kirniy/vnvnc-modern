@@ -41,7 +41,10 @@ const SagaGrid = () => {
         tcEvents.forEach((e: any) => {
             if (!e.rawDate) return
             const d = new Date(e.rawDate)
-            const key = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`
+            // Use Moscow timezone to extract day/month (events are in Moscow time)
+            const mskDay = d.toLocaleDateString('en-GB', { day: '2-digit', timeZone: 'Europe/Moscow' })
+            const mskMonth = d.toLocaleDateString('en-GB', { month: '2-digit', timeZone: 'Europe/Moscow' })
+            const key = `${mskDay}.${mskMonth}`
             const posterSmall = e.poster_small || e.poster // fallback for API variance
             const posterSrc = posterSmall || e.poster_original // always prefer small to save memory
 
@@ -66,10 +69,44 @@ const SagaGrid = () => {
         return posterByDate.get(key)
     }, [posterByDate])
 
-    // Filter events: Only show if we found a matching poster/event in API
+    // Helper: Check if an event has fully expired (all dates passed 8AM cutoff)
+    const isEventExpired = useCallback((sagaEvent: SagaEventConfig) => {
+        // Get current time in Moscow timezone
+        const nowMsk = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }))
+        const currentYear = nowMsk.getFullYear()
+        const currentMonth = nowMsk.getMonth() + 1
+
+        // Determine season year (Dec belongs to current year, Jan belongs to next year of the season)
+        const seasonStartYear = currentMonth >= 9 ? currentYear : currentYear - 1
+
+        // Get the LAST date of the event
+        let lastDateStr: string
+        if (sagaEvent.twinEventDates && sagaEvent.twinEventDates.length > 0) {
+            // Use the last date from twinEventDates
+            lastDateStr = sagaEvent.twinEventDates[sagaEvent.twinEventDates.length - 1].date
+        } else if (sagaEvent.date.includes('-')) {
+            // Handle range like "26-27.12" - extract the second part
+            const parts = sagaEvent.date.split('-')
+            const lastPart = parts[parts.length - 1] // "27.12"
+            lastDateStr = lastPart
+        } else {
+            // Single date like "31.12"
+            lastDateStr = sagaEvent.date
+        }
+
+        // Parse the date
+        const [day, month] = lastDateStr.trim().split('.').map(Number)
+        const eventYear = month === 12 ? seasonStartYear : seasonStartYear + 1
+
+        // Event expires at 8 AM on the day AFTER the event
+        const expiryDate = new Date(eventYear, month - 1, day + 1, 8, 0, 0)
+        return nowMsk > expiryDate
+    }, [])
+
+    // Filter events: Only show if poster exists AND event hasn't fully expired
     const visibleEvents = useMemo(
-        () => WINTER_SAGA_DATA.filter(event => getPosterForEvent(event)),
-        [getPosterForEvent]
+        () => WINTER_SAGA_DATA.filter(event => getPosterForEvent(event) && !isEventExpired(event)),
+        [getPosterForEvent, isEventExpired]
     )
 
     return (
