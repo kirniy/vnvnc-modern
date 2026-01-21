@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { colors } from '../utils/colors'
-// import WarpedVNVNC from './logo/WarpedVNVNC' - replaced with HTML text for performance
+import { easing, duration, spring } from '../utils/motion'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -19,6 +19,39 @@ const Navigation = () => {
     { name: 'контакты', path: '/contact' },
   ]
 
+  // Mobile menu animation variants with stagger
+  const menuContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: duration.normal,
+        ease: easing.outQuart,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
+      },
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        duration: duration.micro,
+        ease: easing.outCubic,
+      },
+    },
+  }
+
+  const menuItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: duration.fast,
+        ease: easing.outQuart,
+      },
+    },
+  }
+
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -29,7 +62,7 @@ const Navigation = () => {
     // Initial check
     handleScroll()
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
@@ -106,7 +139,10 @@ const Navigation = () => {
                     }}
                     layoutId="underline"
                     initial={false}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    transition={{
+                      ...spring.snappy,
+                      mass: 0.8, // Slightly lighter for snappier feel
+                    }}
                   />
                 )}
               </Link>
@@ -130,10 +166,10 @@ const Navigation = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            variants={menuContainerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[70] bg-black/95 overflow-y-auto pt-safe pb-safe"
             style={{ height: '100vh', maxHeight: '100vh' }}
           >
@@ -154,32 +190,42 @@ const Navigation = () => {
             </div>
 
             {/* Close button */}
-            <button
+            <motion.button
               aria-label="Закрыть меню"
               type="button"
               onClick={() => setIsOpen(false)}
-              className="absolute right-4 top-4 p-4 radius border-2 border-white text-white font-display font-extrabold hover:bg-white hover:text-black transition-colors z-[80]"
+              className="absolute right-4 top-4 p-4 radius border-2 border-white text-white font-display font-extrabold hover:bg-white hover:text-black z-[80]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: duration.fast, ease: easing.outQuart, delay: 0.1 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ transition: `background-color ${duration.fast * 1000}ms, color ${duration.fast * 1000}ms` }}
             >
               <X size={18} />
-            </button>
+            </motion.button>
 
             {/* Backdrop close area */}
             <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
 
-            {/* Items */}
+            {/* Items with stagger animation */}
             <div className="absolute inset-0 px-6 py-16 flex pointer-events-none overflow-y-auto">
-              <div className="flex flex-col gap-4 pointer-events-auto min-h-full w-full justify-center max-h-[calc(100vh-8rem)]">
+              <motion.div
+                className="flex flex-col gap-4 pointer-events-auto min-h-full w-full justify-center max-h-[calc(100vh-8rem)]"
+                variants={menuContainerVariants}
+              >
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    onClick={() => setIsOpen(false)}
-                    className="w-full radius h-12 border-2 border-white text-white px-4 font-display font-extrabold text-lg lowercase text-center flex items-center justify-center hover:bg-white hover:text-black transition-colors"
-                  >
-                    {item.name}
-                  </Link>
+                  <motion.div key={item.name} variants={menuItemVariants}>
+                    <Link
+                      to={item.path}
+                      onClick={() => setIsOpen(false)}
+                      className="w-full radius h-12 border-2 border-white text-white px-4 font-display font-extrabold text-lg lowercase text-center flex items-center justify-center hover:bg-white hover:text-black"
+                      style={{ transition: `background-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1), color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)` }}
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         )}

@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import "tailwindcss";
 @import "./styles/design-tokens.css";
+@import "./styles/motion-tokens.css";
 
 @theme {
   --color-primary-50: #fef2f2;
@@ -710,4 +711,167 @@ body.modal-open-hide-nav .telegram-float-button {
 
 body.modal-open-hide-nav {
   overflow: hidden !important;
+}
+
+/* ============================================
+ * MICRO-INTERACTIONS
+ * Based on web-animation-design principles
+ * ============================================ */
+
+/* Focus Ring Animation - animated focus states */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--neon-red, #ff0040);
+  transition: box-shadow 0.15s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Button Press Feedback - for non-Framer-Motion buttons */
+.btn-punk:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-glass:active {
+  transform: scale(0.98);
+  transition: transform 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Animated Link Underline */
+.animated-link {
+  position: relative;
+  text-decoration: none;
+}
+
+.animated-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--neon-red, #ff0040);
+  transition: width 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.animated-link:hover::after {
+  width: 100%;
+}
+
+/* Touch Hitbox - Ensure 44px minimum touch targets */
+.touch-hitbox {
+  position: relative;
+}
+
+.touch-hitbox::before {
+  content: "";
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  min-width: 44px;
+  z-index: 1;
+}
+
+/* Hover-safe: Only apply hover effects on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
+    transition: box-shadow 0.18s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    transition: transform 0.18s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+    transition: transform 0.12s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+}
+
+/* Skeleton shimmer animation */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+/* Will-change hints for animated elements */
+.will-animate {
+  will-change: transform, opacity;
+}
+
+/* Remove will-change after animation for memory efficiency */
+.animation-complete {
+  will-change: auto;
+}
+
+/* Scale origin for popovers/dropdowns - set via data attribute */
+[data-side="bottom"] {
+  transform-origin: top center;
+}
+
+[data-side="top"] {
+  transform-origin: bottom center;
+}
+
+[data-side="left"] {
+  transform-origin: right center;
+}
+
+[data-side="right"] {
+  transform-origin: left center;
+}
+
+/* ============================================
+ * CONTENT-VISIBILITY OPTIMIZATIONS
+ * Skip rendering for off-screen content
+ * Based on react-best-practices (rendering-content-visibility)
+ * ============================================ */
+
+/* Use on repeating items in long lists (gallery, events archive) */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px; /* Estimate for event cards */
+}
+
+/* Gallery items - smaller intrinsic size */
+.content-auto-gallery {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+/* Large cards or sections */
+.content-auto-large {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* For items that should always render (e.g., first 6 items) */
+.content-visible {
+  content-visibility: visible;
 }

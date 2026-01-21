@@ -2,12 +2,15 @@ import { forwardRef } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '../../utils/cn'
 import { colors } from '../../utils/colors'
+import { easing, duration, scale } from '../../utils/motion'
 
 interface GlassCardProps extends HTMLMotionProps<"div"> {
   variant?: 'light' | 'dark' | 'neon'
   blur?: 'sm' | 'md' | 'lg' | 'xl'
   border?: boolean
   glow?: boolean
+  /** Skip entry animation (useful when parent handles animation) */
+  skipEntryAnimation?: boolean
   children: React.ReactNode
 }
 
@@ -18,6 +21,7 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
     blur = 'md',
     border = true,
     glow = false,
+    skipEntryAnimation = false,
     children,
     ...props
   }, ref) => {
@@ -45,31 +49,40 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
 
     const { onDrag, onDragEnd, onDragStart, onAnimationStart, ...restProps } = props
 
-    const interactiveStyles = props.onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''
+    // Interactive styles with proper scale values
+    const interactiveStyles = props.onClick ? `cursor-pointer hover:scale-[${scale.cardHover}] active:scale-[${scale.cardTap}]` : ''
 
     return (
       <motion.div
         ref={ref}
         className={cn(
-          'relative overflow-hidden rounded-2xl transition-all duration-300 group',
+          'relative overflow-hidden rounded-2xl group',
           variants[variant],
           blurStyles[blur],
           borderStyles,
           glowStyles,
           interactiveStyles,
-          // Footer-style hover effect if variant is 'neon' or explicit 'hoverEffect' prop (if we added it, but let's stick to variant or just default behavior for interactive cards)
-          // Let's add specific hover classes that match the footer's "classy" look
           'hover:border-neon-red/30 hover:bg-white/10',
           className
         )}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        // Only animate entry if not skipped
+        initial={skipEntryAnimation ? false : { opacity: 0, y: 20 }}
+        animate={skipEntryAnimation ? undefined : { opacity: 1, y: 0 }}
+        transition={{
+          // Use ease-out-quart for enter animation
+          duration: duration.normal, // 240ms
+          ease: easing.outQuart,
+        }}
         style={variantStyles[variant]}
         {...restProps}
       >
-        {/* Inner Gradient Glow on Hover (Footer style) */}
-        <div className="absolute inset-0 bg-gradient-to-br from-neon-red/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        {/* Inner Gradient Glow on Hover - uses CSS transition with proper timing */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-neon-red/10 to-transparent opacity-0 group-hover:opacity-100 pointer-events-none"
+          style={{
+            transition: `opacity ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)`
+          }}
+        />
 
         {/* Content */}
         <div className="relative z-10">

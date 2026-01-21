@@ -216,7 +216,7 @@ const GalleryPage = () => {
     });
 
     // Sort dates (newest first)
-    const sortedDates = Array.from(photosByDate.keys()).sort((a, b) => {
+    const sortedDates = Array.from(photosByDate.keys()).toSorted((a, b) => {
       if (a === 'unknown') return 1;
       if (b === 'unknown') return -1;
       return b.localeCompare(a);
@@ -228,7 +228,7 @@ const GalleryPage = () => {
       const photosForDate = photosByDate.get(date)!;
       const shuffledPhotos = photosForDate
         .map(img => ({ img, key: getShuffleKey(img) }))
-        .sort((a, b) => a.key - b.key)
+        .toSorted((a, b) => a.key - b.key)
         .map(({ img }) => img);
       result.push(...shuffledPhotos);
     });

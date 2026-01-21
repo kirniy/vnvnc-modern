@@ -42,7 +42,7 @@ const SnowOverlay = () => {
 
         // Initial size
         handleResize()
-        window.addEventListener('resize', handleResize)
+        window.addEventListener('resize', handleResize, { passive: true })
         if (motionQuery?.addEventListener) {
             motionQuery.addEventListener('change', handleResize)
         } else if (motionQuery?.addListener) {

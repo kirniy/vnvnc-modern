@@ -43,7 +43,7 @@ const EventsPage = () => {
       // Show events that are after the cutoff time (including today's events)
       return eventDate >= cutoffTime
     })
-    .sort((a: any, b: any) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime())
+    .toSorted((a: any, b: any) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime())
 
   const archiveEvents = (events as any[])
     .filter((event: any) => {
@@ -52,7 +52,7 @@ const EventsPage = () => {
       // Archive events that are before the cutoff time
       return eventDate < cutoffTime
     })
-    .sort((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
+    .toSorted((a: any, b: any) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
 
   // Reset archive pagination when switching tabs or month
   useEffect(() => {

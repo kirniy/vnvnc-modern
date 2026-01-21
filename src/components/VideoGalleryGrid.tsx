@@ -19,7 +19,7 @@ const VideoGalleryGrid = () => {
   useEffect(() => {
     if (videos.length > 0 && displayVideos.length === 0) {
       // Shuffle all videos initially
-      const shuffled = [...videos].sort(() => Math.random() - 0.5)
+      const shuffled = videos.toSorted(() => Math.random() - 0.5)
       const initialBatch = shuffled.slice(0, 16)
 
       setDisplayVideos(initialBatch)
@@ -46,14 +46,14 @@ const VideoGalleryGrid = () => {
         const currentlyShownIds = new Set(displayVideos.map(v => v.id))
         availableVideos = videos
           .filter(v => !currentlyShownIds.has(v.id))
-          .sort(() => Math.random() - 0.5)
+          .toSorted(() => Math.random() - 0.5)
 
         // If still not enough (less than 32 total videos), allow some repeats after shuffling
         if (availableVideos.length < 16) {
           const additionalNeeded = 16 - availableVideos.length
           const reusable = videos
             .filter(v => !availableVideos.some(av => av.id === v.id))
-            .sort(() => Math.random() - 0.5)
+            .toSorted(() => Math.random() - 0.5)
             .slice(0, additionalNeeded)
           availableVideos = [...availableVideos, ...reusable]
         }

@@ -6,6 +6,7 @@ import VideoCircle from './VideoCircle'
 import { LampLight } from './LampLight'
 import { useRef, useState, useEffect } from 'react'
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
+import { easing, duration, scale } from '../utils/motion'
 
 const ModernHero = () => {
   const backgroundVideoRef = useRef<HTMLVideoElement>(null)
@@ -79,16 +80,24 @@ const ModernHero = () => {
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-6xl mx-auto px-3 sm:px-4">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          transition={{
+            duration: 0.6, // Faster - 1s was too slow for nightclub vibe
+            delay: 0.1,
+            ease: easing.outQuart, // ease-out for entering elements
+          }}
           className="space-y-6 sm:space-y-8"
         >
           {/* Enhanced tagline - Now the main focus */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.15,
+              ease: easing.outQuart,
+            }}
             className="relative space-y-2 sm:space-y-3 mb-8 sm:mb-12 mt-4 sm:mt-0"
           >
             {/* Lamp effect as decoration above text */}
@@ -127,9 +136,17 @@ const ModernHero = () => {
            <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center mt-2">
             <Link to="/events" className="flex-1 sm:flex-none">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                 className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto"
+                whileHover={{
+                  scale: scale.buttonHover, // 1.02 - prevents hover flicker
+                  boxShadow: '0 0 20px rgba(255,255,255,0.15)',
+                }}
+                whileTap={{ scale: scale.buttonTap }} // 0.98
+                transition={{
+                  scale: { type: 'spring', stiffness: 400, damping: 25 },
+                  boxShadow: { duration: duration.fast },
+                }}
+                className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto"
+                style={{ transition: `background-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1), color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)` }}
               >
                 <Calendar size={18} className="sm:w-5 sm:h-5" />
                 <span>афиша</span>
@@ -138,9 +155,17 @@ const ModernHero = () => {
 
             <Link to="/reservations" className="flex-1 sm:flex-none">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                 className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto whitespace-nowrap"
+                whileHover={{
+                  scale: scale.buttonHover,
+                  boxShadow: '0 0 20px rgba(255,255,255,0.15)',
+                }}
+                whileTap={{ scale: scale.buttonTap }}
+                transition={{
+                  scale: { type: 'spring', stiffness: 400, damping: 25 },
+                  boxShadow: { duration: duration.fast },
+                }}
+                className="border-2 border-white text-white px-3 sm:px-6 py-2.5 sm:py-3 h-11 sm:h-12 radius font-semibold text-sm sm:text-base lg:text-lg hover:bg-white hover:text-black flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm w-full sm:w-auto whitespace-nowrap"
+                style={{ transition: `background-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1), color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)` }}
               >
                 <Ticket size={18} className="sm:w-5 sm:h-5" />
                 <span>бронь</span>
@@ -150,9 +175,13 @@ const ModernHero = () => {
 
           {/* Enhanced location display */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.4,
+              delay: 0.4,
+              ease: easing.outQuart,
+            }}
             className="flex items-center justify-center gap-2"
           >
             <a 

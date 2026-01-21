@@ -26,7 +26,7 @@ const LoadingSpinner = ({ inline = false, message }: LoadingSpinnerProps) => {
 
     }
     compute()
-    window.addEventListener('resize', compute)
+    window.addEventListener('resize', compute, { passive: true })
     return () => window.removeEventListener('resize', compute)
   }, [inline])
   return (

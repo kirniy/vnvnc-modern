@@ -1,0 +1,206 @@
+/**
+ * Motion Design Tokens
+ * Based on Motion Design principles - purpose-driven animation
+ *
+ * Decision Tree:
+ * - Entering/Exiting viewport → ease-out family
+ * - Already visible, morphing → ease-in-out family
+ * - Time/progress visualization → linear
+ * - Subtle hover/focus → ease (CSS built-in)
+ * - Keyboard-driven/high-frequency → no animation
+ */
+
+:root {
+  /* ========================================
+   * DURATION TOKENS
+   * ======================================== */
+
+  /* Micro feedback - button press, instant acknowledgment */
+  --dur-1: 120ms;
+
+  /* Fast - dropdowns, popovers, small surfaces */
+  --dur-2: 180ms;
+
+  /* Normal - modals, sheets, medium surfaces */
+  --dur-3: 240ms;
+
+  /* Slow - large surfaces, use sparingly in product UI */
+  --dur-4: 300ms;
+
+  /* Slower - illustrative content only */
+  --dur-5: 500ms;
+
+  /* Illustrative - marketing, onboarding (not product UI) */
+  --dur-illustrative: 800ms;
+
+  /* ========================================
+   * EASE-OUT FAMILY
+   * Use for: Enter/Exit, User-Triggered actions
+   * Why: Fast initial acceleration = perceived responsiveness
+   * ======================================== */
+
+  /* Gentle - subtle enters */
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Moderate - general purpose */
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  /* Strong - DEFAULT for most enter/exit animations */
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  /* Very strong - snappy, impactful */
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Aggressive - dramatic, use for large surfaces */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+
+  /* Unique curve - softer landing */
+  --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  /* ========================================
+   * EASE-IN-OUT FAMILY
+   * Use for: Reposition, Morph, Layout changes
+   * Why: Natural acceleration then deceleration
+   * ======================================== */
+
+  /* Gentle - subtle morphs */
+  --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+
+  /* Moderate - DEFAULT for layout/morph */
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  /* Strong - more dramatic morphs */
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Very strong - cinematic */
+  --ease-in-out-quint: cubic-bezier(0.86, 0, 0.07, 1);
+
+  /* Aggressive - theatrical (curtain effect) */
+  --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
+
+  /* Unique curve */
+  --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+  /* ========================================
+   * EASE-IN FAMILY (Rarely Used)
+   * Use for: Elements exiting permanently, anticipation
+   * ======================================== */
+
+  --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
+
+  /* ========================================
+   * SPRING PRESETS (for JS reference)
+   * ======================================== */
+
+  /* Snappy - navigation, quick responses */
+  --spring-snappy-stiffness: 500;
+  --spring-snappy-damping: 30;
+  --spring-snappy-mass: 0.8;
+
+  /* Gentle - modals, larger elements */
+  --spring-gentle-stiffness: 300;
+  --spring-gentle-damping: 25;
+  --spring-gentle-mass: 1;
+
+  /* Bouncy - drag gestures only, not tap-to-open */
+  --spring-bouncy-stiffness: 400;
+  --spring-bouncy-damping: 10;
+  --spring-bouncy-mass: 1;
+
+  /* ========================================
+   * SCALE TOKENS
+   * Never animate from scale(0) - reads as synthetic
+   * ======================================== */
+
+  /* Small elements (buttons, chips) */
+  --scale-button-hover: 1.02;
+  --scale-button-tap: 0.98;
+  --scale-button-start: 0.97;
+
+  /* Medium elements (dropdowns, popovers) */
+  --scale-dropdown-start: 0.96;
+
+  /* Large elements (modals, sheets) */
+  --scale-modal-start: 0.95;
+
+  /* Cards */
+  --scale-card-hover: 1.02;
+  --scale-card-tap: 0.985;
+}
+
+/* ========================================
+ * REDUCED MOTION
+ * Respect user preferences
+ * ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0.01ms;
+    --dur-2: 0.01ms;
+    --dur-3: 0.01ms;
+    --dur-4: 0.01ms;
+    --dur-5: 0.01ms;
+    --dur-illustrative: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+ * UTILITY CLASSES
+ * ======================================== */
+
+/* Transition presets */
+.transition-micro {
+  transition-duration: var(--dur-1);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+.transition-fast {
+  transition-duration: var(--dur-2);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+.transition-normal {
+  transition-duration: var(--dur-3);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+.transition-morph {
+  transition-duration: var(--dur-3);
+  transition-timing-function: var(--ease-in-out-cubic);
+}
+
+/* Hover-safe: only apply hover on devices that support it */
+@media (hover: hover) {
+  .hover-lift {
+    transition: transform var(--dur-2) var(--ease-out-quart);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  .hover-scale {
+    transition: transform var(--dur-1) var(--ease-out-quart);
+  }
+
+  .hover-scale:hover {
+    transform: scale(var(--scale-button-hover));
+  }
+}
+
+/* Active/tap states - always apply */
+.tap-scale:active {
+  transform: scale(var(--scale-button-tap));
+  transition: transform var(--dur-1) var(--ease-out-quart);
+}

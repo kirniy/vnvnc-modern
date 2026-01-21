@@ -10,6 +10,7 @@ import { shouldTreatAsFree } from '../config/eventsConfig'
 import { useHasPhotosForDate } from '../hooks/usePhotoDateAvailability'
 import { buildEventSlug } from '../utils/eventSlug';
 import GlassCard from './ui/GlassCard';
+import { easing, duration, scale, getStaggerDelay, spring } from '../utils/motion';
 
 interface Event {
   id: string
@@ -84,16 +85,25 @@ const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.2) }}
-      whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.995 }}
+      transition={{
+        duration: 0.35,
+        delay: getStaggerDelay(index, 0.06, 0.24), // Max 240ms stagger delay
+        ease: easing.outQuart, // ease-out for entering elements
+      }}
+      whileHover={{
+        y: -6,
+        transition: spring.noBounce, // Spring without bounce for hover
+      }}
+      whileTap={{
+        scale: scale.cardTap, // 0.985
+        transition: { duration: duration.micro }, // Fast tap feedback
+      }}
       onClick={() => {
         const url = getShortUrl();
         if (isHalloween) {
           try { enableRaycastSkip() } catch { }
-          // Хард-режим: полноценный переход, чтобы гарантированно убить WebGL/RAF
           window.location.assign(url);
           return;
         }
@@ -209,9 +219,13 @@ const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
             {/* Action Button */}
             {!isArchived ? (
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 radius font-display font-extrabold text-sm flex items-center gap-2 border-2 border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors"
+                whileHover={{ scale: scale.buttonHover }}
+                whileTap={{ scale: scale.buttonTap }}
+                transition={{
+                  scale: { duration: duration.micro, ease: easing.outQuart },
+                }}
+                className="px-4 py-2 radius font-display font-extrabold text-sm flex items-center gap-2 border-2 border-white bg-transparent text-white hover:bg-white hover:text-black"
+                style={{ transition: `background-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1), color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)` }}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (isFree) {
@@ -238,12 +252,16 @@ const EventCardNew = ({ event, index, sameDateCount }: EventCardProps) => {
             ) : (
               hasPhotos && (
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 radius font-medium text-sm flex items-center gap-2 transition-all duration-300 backdrop-blur-sm border border-white/20"
+                  whileHover={{ scale: scale.buttonHover }}
+                  whileTap={{ scale: scale.buttonTap }}
+                  transition={{
+                    scale: { duration: duration.micro, ease: easing.outQuart },
+                  }}
+                  className="px-4 py-2 radius font-medium text-sm flex items-center gap-2 backdrop-blur-sm border border-white/20"
                   style={{
                     backgroundColor: colors.glass.white,
-                    color: 'white'
+                    color: 'white',
+                    transition: `background-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1), border-color ${duration.fast * 1000}ms cubic-bezier(0.165, 0.84, 0.44, 1)`,
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = colors.glass.whiteHover;

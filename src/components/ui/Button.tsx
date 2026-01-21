@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '../../utils/cn'
 import { colors } from '../../utils/colors'
+import { easing, duration, scale } from '../../utils/motion'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'glass' | 'neon'
@@ -13,24 +14,24 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = 'primary', 
-    size = 'md', 
+  ({
+    className,
+    variant = 'primary',
+    size = 'md',
     glow = false,
     pulse = false,
-    children, 
-    ...props 
+    children,
+    ...props
   }, ref) => {
-    const baseStyles = 'relative inline-flex items-center justify-center font-display font-bold transition-all duration-300 group rounded-[12px]'
-    
+    const baseStyles = 'relative inline-flex items-center justify-center font-display font-bold group rounded-[12px]'
+
     const variants = {
       primary: 'text-white',
       secondary: 'border-2 text-white',
       glass: 'backdrop-blur-md border border-white/10 text-white',
       neon: 'bg-transparent border-2'
     }
-    
+
     const variantStyles = {
       primary: {
         backgroundColor: colors.neon.red,
@@ -47,7 +48,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         color: colors.neon.red
       }
     }
-    
+
     const hoverStyles = {
       primary: {
         backgroundColor: colors.neon.red,
@@ -66,18 +67,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         color: 'white'
       }
     }
-    
+
     const sizes = {
       sm: 'px-4 py-2 text-sm',
       md: 'px-6 py-3 text-base',
       lg: 'px-8 py-4 text-lg'
     }
-    
+
     const glowStyles = glow ? 'shadow-neon hover:shadow-neon-intense' : ''
     const pulseStyles = pulse ? 'animate-pulse-neon' : ''
-    
+
     const { onDrag, onDragEnd, onDragStart, onAnimationStart, ...restProps } = props
-    
+
     return (
       <motion.button
         ref={ref}
@@ -90,8 +91,22 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         style={variantStyles[variant]}
-        whileHover={{ scale: 1.04, ...hoverStyles[variant] }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{
+          scale: scale.buttonHover, // 1.02 - reduced from 1.04 to prevent hover flicker
+          ...hoverStyles[variant]
+        }}
+        whileTap={{
+          scale: scale.buttonTap, // 0.98
+        }}
+        transition={{
+          // Micro-fast for scale (button press feel)
+          scale: { duration: duration.micro, ease: easing.outQuart },
+          // Slightly slower for color/shadow transitions
+          backgroundColor: { duration: duration.fast, ease: easing.outQuart },
+          boxShadow: { duration: duration.fast, ease: easing.outQuart },
+          borderColor: { duration: duration.fast, ease: easing.outQuart },
+          color: { duration: duration.fast, ease: easing.outQuart },
+        }}
         {...restProps}
       >
         <span className="px-1">{children}</span>

@@ -38,6 +38,9 @@ function App() {
   const { isInTelegram } = useTelegramWebApp()
   const [showSnow, setShowSnow] = useState(false)
 
+  // Age Gate & Loader Synchronization
+  const [isAgeVerified, setIsAgeVerified] = useState(false)
+
   useEffect(() => {
     // Add class to body when in Telegram - with safety checks
     if (typeof document !== 'undefined' && document.body) {
@@ -61,9 +64,9 @@ function App() {
       setShowSnow(!reduced) // Snow for everyone!
     }
     update()
-    window.addEventListener('resize', update)
+    window.addEventListener('resize', update, { passive: true })
     if (motionQuery?.addEventListener) {
-      motionQuery.addEventListener('change', update)
+      motionQuery.addEventListener('change', update, { passive: true })
     } else if (motionQuery?.addListener) {
       motionQuery.addListener(update)
     }
@@ -89,11 +92,26 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    // Check for bot or existing verification
+    const isLikelyBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent)
+    const verified = localStorage.getItem('vnvnc_age_verified') === 'true'
+
+    if (isLikelyBot || verified) {
+      setIsAgeVerified(true)
+    }
+  }, [])
+
+  const handleAgeVerify = () => {
+    localStorage.setItem('vnvnc_age_verified', 'true')
+    setIsAgeVerified(true)
+  }
+
   return (
     <>
-      <CinematicLoader /> {/* Intro acts as top-level curtain */}
+      <CinematicLoader locked={!isAgeVerified} /> {/* Curtains stay closed if not verified */}
       <GlobalBackground />
-      <AgeGate />
+      {!isAgeVerified && <AgeGate onVerify={handleAgeVerify} />}
       {/* <AnnouncementBanner /> - Disabled for now */}
       <Navigation />
       {/* <BackgroundShader /> - DISABLED - causing SVG errors */}
