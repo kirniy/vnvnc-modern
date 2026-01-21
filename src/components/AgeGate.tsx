@@ -1,62 +1,31 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors } from '../utils/colors'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
-// import WarpedVNVNC from './logo/WarpedVNVNC' - using plain text for consistency
+import vnvncLogo from '../assets/vnvnc-logo-classic-border.svg'
 
-const AgeGate = () => {
-  const [isVisible, setIsVisible] = useState(false)
+interface AgeGateProps {
+  onVerify: () => void
+}
+
+const AgeGate = ({ onVerify }: AgeGateProps) => {
+  const [isExiting, setIsExiting] = useState(false)
 
   // Use the custom hook for body scroll lock
-  useBodyScrollLock(isVisible)
-
-  useEffect(() => {
-    const isLikelyBot = () => {
-      if (typeof navigator === 'undefined') {
-        return false
-      }
-
-      const botPattern = /(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|slurp|sogou|facebot|ia_archiver|twitterbot|facebookexternalhit|linkedinbot|mediapartners-google|adsbot-google)/i
-      const ua = navigator.userAgent || ''
-      const languages = navigator.languages || []
-
-      if (botPattern.test(ua)) {
-        return true
-      }
-
-      // Headless browsers often expose webdriver or have no languages set
-      if ((navigator as any).webdriver || languages.length === 0) {
-        return true
-      }
-
-      return false
-    }
-
-    // Skip gate entirely for bots and crawlers
-    if (isLikelyBot()) {
-      localStorage.setItem('vnvnc_age_verified', 'bot-skip')
-      setIsVisible(false)
-      return
-    }
-
-    const ageVerified = localStorage.getItem('vnvnc_age_verified')
-    if (!ageVerified) {
-      setIsVisible(true)
-    }
-  }, [])
+  useBodyScrollLock(true)
 
   const handleConfirm = () => {
-    // Save verification to localStorage
-    localStorage.setItem('vnvnc_age_verified', 'true')
-    setIsVisible(false)
+    setIsExiting(true)
+    // Wait for exit animation
+    setTimeout(() => {
+      onVerify()
+    }, 500)
   }
 
   const handleExit = () => {
     window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ'
   }
-
-  if (!isVisible) return null
 
   // Return null if document.body doesn't exist yet
   if (typeof document === 'undefined' || !document.body) {
@@ -65,135 +34,103 @@ const AgeGate = () => {
 
   return createPortal(
     <AnimatePresence mode="wait">
-      {isVisible && (
+      {!isExiting && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.98)' }}
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
+          // Transparent background so we see the Curtains (Loader) underneath
+          style={{ backgroundColor: 'transparent' }}
         >
-          {/* Background gradient effect */}
-          <div className="absolute inset-0">
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: `radial-gradient(circle at center, ${colors.neon.red}08 0%, transparent 40%)`,
-                animation: 'pulse 6s ease-in-out infinite'
-              }}
-            />
-          </div>
-
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: -20 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className="relative max-w-sm w-full z-10"
+            className="relative max-w-sm w-full"
           >
-            <div 
-              className="backdrop-blur-2xl radius p-8 md:p-10 border border-white/10 shadow-2xl text-center"
-              style={{ 
-                backgroundColor: colors.glass.darker,
-                boxShadow: `0 20px 60px rgba(0,0,0,0.8), 0 0 100px ${colors.neon.red}11`
+            {/* Frosted Glass Card - Winter Theme - Refined */}
+            <div
+              className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-center border border-white/30"
+              style={{
+                backdropFilter: 'blur(25px) saturate(180%)',
+                backgroundColor: 'rgba(200, 220, 255, 0.03)', // clearer, more "icy"
+                boxShadow: `0 20px 60px rgba(0,0,0,0.4), 0 0 50px ${colors.neon.red}15, inset 0 0 30px rgba(255,255,255,0.1)`
               }}
             >
-              {/* Logo - matching Navigation style */}
-              <motion.div 
-                className="mb-10"
+
+              {/* Ice/Frost Texture Overlay - More subtle */}
+              <div
+                className="relative inset-0 pointer-events-none opacity-20 mix-blend-overlay"
+                style={{
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' opacity=\'0.5\'/%3E%3C/svg%3E")'
+                }}
+              />
+
+              {/* Logo */}
+              <motion.div
+                className="mb-10 relative z-10"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
-                <div className="flex justify-center">
-                  <span 
-                    className="font-display font-extrabold text-5xl lg:text-6xl lowercase"
-                    style={{ 
-                      color: colors.neon.red,
-                      filter: `drop-shadow(0 0 40px ${colors.neon.red}44)`,
-                      letterSpacing: '0.05em'
-                    }}
-                  >
-                    vnvnc
-                  </span>
+                <div className="flex justify-center flex-col items-center gap-2">
+                  <img
+                    src={vnvncLogo}
+                    alt="VNVNC"
+                    className="w-28 h-28 object-contain drop-shadow-[0_0_25px_rgba(255,255,255,0.7)]"
+                  />
                 </div>
               </motion.div>
 
               {/* Question */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                  Вам есть 18 лет?
-                </h2>
-                <p className="text-white/60 text-sm">
-                  Этот сайт предназначен только для совершеннолетних
+              <div className="relative z-10 mb-10 space-y-3">
+                <div className="flex justify-center">
+                  <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.4)] border-4 border-white/20">
+                    <span className="text-3xl font-black text-black tracking-tighter font-display transform translate-y-0.5">
+                      18+
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold text-white/90 uppercase tracking-widest">
+                  ВАМ ЕСТЬ 18 ЛЕТ?
+                </h3>
+                <div className="h-px w-16 bg-white/30 mx-auto my-4" />
+                <p className="text-white/70 text-xs font-medium tracking-wide uppercase">
+                  Доступ только для совершеннолетних
                 </p>
-              </motion.div>
+              </div>
 
-              {/* Buttons: order with YES on the right, bigger touch targets */}
-              <motion.div 
-                className="flex gap-3 mt-10"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleExit}
-                  className="flex-1 px-7 py-4 radius backdrop-blur-sm border-2 border-white/20 text-white font-medium transition-all duration-300 text-base md:text-lg"
-                  style={{ 
-                    backgroundColor: colors.glass.white
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.glass.whiteHover
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.glass.white
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-                  }}
-                >
-                  Нет
-                </motion.button>
-
+              {/* Buttons */}
+              <div className="flex flex-col gap-3 relative z-10">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleConfirm}
-                  className="flex-1 px-7 py-4 radius font-extrabold text-white transition-all duration-300 relative overflow-hidden group border-2 border-transparent text-base md:text-lg"
-                  style={{ 
-                    backgroundColor: colors.neon.red,
-                    boxShadow: `0 8px 30px ${colors.neon.red}66`
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'
-                    e.currentTarget.style.boxShadow = `0 12px 40px ${colors.neon.red}88`
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.boxShadow = `0 8px 30px ${colors.neon.red}66`
+                  className="w-full py-4 rounded-xl font-black text-black text-lg uppercase tracking-wide relative overflow-hidden group"
+                  style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%)',
+                    boxShadow: '0 4px 20px rgba(255,255,255,0.3)'
                   }}
                 >
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer" />
-                  </div>
-                  <span className="relative z-10">Да</span>
+                  <span className="relative z-10">ДА, МНЕ ЕСТЬ 18</span>
+                  <div className="absolute inset-0 bg-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </motion.button>
-              </motion.div>
 
-              {/* Legal text */}
-              <motion.p 
-                className="text-white/30 text-xs mt-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                Подтверждая, вы соглашаетесь с правилами клуба
-              </motion.p>
+                <motion.button
+                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleExit}
+                  className="w-full py-4 rounded-xl font-bold text-white/70 text-sm uppercase tracking-wider border border-white/10 transition-colors"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                  }}
+                >
+                  НЕТ, ВЕРНУТЬСЯ
+                </motion.button>
+              </div>
+
             </div>
           </motion.div>
         </motion.div>

@@ -24,7 +24,7 @@
    
    - In the worker settings, go to "Settings" → "Variables"
    - Add these environment variables:
-     - `TELEGRAM_BOT_TOKEN`: 8225858735:AAHfXBuoCEOqmOgXJKM_JguJixdQDC9kgh4
+     - `TELEGRAM_BOT_TOKEN`: 102934750:AAE9kVClDad9yAyk8f2cYhrcsYqJeDybfLo
      - `BOOKING_MANAGER_ID`: 429156227
      - `ADMIN_ID`: 433491
      - `TICKETS_CLOUD_API_KEY`: c862e40ed178486285938dda33038e30

@@ -3,8 +3,94 @@ info:
   title: VNVNC API Gateway
   version: 1.0.0
 
+x-yc-apigateway:
+  cors:
+    origin: '*'
+    methods: '*'
+    allowedHeaders: '*'
+
 paths:
   # IMPORTANT: More specific routes MUST come BEFORE generic catch-all routes!
+
+  # Wheel API - HTTP proxy to VPS (must be before other /api routes)
+  /wheel/prizes:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/prizes
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelPrizes
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'GET, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelPrizesOptions
+
+  /wheel/spin:
+    post:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/spin
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelSpin
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'POST, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelSpinOptions
+
+  /wheel/status/{telegram_id}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/wheel/status/{telegram_id}
+        timeouts:
+          connect: 5
+          read: 30
+      parameters:
+        - name: telegram_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: wheelStatus
+
+  /wheel/redeem:
+    post:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/redeem
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelRedeem
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'POST, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelRedeemOptions
 
   # Yandex Disk API (more specific - must be first)
   /api/yandex-disk/{path+}:

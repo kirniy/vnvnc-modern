@@ -110,10 +110,10 @@ async function handleBooking(request, env) {
 
     // Format table type for display
     const tableTypes = {
-      'table2': 'Стол на 2 человека (7,000₽)',
-      'table3': 'Стол на 3 человека (10,500₽)',
-      'table4-5': 'Стол на 4-5 человек (от 14,000₽)',
-      'vip': 'VIP ложа (от 35,000₽)'
+      'table2': 'Стол на 2 человека (8,000₽)',
+      'table3': 'Стол на 3 человека (12,000₽)',
+      'table4-5': 'Стол на 4-5 человек (от 16,000₽)',
+      'vip': 'VIP ложа (от 40,000₽)'
     };
 
     // Format the message for Telegram

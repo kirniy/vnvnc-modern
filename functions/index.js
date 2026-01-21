@@ -95,7 +95,7 @@ exports.healthCheck = functions.https.onRequest((req, res) => {
 });
 
 // Telegram Bot configuration
-const TELEGRAM_BOT_TOKEN = '8225858735:AAHfXBuoCEOqmOgXJKM_JguJixdQDC9kgh4';
+const TELEGRAM_BOT_TOKEN = '102934750:AAE9kVClDad9yAyk8f2cYhrcsYqJeDybfLo';
 const BOOKING_MANAGER_ID = '429156227';
 const ADMIN_ID = '433491';
 const HELP_CHAT_USERNAME = '@vnvnc_help';
@@ -169,9 +169,10 @@ exports.submitBooking = functions.https.onRequest((request, response) => {
 
       // Format table type for display
       const tableTypes = {
-        'standard': 'Стандартный стол (14,000₽)',
-        'comfort': 'Комфорт зона (21,000₽)',
-        'vip': 'VIP ложа (35,000₽)'
+        'table2': 'Стол на 2 человека (8,000₽)',
+        'table3': 'Стол на 3 человека (12,000₽)',
+        'table4-5': 'Стол на 4-5 человек (от 16,000₽)',
+        'vip': 'VIP ложа (от 40,000₽)'
       };
 
       // Format the message for Telegram
