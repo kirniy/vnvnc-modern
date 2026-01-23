@@ -337,6 +337,59 @@ const normalizedPath = rawPath.replace(/^\/?(api|tc)\//, '/');
 ### Issue: Date display for events
 **Solution**: Custom date handling with Moscow timezone, Russian formatting
 
+### Issue: Event short links triggering download instead of rendering (January 2026)
+**Symptoms**: URLs like `https://vnvnc.ru/e/23-01-26` prompt browser to download a file instead of showing the redirect page. Affects Safari, Chrome, and other browsers.
+
+**Root Cause**: Event OG pages in `/e/` directory have no `.html` extension. When uploaded to Selectel S3 without explicit `Content-Type`, S3 defaults to `application/octet-stream` (binary). Browsers then download instead of render.
+
+**Diagnosis**:
+```bash
+# Check Content-Type being served
+curl -I "https://vnvnc.ru/e/23-01-26"
+# BAD: content-type: application/octet-stream
+# GOOD: content-type: text/html; charset=utf-8
+
+# Check origin directly (bypass CDN)
+curl -I "https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru/e/23-01-26"
+```
+
+**Fix**:
+```bash
+# 1. Re-upload all event pages with explicit content-type
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 rm s3://vnvnc/e --recursive --profile selectel --no-verify-ssl
+
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 cp ./dist/e s3://vnvnc/e \
+    --recursive \
+    --profile selectel \
+    --acl public-read \
+    --exclude "posters/*" \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "no-cache, no-store, must-revalidate" \
+    --no-verify-ssl
+
+# 2. Re-upload poster images (they got deleted)
+aws --endpoint-url=https://s3.ru-7.storage.selcloud.ru \
+    s3 sync ./dist/e/posters s3://vnvnc/e/posters \
+    --profile selectel \
+    --acl public-read \
+    --cache-control "public, max-age=604800" \
+    --no-verify-ssl
+
+# 3. Purge CDN cache (wait 1 min between purges due to rate limit)
+~/yandex-cloud/bin/yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
+
+# 4. Verify fix (may take 5-15 min for edge propagation)
+curl -I "https://vnvnc.ru/e/23-01-26"
+# Should show: content-type: text/html; charset=utf-8
+```
+
+**Prevention**: The deploy script (`deploy-to-selectel.sh`) already has `--content-type "text/html; charset=utf-8"` for `/e/` uploads. If this issue recurs:
+1. Ensure `deploy-to-selectel.sh` is run (not manual `aws s3 sync`)
+2. Check that AWS CLI is applying metadata correctly with Selectel endpoint
+3. Always purge CDN cache after deployment
+
 ## Testing Checklist
 
 Before deploying:
