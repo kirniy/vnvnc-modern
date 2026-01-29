@@ -126,7 +126,6 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/merch" element={<MerchPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/e/:slug" element={<ShortUrlRedirect />} />
@@ -136,6 +135,7 @@ function App() {
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/rules" element={<RulesPage />} />
             <Route path="/rental" element={<RentalPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </main>
