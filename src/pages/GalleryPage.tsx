@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Sparkles, Maximize2, RefreshCw, Calendar, ChevronLeft, ChevronRight, FileDown, Download as DownloadIcon } from 'lucide-react'
 // no default Download plugin; render our custom buttons outside Lightbox
@@ -122,6 +123,7 @@ const getShortMonthName = (month: string): string => {
 }
 
 const GalleryPage = () => {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
@@ -393,6 +395,13 @@ const GalleryPage = () => {
             >
               ВИДЕО
             </LiquidButton>
+            <LiquidButton
+              onClick={() => navigate('/gallery/photobooth')}
+              className="opacity-60 hover:opacity-100"
+              size="xl"
+            >
+              ФОТОБУДКА
+            </LiquidButton>
           </div>
         </motion.div>
 
@@ -634,7 +643,7 @@ const GalleryPage = () => {
             const fallbackTarget = (s._fullres || s.downloadUrl || s.src) as string
 
             return (
-              <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
+              <div className="absolute top-4 left-4 flex items-center gap-2 z-30">
                 <button
                   onClick={() => downloadViaFetch(compressedUrl, filename)}
                   className="p-3 radius bg-black/60 hover:bg-black/80 transition-colors"

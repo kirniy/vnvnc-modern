@@ -29,6 +29,7 @@ const RulesPage = lazy(() => import('./pages/RulesPage'))
 const RentalPage = lazy(() => import('./pages/RentalPage'))
 const MerchPage = lazy(() => import('./pages/MerchPage'))
 const ShortUrlRedirect = lazy(() => import('./components/ShortUrlRedirect'))
+const PhotoboothGalleryPage = lazy(() => import('./pages/PhotoboothGalleryPage'))
 
 
 
@@ -130,6 +131,7 @@ function App() {
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/e/:slug" element={<ShortUrlRedirect />} />
             <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/gallery/photobooth" element={<PhotoboothGalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/rules" element={<RulesPage />} />
