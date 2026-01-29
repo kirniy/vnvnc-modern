@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Download as DownloadIcon, RefreshCw, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Lightbox from 'yet-another-react-lightbox'
@@ -69,7 +69,7 @@ const PhotoboothGalleryPage = () => {
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <BackButton />
+          <BackButton to="/gallery" />
         </div>
 
         <motion.div
