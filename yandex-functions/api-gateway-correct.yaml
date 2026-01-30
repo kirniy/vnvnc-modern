@@ -3,103 +3,187 @@ info:
   title: VNVNC API Gateway
   version: 1.0.0
 
+x-yc-apigateway:
+  cors:
+    origin: '*'
+    methods: '*'
+    allowedHeaders: '*'
+
 paths:
-  # TicketsCloud API proxy - catches all /api/* paths
-  /api/{proxy+}:
-    x-yc-apigateway-any-method:
-      summary: TicketsCloud API Proxy
-      operationId: ticketsCloudProxy
-      parameters:
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
+  # IMPORTANT: More specific routes MUST come BEFORE generic catch-all routes!
+
+  # Wheel API - HTTP proxy to VPS (must be before other /api routes)
+  /wheel/prizes:
+    get:
       x-yc-apigateway-integration:
-        type: cloud_functions
-        function_id: d4ehafn3ofbigbqr3nsn
-        tag: "$latest"
-        service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Proxy response
-  
-  # Photobooth S3 listing (Selectel)
-  /api/photobooth/{proxy+}:
-    x-yc-apigateway-any-method:
-      summary: Photobooth S3 Listing Proxy
-      operationId: photoboothProxy
+        type: http
+        url: http://46.203.233.138:8080/api/prizes
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelPrizes
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'GET, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelPrizesOptions
+
+  /wheel/spin:
+    post:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/spin
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelSpin
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'POST, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelSpinOptions
+
+  /wheel/status/{telegram_id}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/wheel/status/{telegram_id}
+        timeouts:
+          connect: 5
+          read: 30
       parameters:
-        - name: proxy
+        - name: telegram_id
           in: path
           required: true
           schema:
             type: string
+      operationId: wheelStatus
+
+  /wheel/redeem:
+    post:
+      x-yc-apigateway-integration:
+        type: http
+        url: http://46.203.233.138:8080/api/redeem
+        timeouts:
+          connect: 5
+          read: 30
+      operationId: wheelRedeem
+    options:
+      x-yc-apigateway-integration:
+        type: dummy
+        content:
+          '*': ''
+        http_code: 200
+        http_headers:
+          Access-Control-Allow-Origin: '*'
+          Access-Control-Allow-Methods: 'POST, OPTIONS'
+          Access-Control-Allow-Headers: '*'
+      operationId: wheelRedeemOptions
+
+  # Photobooth S3 listing (Selectel) - must be before /api/{path+}
+  /api/photobooth/{path+}:
+    x-yc-apigateway-any-method:
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: d4e9qen6fqkbhpicd5cs
-        tag: "$latest"
         service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Proxy response
-
-  # Yandex Disk API endpoints
-  /api/yandex-disk/{proxy+}:
-    x-yc-apigateway-any-method:
-      summary: Yandex Disk API Proxy
-      operationId: yandexDiskProxy
       parameters:
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: photoboothProxy
+
+  # Yandex Disk API (more specific - must be first)
+  /api/yandex-disk/{path+}:
+    x-yc-apigateway-any-method:
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: d4epi3grr6a3nb6maug3
-        tag: "$latest"
         service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Proxy response
-  
-  # Forms endpoints
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: yandexDiskProxy
+      
   /booking:
     x-yc-apigateway-any-method:
-      summary: Booking Form Handler
-      operationId: bookingHandler
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: d4e2qumbfs0s4q88bodd
-        tag: "$latest"
         service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Form response
-  
+      operationId: bookingHandler
+      
   /rental:
     x-yc-apigateway-any-method:
-      summary: Rental Form Handler
-      operationId: rentalHandler
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: d4e2qumbfs0s4q88bodd
-        tag: "$latest"
         service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Form response
-  
+      operationId: rentalHandler
+      
   /contact:
     x-yc-apigateway-any-method:
-      summary: Contact Form Handler
-      operationId: contactHandler
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: d4e2qumbfs0s4q88bodd
-        tag: "$latest"
         service_account_id: aje9aok7e67g6igumr3e
-      responses:
-        default:
-          description: Form response
+      operationId: contactHandler
+
+  /merch-order:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e2qumbfs0s4q88bodd
+        service_account_id: aje9aok7e67g6igumr3e
+      operationId: merchOrderHandler
+
+  # TicketsCloud API (using /tc/ prefix as alias)
+  /tc/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: ticketsCloudProxyTc
+
+  # TicketsCloud API (legacy /api/ path - MUST be AFTER /api/yandex-disk/ to allow that more specific route to match first)
+  /api/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ehafn3ofbigbqr3nsn
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: ticketsCloudProxyApi

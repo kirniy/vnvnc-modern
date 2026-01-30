@@ -92,6 +92,22 @@ paths:
           Access-Control-Allow-Headers: '*'
       operationId: wheelRedeemOptions
 
+  # Photobooth S3 listing (Selectel) - must be before /api/{path+}
+  /api/photobooth/{path+}:
+    x-yc-apigateway-any-method:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e9qen6fqkbhpicd5cs
+        service_account_id: aje9aok7e67g6igumr3e
+      parameters:
+      - explode: false
+        in: path
+        name: path
+        required: false
+        schema:
+          type: string
+      operationId: photoboothProxy
+
   # Yandex Disk API (more specific - must be first)
   /api/yandex-disk/{path+}:
     x-yc-apigateway-any-method:
