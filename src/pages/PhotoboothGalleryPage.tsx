@@ -60,8 +60,8 @@ const PhotoboothGalleryPage = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       <Seo
-        title="ФОТОБУДКА — BOILING ROOM | VNVNC"
-        description="Фотографии с BOILING ROOM — фотобудка VNVNC"
+        title="ФОТОБУДКА | VNVNC"
+        description="Фотографии с фотобудки VNVNC"
         canonical="https://vnvnc.ru/gallery/photobooth"
       />
       <Navigation />
@@ -81,10 +81,7 @@ const PhotoboothGalleryPage = () => {
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-extrabold lowercase mb-4">
             <span style={{ color: colors.neon.red }}>фотобудка</span>
           </h1>
-          <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto uppercase tracking-widest">
-            BOILING ROOM — 30.01 / 31.01
-          </p>
-          <p className="text-sm text-white/40 mt-2">
+          <p className="text-sm text-white/40 mt-2 uppercase tracking-widest">
             vnvnc · конюшенная, 2в
           </p>
 
@@ -186,7 +183,7 @@ const PhotoboothGalleryPage = () => {
             const url = s.src as string
 
             return (
-              <div className="absolute top-4 left-4 flex items-center gap-2 z-30">
+              <div className="absolute top-4 right-14 flex items-center gap-2 z-30">
                 <button
                   onClick={() => downloadPhoto(url, filename)}
                   className="p-3 rounded-full bg-black/60 hover:bg-black/80 transition-colors"
