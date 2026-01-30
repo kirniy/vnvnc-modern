@@ -85,7 +85,8 @@ npm run lint         # Check code quality
 - **TicketsCloud API Key**: `c862e40ed178486285938dda33038e30` (in `src/services/ticketsCloud.ts`)
 - **API Gateway (RU, Yandex Cloud)**: `https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net`
   - `/api/v1/resources/events` proxy for TicketsCloud (CORS-safe)
-  - `/api/yandex-disk/*` endpoints for gallery
+  - `/api/yandex-disk/*` endpoints for Yandex Disk gallery
+  - `/api/photobooth/*` endpoints for Selectel S3 photobooth listing
 
 ### Production URLs
 - **Main Site**: https://vnvnc.ru (via Yandex Cloud CDN)
@@ -330,6 +331,20 @@ const normalizedPath = rawPath.replace(/^\/?(api|tc)\//, '/');
 
 ### Issue: Large video files on mobile
 **Solution**: Separate mobile video (`herovideo-mobile.mp4`) with reduced quality
+
+### Issue: Selectel S3 anonymous listing not supported
+**Symptoms**: Photobooth gallery at `/gallery/photobooth` shows "0 photos". Browser console shows AccessDenied on S3 ListObjectsV2.
+
+**Root Cause**: Selectel S3 does not support anonymous bucket listing, even with bucket policies or ACLs set to public. The website's `selectelS3.ts` was trying to list objects directly from the browser.
+
+**Solution**: Created a Yandex Cloud Function (`gateway-photobooth`, ID: `d4e9qen6fqkbhpicd5cs`) that lists S3 objects using AWS Signature V4 with Selectel credentials (passed as env vars). Added `/api/photobooth/{proxy+}` route to the API Gateway. Updated `selectelS3.ts` to call the API endpoint instead of S3 directly.
+
+**Files**:
+- `yandex-functions/gateway-photobooth.js` — Cloud Function source
+- `yandex-functions/api-gateway-correct.yaml` — Updated gateway spec
+- `src/services/selectelS3.ts` — Updated to use API Gateway
+
+**API Endpoint**: `GET /api/photobooth/list?maxKeys=200` returns `{ photos: [...], total: N }`
 
 ### Issue: Yandex Disk authentication
 **Solution**: Worker handles OAuth, provides public endpoints
@@ -743,7 +758,7 @@ yc cdn cache purge --resource-id bc8rilebboch3mrd3uds --path "/*"
 |---------|----------|--------------|---------------|
 | CDN | Yandex Cloud | SSL termination, caching, edge delivery | ~$5-10/month |
 | Certificate Manager | Yandex Cloud | SSL certificate storage | Free |
-| API Gateway | Yandex Cloud | CORS proxy for TicketsCloud | ~$1-2/month |
+| API Gateway | Yandex Cloud | CORS proxy for TicketsCloud + photobooth listing | ~$1-2/month |
 | Object Storage | Selectel | Static file hosting (origin) | ~$2-5/month |
 | DNS | Selectel | Domain DNS management | Free with storage |
 | Domain | REG.RU | vnvnc.ru registration | ~$10/year |
@@ -918,9 +933,10 @@ localStorage.setItem('debug', 'true')
 - **Storage**: Selectel Object Storage S3 (origin)
 - **DNS**: Selectel DNS Management
 - **SSL Certificate**: Yandex Certificate Manager (serving imported LE R13, expires Feb 2026; managed LE R12 is configured/ready)
-**APIs**: TicketsCloud, Yandex Disk
+**APIs**: TicketsCloud, Yandex Disk, Selectel S3 (via Cloud Function)
 
 ---
 
-*Last updated: December 2025*
-*Infrastructure documentation updated after December 12, 2025 certificate incident*
+*Last updated: January 2026*
+*January 2026: Added photobooth S3 listing via Yandex Cloud Function*
+*December 2025: Infrastructure documentation updated after certificate incident*

@@ -24,6 +24,26 @@ paths:
         default:
           description: Proxy response
   
+  # Photobooth S3 listing (Selectel)
+  /api/photobooth/{proxy+}:
+    x-yc-apigateway-any-method:
+      summary: Photobooth S3 Listing Proxy
+      operationId: photoboothProxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4e9qen6fqkbhpicd5cs
+        tag: "$latest"
+        service_account_id: aje9aok7e67g6igumr3e
+      responses:
+        default:
+          description: Proxy response
+
   # Yandex Disk API endpoints
   /api/yandex-disk/{proxy+}:
     x-yc-apigateway-any-method:

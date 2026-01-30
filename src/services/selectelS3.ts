@@ -4,17 +4,15 @@
  * The arcade machine uploads photos to:
  *   s3://vnvnc/artifact/photobooth/*.png
  *
- * Public URL base:
- *   https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru
+ * Photos are listed via a Yandex Cloud Function (gateway-photobooth)
+ * that signs S3 requests with credentials, since Selectel doesn't
+ * support anonymous bucket listing.
  *
- * S3 XML listing endpoint:
- *   https://s3.ru-7.storage.selcloud.ru/vnvnc?list-type=2&prefix=artifact/photobooth/
+ * API endpoint:
+ *   https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net/api/photobooth/list
  */
 
-const S3_ENDPOINT = 'https://s3.ru-7.storage.selcloud.ru'
-const BUCKET = 'vnvnc'
-const PUBLIC_BASE = 'https://e6aaa51f-863a-439e-9b6e-69991ff0ad6e.selstorage.ru'
-const PREFIX = 'artifact/photobooth/'
+const API_GATEWAY = 'https://d5d621jmge79dusl8rkh.kf69zffa.apigw.yandexcloud.net'
 
 export interface PhotoboothPhoto {
   key: string
@@ -24,49 +22,21 @@ export interface PhotoboothPhoto {
 }
 
 /**
- * List photobooth photos from Selectel S3.
- * Uses S3 XML ListObjectsV2 API (public bucket, no auth needed).
+ * List photobooth photos via Yandex Cloud Function proxy.
  */
 export async function fetchPhotoboothPhotos(maxKeys = 200): Promise<PhotoboothPhoto[]> {
   try {
-    const listUrl = `${S3_ENDPOINT}/${BUCKET}?list-type=2&prefix=${PREFIX}&max-keys=${maxKeys}`
-    const response = await fetch(listUrl)
+    const response = await fetch(
+      `${API_GATEWAY}/api/photobooth/list?maxKeys=${maxKeys}`
+    )
 
     if (!response.ok) {
-      console.warn(`S3 listing failed: ${response.status}`)
+      console.warn(`Photobooth API failed: ${response.status}`)
       return []
     }
 
-    const xml = await response.text()
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(xml, 'text/xml')
-
-    const contents = doc.querySelectorAll('Contents')
-    const photos: PhotoboothPhoto[] = []
-
-    contents.forEach((item) => {
-      const key = item.querySelector('Key')?.textContent || ''
-      const lastModified = item.querySelector('LastModified')?.textContent || ''
-      const size = parseInt(item.querySelector('Size')?.textContent || '0', 10)
-
-      // Skip the prefix directory entry itself and tiny files
-      if (!key || key === PREFIX || size < 1000) return
-
-      // Only include image files
-      if (!key.endsWith('.png') && !key.endsWith('.jpg') && !key.endsWith('.jpeg')) return
-
-      photos.push({
-        key,
-        url: `${PUBLIC_BASE}/${key}`,
-        lastModified,
-        size,
-      })
-    })
-
-    // Sort newest first
-    photos.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
-
-    return photos
+    const data = await response.json()
+    return data.photos || []
   } catch (error) {
     console.error('Failed to fetch photobooth photos:', error)
     return []
