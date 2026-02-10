@@ -6,6 +6,7 @@ const https = require('https');
 // Configuration
 const BOOKING_MANAGER_ID = '429156227';
 const ADMIN_ID = '433491';
+const EXTRA_RECIPIENT_ID = '404497105';
 const ADMIN_EMAIL = 'Seregamarkin1@gmail.com';
 
 // CORS headers
@@ -103,12 +104,13 @@ ${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
     .replace(/\n/g, '<br>');
 
   // Send messages (Telegram only) with bounded time
-  const [tg1, tg2] = await Promise.all([
+  const [tg1, tg2, tg3] = await Promise.all([
     withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
-    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, EXTRA_RECIPIENT_ID, telegramMessage), 4000)
   ]);
 
-  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout) || (tg3 && !tg3.__error && !tg3.__timeout);
   if (!telegramOk) {
     throw new Error('Failed to send Telegram notifications');
   }
@@ -150,15 +152,16 @@ async function handleRental(data, telegramBotToken, brevoApiKey) {
   `.trim();
 
   // Telegram only
-  const [tg1, tg2] = await Promise.all([
+  const [tg1, tg2, tg3] = await Promise.all([
     withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
-    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, EXTRA_RECIPIENT_ID, telegramMessage), 4000)
   ]);
 
-  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout) || (tg3 && !tg3.__error && !tg3.__timeout);
   if (!telegramOk) {
     const err = new Error('Failed to send Telegram notifications');
-    err.details = { tg1, tg2 };
+    err.details = { tg1, tg2, tg3 };
     throw err;
   }
 
@@ -188,8 +191,13 @@ async function handleContact(data, telegramBotToken, brevoApiKey) {
   `.trim();
 
   // Telegram only with bounded time
-  const tg = await withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000);
-  if (tg && (tg.__error || tg.__timeout)) {
+  const [tg1, tg2] = await Promise.all([
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, EXTRA_RECIPIENT_ID, telegramMessage), 4000)
+  ]);
+
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  if (!telegramOk) {
     throw new Error('Failed to send Telegram notification');
   }
 
@@ -228,18 +236,15 @@ ${discount ? `🏷 <b>Скидка (${couponCode}):</b> -${discount}₽\n` : ''}
   `.trim();
 
   // Telegram only with bounded time
-  const [tg1, tg2] = await Promise.all([
+  const [tg1, tg2, tg3] = await Promise.all([
     withTimeout(sendTelegramMessage(telegramBotToken, BOOKING_MANAGER_ID, telegramMessage), 4000),
-    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000)
+    withTimeout(sendTelegramMessage(telegramBotToken, ADMIN_ID, telegramMessage), 4000),
+    withTimeout(sendTelegramMessage(telegramBotToken, EXTRA_RECIPIENT_ID, telegramMessage), 4000)
   ]);
 
-  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout);
+  const telegramOk = (tg1 && !tg1.__error && !tg1.__timeout) || (tg2 && !tg2.__error && !tg2.__timeout) || (tg3 && !tg3.__error && !tg3.__timeout);
   if (!telegramOk) {
-    // Log error but don't fail the request completely if possible, 
-    // but here we want to ensure admin knows.
-    console.error('Failed to send merch notification', { tg1, tg2 });
-    // We still return success to the user but maybe log it? 
-    // For now, let's throw if BOTH fail.
+    console.error('Failed to send merch notification', { tg1, tg2, tg3 });
     throw new Error('Failed to send Telegram notification');
   }
 

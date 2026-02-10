@@ -6,6 +6,7 @@
 // Никаких ключей в репозитории!
 const BOOKING_MANAGER_ID = '429156227';
 const ADMIN_ID = '433491';
+const EXTRA_RECIPIENT_ID = '404497105';
 const ADMIN_EMAIL = 'Seregamarkin1@gmail.com';
 
 // CORS headers
@@ -142,6 +143,7 @@ ${message ? `\n💬 <b>Пожелания:</b> ${message}` : ''}
       const results = await Promise.allSettled([
         sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, BOOKING_MANAGER_ID, telegramMessage),
         sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, EXTRA_RECIPIENT_ID, telegramMessage),
         sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
       ]);
       
@@ -214,6 +216,7 @@ async function handleRental(request, env) {
       Promise.allSettled([
         sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, BOOKING_MANAGER_ID, telegramMessage),
         sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, EXTRA_RECIPIENT_ID, telegramMessage),
         sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
       ]),
       new Promise(resolve => setTimeout(resolve, 3000)) // 3 second timeout
@@ -271,6 +274,7 @@ async function handleContact(request, env) {
     await Promise.race([
       Promise.allSettled([
         sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, ADMIN_ID, telegramMessage),
+        sendTelegramMessage(env.TELEGRAM_BOT_TOKEN, EXTRA_RECIPIENT_ID, telegramMessage),
         sendEmail(env.BREVO_API_KEY, ADMIN_EMAIL, emailSubject, emailContent)
       ]),
       new Promise(resolve => setTimeout(resolve, 3000)) // 3 second timeout

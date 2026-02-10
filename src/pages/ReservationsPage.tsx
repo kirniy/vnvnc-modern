@@ -30,6 +30,7 @@ const ReservationsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedTable, setSelectedTable] = useState('table3')
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
+  const [priceAgreed, setPriceAgreed] = useState(false)
   
   // Phone formatter that allows international numbers
   const formatPhone = (value: string) => {
@@ -120,7 +121,7 @@ const ReservationsPage = () => {
     {
       id: '2',
       question: 'Можно ли отменить бронь?',
-      answer: 'Да, бронь можно отменить за 3 часа до мероприятия с полным возвратом депозита. При отмене позже депозит не возвращается.'
+      answer: 'Да, бронь можно отменить не позднее чем за день до мероприятия с полным возвратом депозита. В день мероприятия возврат невозможен.'
     },
     {
       id: '3',
@@ -491,12 +492,26 @@ const ReservationsPage = () => {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                variant="primary" 
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={priceAgreed}
+                  onChange={(e) => setPriceAgreed(e.target.checked)}
+                  className="mt-1 w-4 h-4 rounded border-white/30 accent-current flex-shrink-0"
+                  style={{ accentColor: colors.neon.red }}
+                  required
+                />
+                <span className="text-sm text-white/70 leading-snug">
+                  Я понимаю, что стоимость на сайте является ориентировочной. Окончательная стоимость будет подтверждена менеджером по телефону.
+                </span>
+              </label>
+
+              <Button
+                type="submit"
+                variant="primary"
                 size="lg"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !priceAgreed}
                 glow
               >
                 {isSubmitting ? (
