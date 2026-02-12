@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { colors } from '../utils/colors'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
 import vnvncLogo from '../assets/vnvnc-logo-classic-border.svg'
 
