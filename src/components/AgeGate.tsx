@@ -50,19 +50,19 @@ const AgeGate = ({ onVerify }: AgeGateProps) => {
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
             className="relative max-w-sm w-full"
           >
-            {/* Frosted Glass Card - Winter Theme - Refined */}
+            {/* Frosted Glass Card - Valentine Theme */}
             <div
-              className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-center border border-white/30"
+              className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-center border border-white/20"
               style={{
                 backdropFilter: 'blur(25px) saturate(180%)',
-                backgroundColor: 'rgba(200, 220, 255, 0.03)', // clearer, more "icy"
-                boxShadow: `0 20px 60px rgba(0,0,0,0.4), 0 0 50px ${colors.neon.red}15, inset 0 0 30px rgba(255,255,255,0.1)`
+                backgroundColor: 'rgba(255, 180, 200, 0.04)',
+                boxShadow: `0 20px 60px rgba(0,0,0,0.4), 0 0 50px rgba(255,0,64,0.12), inset 0 0 30px rgba(255,200,210,0.06)`
               }}
             >
 
-              {/* Ice/Frost Texture Overlay - More subtle */}
+              {/* Texture Overlay */}
               <div
-                className="relative inset-0 pointer-events-none opacity-20 mix-blend-overlay"
+                className="relative inset-0 pointer-events-none opacity-15 mix-blend-overlay"
                 style={{
                   backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' opacity=\'0.5\'/%3E%3C/svg%3E")'
                 }}

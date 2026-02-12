@@ -20,9 +20,9 @@ const PetalsOverlay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const getPetalCount = (w: number) => {
-    if (w < 768) return 14
-    if (w < 1280) return 30
-    return 45
+    if (w < 768) return 22
+    if (w < 1280) return 45
+    return 65
   }
 
   useEffect(() => {
@@ -65,17 +65,17 @@ const PetalsOverlay = () => {
     const createPetal = (): Petal => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      width: Math.random() * 5 + 3,   // 3-8px wide
-      height: Math.random() * 3 + 2,   // 2-5px tall
-      speed: Math.random() * 0.8 + 0.3,
-      drift: Math.random() * 0.6 - 0.3,
+      width: Math.random() * 7 + 4,   // 4-11px wide
+      height: Math.random() * 4 + 3,   // 3-7px tall
+      speed: Math.random() * 0.7 + 0.25,
+      drift: Math.random() * 0.5 - 0.25,
       driftPhase: Math.random() * Math.PI * 2,
-      driftSpeed: Math.random() * 0.008 + 0.004,
+      driftSpeed: Math.random() * 0.006 + 0.003,
       rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (Math.random() - 0.5) * 0.02,
-      opacity: Math.random() * 0.35 + 0.15,
+      rotationSpeed: (Math.random() - 0.5) * 0.015,
+      opacity: Math.random() * 0.4 + 0.2,
       hue: Math.random() * 30 + 340,       // 340-370 (wraps to pinks/reds)
-      saturation: Math.random() * 30 + 60,  // 60-90%
+      saturation: Math.random() * 25 + 65,  // 65-90%
     })
 
     for (let i = 0; i < maxPetals; i++) {
@@ -103,7 +103,7 @@ const PetalsOverlay = () => {
         0, -p.height
       )
       const hue = p.hue % 360
-      ctx.fillStyle = `hsla(${hue}, ${p.saturation}%, 70%, ${p.opacity})`
+      ctx.fillStyle = `hsla(${hue}, ${p.saturation}%, 75%, ${p.opacity})`
       ctx.fill()
       ctx.restore()
     }
@@ -159,7 +159,7 @@ const PetalsOverlay = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[9999]"
-      style={{ mixBlendMode: 'screen' }}
+      style={{ mixBlendMode: 'normal' }}
     />
   )
 }

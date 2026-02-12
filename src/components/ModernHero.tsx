@@ -46,6 +46,8 @@ const ModernHero = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-black/20"></div>
+        {/* Valentine warmth overlay */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(80, 10, 30, 0.15) 0%, transparent 40%, rgba(60, 5, 20, 0.12) 100%)' }} />
       </div>
 
       {/* Убираем старый паттерн точек */}
@@ -64,9 +66,9 @@ const ModernHero = () => {
           className="absolute inset-0 z-[6]"
           animate={{
             background: [
-              `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
-              `radial-gradient(circle at 80% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
-              `radial-gradient(circle at 20% 50%, ${colors.neon.red}11 0%, transparent 50%)`,
+              `radial-gradient(circle at 20% 50%, ${colors.neon.red}1a 0%, transparent 55%)`,
+              `radial-gradient(circle at 80% 50%, ${colors.neon.red}1a 0%, transparent 55%)`,
+              `radial-gradient(circle at 20% 50%, ${colors.neon.red}1a 0%, transparent 55%)`,
             ],
           }}
           transition={{

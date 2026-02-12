@@ -13,10 +13,10 @@ const GlobalBackground = memo(() => {
           }}
         />
         {/* Soft blobs of color — Valentine rose/burgundy/fuchsia */}
-        <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] animate-aurora-pulse opacity-30 mix-blend-screen">
-          <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-rose-900 blur-[80px]" />
-          <div className="absolute bottom-[20%] right-[20%] w-[60%] h-[60%] rounded-full bg-red-950 blur-[60px]" />
-          <div className="absolute top-[40%] right-[30%] w-[40%] h-[40%] rounded-full bg-fuchsia-950 blur-[50px]" />
+        <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] animate-aurora-pulse opacity-40 mix-blend-screen">
+          <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-rose-800 blur-[80px]" />
+          <div className="absolute bottom-[20%] right-[20%] w-[60%] h-[60%] rounded-full bg-pink-900 blur-[60px]" />
+          <div className="absolute top-[40%] right-[30%] w-[40%] h-[40%] rounded-full bg-fuchsia-900 blur-[50px]" />
         </div>
       </div>
 

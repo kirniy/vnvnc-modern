@@ -76,15 +76,15 @@ const CinematicLoader = ({ locked = false }: { locked?: boolean }) => {
                                 ease: easing.outQuart,
                             }}
                         >
-                            {/* Glowing Backlight - Warm Gold for Velvet */}
+                            {/* Glowing Backlight - Rose for Valentine */}
                             <motion.div
                                 animate={{ opacity: [0.2, 0.4, 0.2] }}
                                 transition={{
                                     duration: 3,
                                     repeat: Infinity,
-                                    ease: 'easeInOut', // Built-in ease is fine for subtle continuous animations
+                                    ease: 'easeInOut',
                                 }}
-                                className="absolute inset-0 blur-[60px] bg-orange-500/30 rounded-full"
+                                className="absolute inset-0 blur-[60px] bg-pink-500/30 rounded-full"
                             />
 
                             {/* Main Logo Image */}
