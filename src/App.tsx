@@ -15,7 +15,7 @@ import AnalyticsTracker from './components/AnalyticsTracker'
 // import GlitchScanLines from './components/ui/GlitchScanLines' - removed per user request
 import GlobalBackground from './components/GlobalBackground'
 import { useTelegramWebApp } from './hooks/useTelegramWebApp'
-import SnowOverlay from './components/effects/SnowOverlay'
+import PetalsOverlay from './components/effects/PetalsOverlay'
 // import BackgroundShader from './components/BackgroundShader' // DISABLED - causing SVG errors
 
 // Lazy load pages for better performance
@@ -37,7 +37,7 @@ function App() {
   // Gallery re-enabled with fixed Yandex Cloud Function
   // Initialize Telegram WebApp features
   const { isInTelegram } = useTelegramWebApp()
-  const [showSnow, setShowSnow] = useState(false)
+  const [showPetals, setShowPetals] = useState(false)
 
   // Age Gate & Loader Synchronization
   const [isAgeVerified, setIsAgeVerified] = useState(false)
@@ -57,12 +57,11 @@ function App() {
   }, [isInTelegram])
 
   useEffect(() => {
-    // Show snow on all devices when user doesn't prefer reduced motion
-    // SnowOverlay handles different flake counts: mobile=35, tablet=60, desktop=100
+    // Show petals on all devices when user doesn't prefer reduced motion
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     const update = () => {
       const reduced = motionQuery?.matches ?? false
-      setShowSnow(!reduced) // Snow for everyone!
+      setShowPetals(!reduced)
     }
     update()
     window.addEventListener('resize', update, { passive: true })
@@ -142,7 +141,7 @@ function App() {
 
       <Footer />
       <TelegramButton />
-      {showSnow && <SnowOverlay />}
+      {showPetals && <PetalsOverlay />}
       <Analytics />
     </>
   )

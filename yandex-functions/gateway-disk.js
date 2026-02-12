@@ -292,24 +292,11 @@ module.exports.handler = async function (event, context) {
       };
 
     } else if (subPath === 'dates' || subPath === '/dates') {
-      // Handle dates endpoint
-      const apiUrl = `${YANDEX_API_BASE}?public_key=${encodeURIComponent(PUBLIC_LINK)}&path=/&limit=100`;
-      const response = await makeHttpsRequest(apiUrl);
-      const data = JSON.parse(response.body.toString());
-
-      if (!data._embedded || !data._embedded.items) {
-        return {
-          statusCode: 200,
-          headers: corsHeaders,
-          body: JSON.stringify({ dates: [], total: 0, success: true })
-        };
-      }
-
-      const dates = data._embedded.items
-        .filter(item => item.type === 'dir')
-        .map(folder => extractDateFromFolderName(folder.name))
-        .filter(date => date !== null)
-        .sort((a, b) => b.localeCompare(a));
+      // Handle dates endpoint - use paginated listDateFolders() to get ALL folders
+      const folders = await listDateFolders(PUBLIC_LINK);
+      const dates = folders
+        .map(folder => folder.date)
+        .filter(date => date !== null);
 
       return {
         statusCode: 200,

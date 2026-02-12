@@ -132,17 +132,19 @@ const GalleryPage = () => {
   const [showVideos, setShowVideos] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Stable randomization keys per image to keep order consistent across renders
-  const shuffleKeyByImageRef = useRef<Map<string, number>>(new Map())
+  // Deterministic shuffle key per image — same photos always produce the same order,
+  // so closing the lightbox doesn't reshuffle.
   const getImageStableKey = (img: any): string =>
     (img?.id as string) || (img?.path as string) || (img?.src as string) || (img?.name as string)
-  const getShuffleKey = (img: any): number => {
-    const k = getImageStableKey(img)
-    if (!shuffleKeyByImageRef.current.has(k)) {
-      shuffleKeyByImageRef.current.set(k, Math.random())
+  const hashString = (s: string): number => {
+    let h = 0
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h) + s.charCodeAt(i)
+      h |= 0
     }
-    return shuffleKeyByImageRef.current.get(k) as number
+    return h
   }
+  const getShuffleKey = (img: any): number => hashString(getImageStableKey(img))
 
   // Snapshot of images used for currently opened lightbox to prevent index drift
   const [lightboxImages, setLightboxImages] = useState<any[]>([])
