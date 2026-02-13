@@ -158,26 +158,48 @@ module.exports.handler = async function (event, context) {
   try {
     const queryParams = event.queryStringParameters || {};
     const prefix = queryParams.prefix || 'artifact/photobooth/';
-    const maxKeys = parseInt(queryParams.maxKeys) || 200;
+    const returnLimit = parseInt(queryParams.maxKeys) || 1000;
 
-    const queryString = `list-type=2&max-keys=${maxKeys}&prefix=${encodeURIComponent(prefix)}`;
-    const response = await makeSignedRequest(`/${BUCKET}`, queryString, accessKey, secretKey);
+    // Paginate through ALL S3 objects (ListObjectsV2 returns max 1000 per request)
+    let allPhotos = [];
+    let continuationToken = null;
 
-    if (response.status !== 200) {
-      console.error('S3 listing failed:', response.status, response.body);
-      return {
-        statusCode: response.status,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'S3 listing failed', status: response.status })
-      };
+    for (let page = 0; page < 10; page++) {  // Safety limit: 10 pages = 10,000 objects max
+      let queryString = `list-type=2&max-keys=1000&prefix=${encodeURIComponent(prefix)}`;
+      if (continuationToken) {
+        queryString += `&continuation-token=${encodeURIComponent(continuationToken)}`;
+      }
+
+      const response = await makeSignedRequest(`/${BUCKET}`, queryString, accessKey, secretKey);
+
+      if (response.status !== 200) {
+        console.error('S3 listing failed:', response.status, response.body);
+        return {
+          statusCode: response.status,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'S3 listing failed', status: response.status })
+        };
+      }
+
+      const pagePhotos = parseS3XmlListing(response.body);
+      allPhotos = allPhotos.concat(pagePhotos);
+
+      // Check if there are more pages
+      const isTruncated = response.body.includes('<IsTruncated>true</IsTruncated>');
+      const nextTokenMatch = response.body.match(/<NextContinuationToken>(.*?)<\/NextContinuationToken>/);
+
+      if (!isTruncated || !nextTokenMatch) break;
+      continuationToken = nextTokenMatch[1];
     }
 
-    const photos = parseS3XmlListing(response.body);
+    // Sort all photos newest first and apply limit
+    allPhotos.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    const photos = allPhotos.slice(0, returnLimit);
 
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify({ photos, total: photos.length })
+      body: JSON.stringify({ photos, total: allPhotos.length })
     };
   } catch (error) {
     console.error('Photobooth listing error:', error);

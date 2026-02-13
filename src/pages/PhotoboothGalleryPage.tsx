@@ -19,7 +19,7 @@ const PhotoboothGalleryPage = () => {
 
   const loadPhotos = useCallback(async () => {
     setLoading(true)
-    const result = await fetchPhotoboothPhotos(200)
+    const result = await fetchPhotoboothPhotos(500)
     setPhotos(result)
     setLoading(false)
   }, [])
