@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Download as DownloadIcon, RefreshCw, ArrowLeft } from 'lucide-react'
+import { Download as DownloadIcon, RefreshCw, ArrowLeft, ChevronDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -10,17 +10,20 @@ import BackButton from '../components/BackButton'
 import Navigation from '../components/Navigation'
 import Seo from '../components/Seo'
 
+const PHOTOS_PER_PAGE = 60
+
 const PhotoboothGalleryPage = () => {
   const navigate = useNavigate()
-  const [photos, setPhotos] = useState<PhotoboothPhoto[]>([])
+  const [allPhotos, setAllPhotos] = useState<PhotoboothPhoto[]>([])
+  const [visibleCount, setVisibleCount] = useState(PHOTOS_PER_PAGE)
   const [loading, setLoading] = useState(true)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
 
   const loadPhotos = useCallback(async () => {
     setLoading(true)
-    const result = await fetchPhotoboothPhotos(500)
-    setPhotos(result)
+    const result = await fetchPhotoboothPhotos(5000)
+    setAllPhotos(result)
     setLoading(false)
   }, [])
 
@@ -31,10 +34,17 @@ const PhotoboothGalleryPage = () => {
     return () => clearInterval(interval)
   }, [loadPhotos])
 
-  const lightboxSlides = photos.map((p) => ({
+  const photos = allPhotos.slice(0, visibleCount)
+  const hasMore = visibleCount < allPhotos.length
+
+  const lightboxSlides = allPhotos.map((p) => ({
     src: p.url,
     download: p.key.split('/').pop() || 'photobooth.png',
   }))
+
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + PHOTOS_PER_PAGE)
+  }
 
   const downloadPhoto = async (url: string, filename: string) => {
     try {
@@ -98,7 +108,7 @@ const PhotoboothGalleryPage = () => {
         {/* Photo count + refresh */}
         <div className="flex items-center justify-between mb-6">
           <span className="text-white/40 text-sm">
-            {loading ? 'Загрузка...' : `${photos.length} фото`}
+            {loading ? 'Загрузка...' : `${allPhotos.length} фото`}
           </span>
           <button
             onClick={loadPhotos}
@@ -110,56 +120,71 @@ const PhotoboothGalleryPage = () => {
         </div>
 
         {/* Photo Grid */}
-        {loading && photos.length === 0 ? (
+        {loading && allPhotos.length === 0 ? (
           <div className="flex items-center justify-center py-32">
             <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
           </div>
-        ) : photos.length === 0 ? (
+        ) : allPhotos.length === 0 ? (
           <div className="text-center py-32 text-white/40">
             <p className="text-lg mb-2">Пока нет фотографий</p>
             <p className="text-sm">Фотографии появятся здесь во время вечеринки</p>
           </div>
         ) : (
-          <motion.div
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.03 } },
-            }}
-          >
-            {photos.map((photo, index) => (
-              <motion.div
-                key={photo.key}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.95 },
-                  visible: { opacity: 1, scale: 1 },
-                }}
-                className="relative aspect-[9/16] overflow-hidden rounded-lg cursor-pointer group bg-white/5"
-                onClick={() => {
-                  setPhotoIndex(index)
-                  setLightboxOpen(true)
-                }}
-              >
-                <img
-                  src={photo.url}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                {/* Download hint */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="p-2 rounded-full bg-black/60">
-                    <DownloadIcon size={16} className="text-white/80" />
+          <>
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.03 } },
+              }}
+            >
+              {photos.map((photo, index) => (
+                <motion.div
+                  key={photo.key}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.95 },
+                    visible: { opacity: 1, scale: 1 },
+                  }}
+                  className="relative aspect-[9/16] overflow-hidden rounded-lg cursor-pointer group bg-white/5"
+                  onClick={() => {
+                    setPhotoIndex(index)
+                    setLightboxOpen(true)
+                  }}
+                >
+                  <img
+                    src={photo.url}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Download hint */}
+                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="p-2 rounded-full bg-black/60">
+                      <DownloadIcon size={16} className="text-white/80" />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Load More */}
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={loadMore}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white text-sm"
+                >
+                  <ChevronDown size={18} />
+                  Показать ещё ({allPhotos.length - visibleCount} осталось)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
